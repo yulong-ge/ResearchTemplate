@@ -1,0 +1,6 @@
+tree:
+  - id: root
+    type: question
+    description: "<main research question>"
+    status: open
+    children: []

@@ -1,0 +1,59 @@
+{
+  "version": 1,
+  "skills": {
+    "academic-plotting": {
+      "source": "Orchestra-Research/AI-research-SKILLs",
+      "sourceType": "github",
+      "skillPath": "20-ml-paper-writing/academic-plotting/SKILL.md",
+      "computedHash": "c03f1879156fa99d7e493e83d5d0c6c78d20c20a48b37db84e5ca72342051e57"
+    },
+    "ara-compiler": {
+      "source": "Orchestra-Research/AI-research-SKILLs",
+      "sourceType": "github",
+      "skillPath": "22-agent-native-research-artifact/compiler/SKILL.md",
+      "computedHash": "56210fc3ce11e1a3d206614704850535aa33a317fc8c54c81a5ae993b2a3da2b"
+    },
+    "ara-research-manager": {
+      "source": "Orchestra-Research/AI-research-SKILLs",
+      "sourceType": "github",
+      "skillPath": "22-agent-native-research-artifact/research-manager/SKILL.md",
+      "computedHash": "0681558806be98d24a5b15959e4a83b3c26ebfc57c5c0f103354bfc64ea7859b"
+    },
+    "ara-rigor-reviewer": {
+      "source": "Orchestra-Research/AI-research-SKILLs",
+      "sourceType": "github",
+      "skillPath": "22-agent-native-research-artifact/rigor-reviewer/SKILL.md",
+      "computedHash": "4e66cafcd23edad7e1ebdb4b9dd97b53674be8cc78520f31b819f011519e12ff"
+    },
+    "autoresearch": {
+      "source": "Orchestra-Research/AI-research-SKILLs",
+      "sourceType": "github",
+      "skillPath": "0-autoresearch-skill/SKILL.md",
+      "computedHash": "85747250f915e11a18fb1a4f7f9e25b0f138b32f8db4ad263229b0ca7ef4d03b"
+    },
+    "brainstorming-research-ideas": {
+      "source": "Orchestra-Research/AI-research-SKILLs",
+      "sourceType": "github",
+      "skillPath": "21-research-ideation/brainstorming-research-ideas/SKILL.md",
+      "computedHash": "52b90982250c80b21fc3512d7223d28413c0f1b726703f461d6ea8a166d22a1d"
+    },
+    "creative-thinking-for-research": {
+      "source": "Orchestra-Research/AI-research-SKILLs",
+      "sourceType": "github",
+      "skillPath": "21-research-ideation/creative-thinking-for-research/SKILL.md",
+      "computedHash": "f30f52e194cc747753cd512b90045ceaef885c14d15ceab76248fd8e446ee7dd"
+    },
+    "ml-paper-writing": {
+      "source": "Orchestra-Research/AI-research-SKILLs",
+      "sourceType": "github",
+      "skillPath": "20-ml-paper-writing/ml-paper-writing/SKILL.md",
+      "computedHash": "3d5dd06f6a0369a6576fd1098a20dc0204d92286c161da9a4e26ef360e8d6072"
+    },
+    "presenting-conference-talks": {
+      "source": "Orchestra-Research/AI-research-SKILLs",
+      "sourceType": "github",
+      "skillPath": "20-ml-paper-writing/presenting-conference-talks/SKILL.md",
+      "computedHash": "ba2312db279bd6cb79ee48f3ad8bc32c5c991bf6f43203910017e3c06856feb4"
+    }
+  }
+}

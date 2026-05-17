@@ -24,7 +24,7 @@ Structured frameworks for discovering the next research idea. This skill provide
 **Do NOT use this skill when**:
 - You already have a well-defined research question and need execution guidance
 - You need help with experimental design or methodology (use domain-specific skills)
-- You want a literature review first; use the template's literature workflow and save the result under `literature/`
+- You want a literature review. Use the repository's standard literature-search workflow instead.
 
 ---
 

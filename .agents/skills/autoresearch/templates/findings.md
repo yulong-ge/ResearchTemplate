@@ -1,5 +1,7 @@
 # Research Findings
 
+<!-- Copy this template to `research/findings.md`. -->
+
 ## Research Question
 
 <!-- What are we trying to discover? One clear sentence. -->

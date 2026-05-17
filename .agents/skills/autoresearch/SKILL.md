@@ -1,19 +1,19 @@
 ---
 name: autoresearch
-description: Orchestrates end-to-end AI research projects using a two-loop architecture. The inner loop runs rapid experiment iterations with clear optimization targets. The outer loop synthesizes results, identifies patterns, and steers research direction. Routes to domain-specific skills for execution and helps manage multi-hypothesis research efforts.
+description: Orchestrates end-to-end AI research projects using a two-loop architecture. The inner loop runs rapid experiment iterations with clear optimization targets. The outer loop synthesizes results, identifies patterns, and steers research direction. Routes to domain-specific skills for execution and helps manage multi-hypothesis research efforts without requiring continuous autonomous loop execution.
 version: 1.0.0
 author: Orchestra Research
 license: MIT
-tags: [Autonomous Research, Two-Loop Architecture, Experiment Orchestration, Research Synthesis, Project Management]
+tags: [Research Orchestration, Two-Loop Architecture, Experiment Orchestration, Research Synthesis, Project Management]
 ---
 
 # Autoresearch
 
-Research orchestration for AI coding agents. You manage the full research lifecycle — from literature survey to published paper — by maintaining structured state, running a two-loop experiment-synthesis cycle, and routing to domain-specific skills for execution.
+Research orchestration for AI coding agents. You manage the full research lifecycle by maintaining structured state, running a two-loop experiment-synthesis cycle, and routing to domain-specific skills for execution.
 
 You are a research project manager, not a domain expert. You orchestrate; the domain skills execute.
 
-Use this skill to structure research work inside the current session. Keep the user informed through normal session updates and produce human-facing reports only when explicitly requested.
+Use the two-loop workflow decisively once a direction is clear, but do not force continuous background operation or generate progress reports unless they are useful for the current task.
 
 ## Getting Started
 
@@ -24,41 +24,54 @@ Users arrive in different states. Determine which and proceed:
 | Vague idea ("I want to explore X") | Brief discussion to clarify, then bootstrap |
 | Clear research question | Bootstrap directly |
 | Existing plan or proposal | Review plan, set up workspace, enter loops |
-| Resuming (research-state.yaml exists) | Read state, continue from where you left off |
+| Resuming (`research/state.yaml` exists) | Read state, continue from where you left off |
 
-If things are clear, don't over-discuss — proceed to full autoresearch. Most users want you to just start researching.
-
-Before starting, read the current project state and decide whether the task is bootstrap, inner-loop execution, outer-loop synthesis, or paper finalization.
+If things are clear, don't over-discuss — proceed to research work. Most users want you to start making concrete progress once the task is scoped.
 
 ### Initialize Workspace
 
-Use the template's existing project structure:
+Use this workspace layout:
 
 ```
 {project}/
 ├── research/
 │   ├── state.yaml            # Central state tracking
-│   ├── current-task.md       # Current objective and constraints
-│   ├── findings.md           # Evolving narrative synthesis
 │   ├── research-log.md       # Decision timeline
-│   └── exploration-tree.yaml # Active hypothesis tree
-├── literature/
-│   ├── survey.md             # Aggregate literature map
-│   └── notes/                # Durable paper notes
+│   ├── findings.md           # Evolving narrative synthesis
+│   ├── current-task.md       # Active work unit
+│   └── exploration-tree.yaml # Branch and hypothesis structure
+├── literature/               # Papers, survey notes
 ├── src/                      # Reusable code (utils, plotting, shared modules)
-├── data/                     # Raw result data (CSVs, JSONs, checkpoints)
-├── experiments/
-│   ├── protocols/            # Confirmatory plans written before runs
-│   ├── logs/                 # Project-level experiment summaries
-│   └── results/              # Structured outputs by experiment id
-├── paper/                    # Final paper (via ml-paper-writing)
-└── ara/                      # Epilogue provenance outputs
+├── data/                     # Datasets, cached assets, reference assets
+├── experiments/              # Shared indexes plus per-hypothesis workspaces
+│   ├── protocols/            # Cross-branch confirmatory protocols
+│   ├── logs/                 # Cross-branch run records
+│   ├── results/              # Cross-branch structured outputs
+│   └── {hypothesis-slug}/    # Long-lived branch workspace when one hypothesis deepens
+│       ├── protocol.md       # Branch-level protocol and prediction
+│       ├── code/             # Experiment-specific code
+│       ├── results/          # Branch-scoped outputs and analysis assets
+│       └── analysis.md       # What this branch has taught the project
+├── to_human/                 # Optional progress presentations and reports for human review
+└── paper/                    # Final paper assets
 ```
 
 - **`src/`**: When you write useful code (plotting functions, data loaders, evaluation helpers), move it here so it can be reused across experiments. Don't duplicate code in every experiment directory.
-- **`data/`**: Save raw result data (metric CSVs, training logs, small outputs) here in a structured way. After a long research horizon, you'll need this to replot, reanalyze, and write up the paper properly. Name files descriptively (e.g., `trajectory_H1_runs001-010.csv`). Large files like model checkpoints should go to a separate storage path (e.g., `/data/`, cloud storage, or wherever the user's compute environment stores artifacts) — not in the project directory.
+- **`data/`**: Save local inputs, cached analysis assets, metadata exports, and reference statistics here. Do not treat `data/` as a second experiment-results directory.
 
-Initialize `research/state.yaml`, `research/current-task.md`, `research/findings.md`, `research/research-log.md`, and `research/exploration-tree.yaml` from the template placeholders. Treat `research/`, `literature/`, and `experiments/` as the active working memory. Treat `ara/` as epilogue output.
+Initialize the core state files from [templates/](templates/), then work from these project paths:
+
+- `research/state.yaml` for machine-readable project state
+- `research/research-log.md` for chronological decisions and milestones
+- `research/findings.md` for synthesized understanding
+- `research/current-task.md` for the active work unit
+- `research/exploration-tree.yaml` for question and hypothesis branching
+- `literature/` for paper notes and survey synthesis
+- `src/` for reusable code
+- `data/` for local inputs and cached assets
+- `experiments/` for protocols, logs, results, and per-hypothesis branch workspaces
+- `to_human/` for optional human-facing reports
+- `paper/` for manuscript assets
 
 ## The Two-Loop Architecture
 
@@ -73,7 +86,7 @@ INNER LOOP (fast, autonomous, repeating)
   Goal: run constrained experiments with clear measurable outcomes
 
 OUTER LOOP (periodic, reflective)
-  Review results → find patterns → update findings.md →
+  Review results → find patterns → update research/findings.md →
   new hypotheses → decide direction
   Goal: synthesize understanding, find the story — this is where novelty comes from
 
@@ -90,7 +103,7 @@ There is no rigid boundary between the two loops — you decide when enough inne
 The two-loop structure is a rhythm, not a railroad. At any point during research you can and should:
 
 - **Return to literature** when results surprise you, assumptions break, or you need context for a new direction — always save what you find to `literature/`
-- **Brainstorm new ideas** using `21-research-ideation/` skills when you're stuck or when results open unexpected questions
+- **Brainstorm new ideas** using `brainstorming-research-ideas` or `creative-thinking-for-research` when you're stuck or when results open unexpected questions
 - **Pivot the question entirely** if experiments reveal the original question was wrong or less interesting than what you found
 
 This is normal. Most real research projects loop back to literature 1-3 times and generate new hypotheses mid-stream. Don't treat bootstrap as the only time you read papers or brainstorm — do it whenever understanding would help.
@@ -99,11 +112,11 @@ This is normal. Most real research projects loop back to literature 1-3 times an
 
 Before entering the loops, understand the landscape. Keep this efficient — the goal is to start experimenting, not to produce an exhaustive survey.
 
-1. **Search literature** for the research question. Use the tools already configured in this template:
-   - **Semantic Scholar MCP** — best for ML/AI papers, citation graphs, and specific paper lookup
-   - **alphaxiv MCP** — best for reading and checking arXiv papers in full text
-   - **Zotero MCP** — best for managing a durable project bibliography when you want to save references
-   - **CrossRef / DOI lookup** — use when you need verified BibTeX or metadata from a DOI
+1. **Search literature** for the research question. Use multiple sources — never stop at one:
+   - **Exa MCP** (`web_search_exa`) if available — best for broad discovery and finding relevant papers quickly
+   - **Semantic Scholar** — best for ML/AI papers, citation graphs, and specific paper lookup. See `ml-paper-writing` skill's `references/citation-workflow.md` for complete API code examples
+   - **arXiv / alphaXiv** — best for recent preprints and open-access papers
+   - **CrossRef / DOI lookup** — best for DOI lookup and BibTeX retrieval
    - Keep searching until you have good coverage. If one source comes up empty, try another with different keywords
 
    **Save everything to `literature/`**: For every paper you find, save a summary to `literature/` — title, authors, year, key findings, relevance to your question, and the URL/DOI. Create one file per paper and a running `literature/survey.md` with all summaries. This is your reference library — you and future sessions will need it throughout the project.
@@ -112,7 +125,7 @@ Before entering the loops, understand the landscape. Keep this efficient — the
    - What's been tried? What hasn't? Where do existing methods break?
    - What do Discussion sections flag as future work?
 
-3. **Form initial hypotheses** — invoke `21-research-ideation/` skills
+3. **Form initial hypotheses** — invoke research ideation skills
    - `brainstorming-research-ideas` for structured diverge-converge workflow
    - `creative-thinking-for-research` for deeper cognitive frameworks
    - Each hypothesis must be testable with a clear prediction
@@ -122,7 +135,7 @@ Before entering the loops, understand the landscape. Keep this efficient — the
    - The metric should be computable quickly (minutes, not hours)
    - Lock evaluation criteria upfront to prevent unconscious metric gaming
 
-5. **Record** in `research/state.yaml`, log the bootstrap in `research/research-log.md`, and set the immediate objective in `research/current-task.md`
+5. **Record** in `research/state.yaml`, log the bootstrap in `research/research-log.md`
 
 ## The Inner Loop
 
@@ -142,7 +155,8 @@ Rapid iteration with clear measurable outcomes. Two flavors:
     - Does baseline reproduce expected performance?
     - Data loading correct? (spot-check a few samples)
 5.  Measure the proxy metric
-6.  Record the protocol in `experiments/protocols/`, the summary outcome in `experiments/logs/`, and structured outputs under `experiments/results/<experiment-id>/`
+6.  Record structured outputs in `experiments/results/<experiment-id>/`, with matching notes in `experiments/logs/`
+    If this hypothesis has become a long-lived branch, also maintain `experiments/<hypothesis-slug>/` for branch-local protocol, code, results, and analysis
     Label clearly: CONFIRMATORY (in your protocol) vs EXPLORATORY (discovered during execution)
 7.  If positive: keep, note WHY it worked
 8.  If negative: this is progress — note what it rules out and what it suggests
@@ -150,23 +164,20 @@ Rapid iteration with clear measurable outcomes. Two flavors:
 10. If stuck: search literature or invoke ideation skills — don't just keep trying random things
 ```
 
-When something fails, debug, simplify, or pivot, but keep the project state and evidence current so the next work unit starts cleanly.
+Keep the research moving. Even if something fails, find a path forward: debug, adjust, simplify, or pivot. The point is steady progress, not blind persistence.
 
 ### Route to Domain Skills
 
 When you need domain-specific execution, search the skills library:
 
-| Research Activity | Look In |
+| Research Activity | Relevant Skills |
 |---|---|
-| Data preparation | `05-data-processing/` |
-| Model training / fine-tuning | `01-model-architecture/`, `03-fine-tuning/`, `06-post-training/` |
-| Distributed training | `08-distributed-training/` |
-| Optimization (quantization, attention) | `10-optimization/` |
-| Evaluation / benchmarks | `11-evaluation/` |
-| Inference / serving | `12-inference-serving/` |
-| Interpretability analysis | `04-mechanistic-interpretability/` |
-| Experiment tracking (W&B, MLflow) | `13-mlops/` |
-| Cloud compute | `09-infrastructure/` |
+| Research direction and synthesis | `idea-evaluator`, `brainstorming-research-ideas`, `creative-thinking-for-research`, `ara-rigor-reviewer`, `ara-research-manager` |
+| Diffusion and image generation | `stable-diffusion-image-generation` |
+| Fine-tuning and adaptation | `peft-fine-tuning`, `huggingface-accelerate` |
+| Interpretability analysis | `transformer-lens-interpretability`, `sparse-autoencoder-training`, `pyvene-interventions`, `nnsight-remote-interpretability` |
+| Evaluation and experiment tracking | `evaluating-llms-harness`, `weights-and-biases`, `tensorboard`, `experiment-tracking-swanlab` |
+| Research writing and figures | `ml-paper-writing`, `figure-designer`, `academic-plotting` |
 
 Read the relevant SKILL.md before starting — it has workflows, common issues, and code examples. See [references/skill-routing.md](references/skill-routing.md) for a complete guide.
 
@@ -186,7 +197,7 @@ Maintain a running record of measurable outcomes across experiments:
 }
 ```
 
-This trajectory helps explain what changed across experiments and what should be tried next.
+This trajectory produces the optimization plot (like Karpathy's progress chart) — include it in progress reports. Humans love seeing the upward curve.
 
 ## The Outer Loop
 
@@ -198,11 +209,11 @@ Step back from individual experiments. Synthesize.
 3. Ask WHY — identify the mechanism behind successes and failures
 4. Update `research/findings.md` with current understanding
 5. Search literature if results were surprising or assumptions need revisiting
-6. Generate new hypotheses if warranted (invoke 21-research-ideation/ skills)
+6. Generate new hypotheses if warranted
 7. Decide direction (see criteria below)
 8. Update `research/state.yaml` with new direction
 9. Log the reflection in `research/research-log.md`
-10. If the user explicitly asks for a report or talk material, generate it from the current evidence
+10. If there's something meaningful and the user would benefit from it, generate a progress presentation
 ```
 
 ### Deciding Direction
@@ -224,14 +235,14 @@ Don't just pick randomly — use these criteria:
 **CONCLUDE** — sufficient evidence for a contribution
 - At least one hypothesis is strongly supported (or a coherent set of negative results)
 - Key ablations completed, error analysis done
-- findings.md reads like a paper backbone — a human could write the abstract from it
+- `research/findings.md` reads like a paper backbone — a human could write the abstract from it
 - No critical open questions that would change the story
 
 Note: coherent negative results are a valid contribution. "X does NOT work because Y" is publishable if the reasoning is rigorous.
 
-### findings.md Is Your Project Memory
+### `research/findings.md` Is Your Project Memory
 
-This file serves two purposes: it's the research narrative for humans AND your accumulated knowledge base as an agent. Read it at the start of every session to remember what you've learned.
+This file serves two purposes: it's the research narrative for humans AND your accumulated knowledge base as an agent. Read it at the start of every session, /loop tick, or heartbeat to remember what you've learned.
 
 After every outer loop, update it to answer:
 
@@ -242,11 +253,55 @@ After every outer loop, update it to answer:
 
 The "Lessons and Constraints" section is especially important — it captures specific actionable learnings like "weight decay > 0.1 diverges at this scale" or "baseline only reproduces with batch_size=64." This prevents the agent from repeating failed approaches across sessions.
 
-**Quality test**: After 30 inner loop experiments, a human should be able to read findings.md and write a paper abstract from it. If they can't, the outer loop isn't synthesizing — it's just logging.
+**Quality test**: After 30 inner loop experiments, a human should be able to read `research/findings.md` and write a paper abstract from it. If they can't, the outer loop isn't synthesizing; it's just logging.
 
-## Research Continuity
+## Agent Continuity (Optional)
 
-Keep `research/state.yaml`, `research/findings.md`, `research/research-log.md`, and the current experiment outputs up to date so the next session can resume cleanly. See [references/agent-continuity.md](references/agent-continuity.md).
+Continuous loop execution is optional in this repository. Use it only when the user explicitly wants unattended autonomous operation.
+
+### Claude Code
+
+If the user explicitly requests autonomous continuation, you can run:
+
+```
+/loop 20m Continue autoresearch. Read research/state.yaml and research/findings.md. Re-read the autoresearch SKILL.md occasionally to stay aligned. Step back and reflect holistically: is the research making real progress? Are you deepening understanding or just running experiments? If stalling, pivot or search literature for new ideas. Keep making research progress. Update research/findings.md, research/research-log.md, and research/state.yaml when there is new progress. When useful, prepare a report in to_human/. Only when the research is truly complete should you invoke the ml-paper-writing skill to write the paper.
+```
+
+This fires every 20 minutes regardless of what's happening. It's a rhythm for unattended work, not a research phase boundary. If your previous work isn't done, just continue it.
+
+### OpenClaw
+
+If the user explicitly requests unattended autonomous continuation, you can set up a 20-minute cron job in the current session.
+
+Use the `cron.add` tool to create a recurring job bound to this chat session:
+
+```json
+{
+  "name": "autoresearch-loop",
+  "schedule": { "kind": "every", "everyMs": 1200000 },
+  "sessionTarget": "current",
+  "payload": {
+    "kind": "agentTurn",
+    "message": "Continue autoresearch. Read research/state.yaml and research/findings.md. Re-read the autoresearch SKILL.md occasionally to stay aligned. Step back and reflect holistically: is the research making real progress? Are you deepening understanding or just running experiments? If stalling, pivot or search literature for new ideas. Keep making research progress. Update research/findings.md, research/research-log.md, and research/state.yaml when there is new progress. When useful, prepare a report in to_human/. Only when the research is truly complete should you invoke the ml-paper-writing skill to write the paper."
+  }
+}
+```
+
+Key details:
+- `sessionTarget: "current"` binds the cron to this chat session so it maintains conversation context across ticks
+- `everyMs: 1200000` = 20 minutes
+- After creation, verify with `cron.list` that the job exists and is enabled
+- If the cron fires while you're mid-experiment, just continue — the tick is a nudge, not a restart
+
+### What the Loop Does
+
+The `/loop` and cron job are purely **wall-clock rhythm**. They are completely separate from your research loops (inner/outer). On each tick:
+
+1. Read `research/state.yaml` and `research/findings.md` — remember where you are
+2. Check if anything is broken (failed experiments, stalled training, errors)
+3. If on track → keep working on whatever you were doing
+4. If stuck or something's wrong → step back, diagnose, fix, then continue
+5. Never idle. Always be making progress.
 
 ## Progress Reporting
 
@@ -267,7 +322,7 @@ When you have something meaningful to share, create a research presentation — 
 - Current understanding (the findings narrative)
 - What's planned next
 
-Generate HTML or PDF only when a human-facing report was explicitly requested.
+For Claude Code: generate HTML and `open` it. If HTML fails to open or render, convert to PDF as fallback (use `weasyprint`, `playwright pdf`, or `wkhtmltopdf`). For OpenClaw: generate PDF directly.
 
 See [references/progress-reporting.md](references/progress-reporting.md) for template scaffolding and the optimization plot approach. Use the template as a starting point — be creative with what you show.
 
@@ -289,14 +344,14 @@ Commit at natural research milestones:
 
 When the outer loop decides to CONCLUDE:
 
-1. Ensure findings.md has a clear, well-supported narrative
+1. Ensure `research/findings.md` has a clear, well-supported narrative
 2. Study 2-3 top related papers to learn their format, style, and section structure
-3. Invoke the `ml-paper-writing` skill — it has LaTeX templates for NeurIPS, ICML, ICLR, ACL, AAAI, and COLM
+3. Invoke the `ml-paper-writing` skill to draft and refine the paper
 4. Feed it the accumulated literature, experimental results, and findings
 5. Follow its citation verification workflow — never hallucinate references
 6. Generate a final comprehensive research presentation
 
-Proceed through the writing process using the available evidence and produce the best draft you can. The human will review and provide feedback.
+Proceed autonomously through the writing process. If the ml-paper-writing skill suggests human collaboration points, adapt and keep going — produce the best draft you can. The human will review and provide feedback.
 
 ## Research Discipline
 
@@ -306,21 +361,22 @@ Principles to enforce continuously — not tied to any specific phase:
 - **Confirmatory vs exploratory**: Results matching your locked protocol are confirmatory. Everything else is exploratory — interesting but requiring more skepticism.
 - **Negative results are progress**: A refuted hypothesis tells you something. Log what it rules out and what it suggests. Don't treat it as failure.
 - **Sanity check before analysis**: Verify training converged, baselines reproduce, and data is correct before trusting your primary metric.
-- **Return to literature when confused**: Don't guess — search. If results surprise you or assumptions break, go find papers. Use Semantic Scholar MCP for paper search, alphaxiv MCP for full-text reading, and Zotero MCP when you need to save verified references.
+- **Return to literature when confused**: Don't guess — search. If results surprise you or assumptions break, go find papers. Use Exa MCP for discovery, Semantic Scholar for specific ML/AI paper lookup, arXiv for preprints.
+- **Never stop**: Don't wait for human approval on routine decisions. If a skill or tool suggests collaboration, adapt and keep going. Find the best path forward autonomously. The human will see your progress reports and can redirect if needed.
 - **Use whatever compute is available**: Adapt to the user's environment — local GPU, cluster job submission, cloud instances, or just CPU. If no GPU is available, use CPU and adjust experiment scale accordingly. Don't block on compute availability.
 
 ## Quality Standards
 
 **Good agent behavior:**
 - Hypotheses have mechanistic reasoning ("X because Y, predicting Z"), not just "try X"
-- findings.md builds a coherent narrative, not a flat list of results
+- `research/findings.md` builds a coherent narrative, not a flat list of results
 - Negative results are recorded with what they rule out
 - The agent updates its model when experiments contradict expectations
-- Human-facing reports, when requested, tell a research story with compelling visualizations
+- Progress reports tell a research story with compelling visualizations
 
 **Bad agent behavior:**
 - Pure hyperparameter sweeps without interpretation
-- findings.md is just experiment logs copy-pasted
+- `research/findings.md` is just experiment logs copy-pasted
 - Agent never revisits its assumptions after failures
 - Optimizing metrics without understanding why changes work
 
@@ -330,7 +386,7 @@ Principles to enforce continuously — not tied to any specific phase:
 - You have a research question explorable through experiments
 - There's a measurable proxy metric for inner loop optimization
 - The real contribution requires synthesis beyond the metric
-- You want a structured two-loop research workflow across multiple experiments
+- You want continuous autonomous research operation
 
 **Use individual domain skills instead when:**
 - You have a specific one-off task (train a model, run eval, write a paper)
@@ -342,25 +398,25 @@ Principles to enforce continuously — not tied to any specific phase:
 Run an outer loop. Is the metric the right one? Is the search space exhausted? Consider broadening or pivoting. Search literature for new approaches.
 
 **Stuck and not making progress**
-Don't keep trying random changes. Step back: search literature for related work, invoke `21-research-ideation/` brainstorming skills, or run an outer loop reflection. Being stuck means you need new information or a new perspective, not more experiments.
+Don't keep trying random changes. Step back: search literature for related work, invoke ideation skills, or run an outer loop reflection. Being stuck means you need new information or a new perspective, not more experiments.
 
 **Results contradict baseline expectations**
-Investigate, don't ignore. Return to literature — your protocol might have an error, the published baseline may be wrong, or conditions differ. Update findings.md with what you learn.
+Investigate, don't ignore. Return to literature — your protocol might have an error, the published baseline may be wrong, or conditions differ. Update `research/findings.md` with what you learn.
 
-**Agent loses context between sessions**
-Ensure `research/state.yaml`, `research/findings.md`, and `research/research-log.md` are updated after every meaningful action. These files are your memory across sessions.
+**Agent loses context between ticks**
+Ensure `research/state.yaml` and `research/findings.md` are updated after every action. These files are your memory across sessions.
 
 **Can't find relevant papers**
-Try multiple approaches in order: Semantic Scholar MCP for broad ML/AI search, alphaxiv MCP for arXiv full text, and DOI / CrossRef lookup for metadata verification. Check `ml-paper-writing` skill's `references/citation-workflow.md` for the citation verification workflow.
+Try multiple approaches in order: Exa MCP for broad search, Semantic Scholar for specific ML/AI paper lookup (`pip install semanticscholar`), arXiv for preprints (`pip install arxiv`). Check `ml-paper-writing` skill's `references/citation-workflow.md` for complete API code. Note: Google Scholar has no official API — use Semantic Scholar instead for programmatic search.
 
 **No GPU available**
 Use CPU and scale experiments down. Many research tasks (analysis, interpretability, small model training) run fine on CPU. Adjust experiment design to fit available compute rather than blocking.
 
-**Experiments take longer than one work unit**
-Normal. Record what is running, where outputs are being written, and what should be checked next. Then resume from that state in the next work unit.
+**Experiments take longer than /loop interval**
+Normal. On the next tick, check if it finished. If not, keep waiting or do something else useful (update notes, search papers). Adjust interval if needed.
 
 **Not sure when to conclude**
-Three questions: Do you have a strongly supported finding? Can you explain WHY it works? Would findings.md make a convincing paper abstract? If yes to all: conclude.
+Three questions: Do you have a strongly supported finding? Can you explain why it works? Would `research/findings.md` make a convincing paper abstract? If yes to all: conclude.
 
 ## Advanced Topics
 

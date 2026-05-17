@@ -8,6 +8,10 @@
 
 - <what is currently known>
 
+## Key Results
+
+- <significant result with brief interpretation>
+
 ## Patterns and Insights
 
 - <emerging patterns>
@@ -19,3 +23,7 @@
 ## Open Questions
 
 - <open question>
+
+## Optimization Trajectory
+
+- <how the proxy metric evolved and what changed at key inflection points>

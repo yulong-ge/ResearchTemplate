@@ -1,5 +1,5 @@
 # Research State — Central Project Tracking
-# Copy this template to your project root and fill in as you go.
+# Copy this template to `research/state.yaml` and fill in as you go.
 # Updated by the agent after each experiment and reflection.
 
 project:
@@ -49,8 +49,15 @@ outer_loop:
 
 workspace:
   # Track key resource locations
-  findings: "findings.md"
-  log: "research-log.md"
+  findings: "research/findings.md"
+  log: "research/research-log.md"
+  state: "research/state.yaml"
+  current_task: "research/current-task.md"
+  exploration_tree: "research/exploration-tree.yaml"
   literature_dir: "literature/"
+  src_dir: "src/"
+  data_dir: "data/"
   experiments_dir: "experiments/"
+  to_human_dir: "to_human/"
   paper_dir: "paper/"
+  ara_dir: "ara/"

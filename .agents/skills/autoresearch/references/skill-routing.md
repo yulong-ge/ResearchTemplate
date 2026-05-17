@@ -1,218 +1,104 @@
-# Skill Routing: When to Use Which Domain Skill
+# Skill Routing: Current Research Workspace
 
-The autoresearch skill orchestrates — domain skills execute. This reference maps research activities to the skills library.
+The `autoresearch` skill orchestrates research work. Domain skills handle specialized tasks. Use this reference to pick among the skills that are actually installed in this workspace.
 
 ## Routing Principle
 
-When you encounter a domain-specific task during research, search the skills library for the right tool. Read the SKILL.md of the relevant skill before starting — it contains workflows, common issues, and production-ready code examples.
+When a task becomes domain-specific, identify the closest installed skill and read its `SKILL.md` before acting. Prefer the most specific skill that matches the current bottleneck.
 
-## Complete Routing Map
+## Installed Skill Map
 
-### Data and Preprocessing
+### Research Planning and Direction
 
-| Task | Skill | Location |
-|---|---|---|
-| Large-scale data processing | Ray Data | `05-data-processing/ray-data/` |
-| Data curation and filtering | NeMo Curator | `05-data-processing/nemo-curator/` |
-| Custom tokenizer training | HuggingFace Tokenizers | `02-tokenization/hf-tokenizers/` |
-| Subword tokenization | SentencePiece | `02-tokenization/sentencepiece/` |
+| Task | Skill |
+|---|---|
+| Evaluate whether a research direction is worth pursuing | `idea-evaluator` |
+| Generate or refine research ideas | `brainstorming-research-ideas` |
+| Explore more novel directions systematically | `creative-thinking-for-research` |
+| Orchestrate the full research loop | `autoresearch` |
 
-### Model Architecture and Training
+### Research Memory and Provenance
 
-| Task | Skill | Location |
-|---|---|---|
-| Large-scale pretraining | Megatron-Core | `01-model-architecture/megatron-core/` |
-| Lightweight LLM training | LitGPT | `01-model-architecture/litgpt/` |
-| State-space models | Mamba | `01-model-architecture/mamba/` |
-| Linear attention models | RWKV | `01-model-architecture/rwkv/` |
-| Small-scale pretraining | NanoGPT | `01-model-architecture/nanogpt/` |
+| Task | Skill |
+|---|---|
+| Compile a structured research artifact | `ara-compiler` |
+| Record provenance after a meaningful work unit | `ara-research-manager` |
+| Audit whether a claim is epistemically well-supported | `ara-rigor-reviewer` |
 
-### Fine-tuning
+### Mechanistic Interpretability
 
-| Task | Skill | Location |
-|---|---|---|
-| Multi-method fine-tuning | Axolotl | `03-fine-tuning/axolotl/` |
-| Template-based fine-tuning | LLaMA-Factory | `03-fine-tuning/llama-factory/` |
-| Fast LoRA fine-tuning | Unsloth | `03-fine-tuning/unsloth/` |
-| PyTorch-native fine-tuning | Torchtune | `03-fine-tuning/torchtune/` |
+| Task | Skill |
+|---|---|
+| Analyze transformer circuits and internal mechanisms | `transformer-lens-interpretability` |
+| Train sparse autoencoders for feature discovery | `sparse-autoencoder-training` |
+| Run intervention-based causal analysis | `pyvene-interventions` |
+| Run remote activation patching and intervention workflows | `nnsight-remote-interpretability` |
 
-### Post-training (RL / Alignment)
+### Image Generation and Diffusion
 
-| Task | Skill | Location |
-|---|---|---|
-| PPO, DPO, SFT pipelines | TRL | `06-post-training/trl/` |
-| Group Relative Policy Optimization | GRPO | `06-post-training/grpo-rl-training/` |
-| Scalable RLHF | OpenRLHF | `06-post-training/openrlhf/` |
-| Reference-free alignment | SimPO | `06-post-training/simpo/` |
+| Task | Skill |
+|---|---|
+| Work on Stable Diffusion generation or adaptation workflows | `stable-diffusion-image-generation` |
 
-### Interpretability
+### Training, Adaptation, and Scaling
 
-| Task | Skill | Location |
-|---|---|---|
-| Transformer circuit analysis | TransformerLens | `04-mechanistic-interpretability/transformerlens/` |
-| Sparse autoencoder training | SAELens | `04-mechanistic-interpretability/saelens/` |
-| Intervention experiments | NNsight | `04-mechanistic-interpretability/nnsight/` |
-| Causal tracing | Pyvene | `04-mechanistic-interpretability/pyvene/` |
+| Task | Skill |
+|---|---|
+| Parameter-efficient fine-tuning workflows | `peft-fine-tuning` |
+| Multi-GPU or distributed training with a lightweight abstraction | `huggingface-accelerate` |
 
-### Distributed Training
+### Evaluation and Experiment Tracking
 
-| Task | Skill | Location |
-|---|---|---|
-| ZeRO optimization | DeepSpeed | `08-distributed-training/deepspeed/` |
-| Fully sharded data parallel | FSDP | `08-distributed-training/fsdp/` |
-| Multi-GPU abstraction | Accelerate | `08-distributed-training/accelerate/` |
-| Training framework | PyTorch Lightning | `08-distributed-training/pytorch-lightning/` |
-| Distributed data + training | Ray Train | `08-distributed-training/ray-train/` |
+| Task | Skill |
+|---|---|
+| Standard model evaluation and benchmark harness usage | `evaluating-llms-harness` |
+| Track experiments, metrics, artifacts, and dashboards in W&B | `weights-and-biases` |
+| Inspect training curves and scalar logs locally | `tensorboard` |
+| Track experiments with SwanLab | `experiment-tracking-swanlab` |
 
-### Evaluation
+### Research Writing and Figures
 
-| Task | Skill | Location |
-|---|---|---|
-| Standard LLM benchmarks | lm-evaluation-harness | `11-evaluation/lm-eval-harness/` |
-| NeMo-integrated evaluation | NeMo Evaluator | `11-evaluation/nemo-evaluator/` |
-| Custom eval tasks | Inspect AI | `11-evaluation/inspect-ai/` |
+| Task | Skill |
+|---|---|
+| Write or refine ML/AI paper sections | `ml-paper-writing` |
+| Design or critique technical paper figures | `figure-designer` |
+| Generate publication-quality plots | `academic-plotting` |
 
-### Inference and Serving
+## Common Workflows
 
-| Task | Skill | Location |
-|---|---|---|
-| High-throughput serving | vLLM | `12-inference-serving/vllm/` |
-| NVIDIA-optimized inference | TensorRT-LLM | `12-inference-serving/tensorrt-llm/` |
-| CPU / edge inference | llama.cpp | `12-inference-serving/llama-cpp/` |
-| Structured generation serving | SGLang | `12-inference-serving/sglang/` |
+### "I am starting a new research direction"
 
-### Experiment Tracking
+1. Read `research/state.yaml`, `research/findings.md`, and `research/current-task.md`
+2. Use `brainstorming-research-ideas` or `creative-thinking-for-research` to generate or refine candidate ideas
+3. If one candidate idea now needs a structured go/no-go judgment, launch a fresh subagent and use `idea-evaluator` there so the evaluation stays isolated from the active working context
+4. Record the chosen direction in `research/state.yaml` and `research/exploration-tree.yaml`
 
-| Task | Skill | Location |
-|---|---|---|
-| Full experiment tracking | Weights & Biases | `13-mlops/wandb/` |
-| Open-source tracking | MLflow | `13-mlops/mlflow/` |
-| Training visualization | TensorBoard | `13-mlops/tensorboard/` |
+### "I need to run an interpretability experiment"
 
-### Optimization Techniques
+1. Choose among `transformer-lens-interpretability`, `sparse-autoencoder-training`, `pyvene-interventions`, and `nnsight-remote-interpretability`
+2. Write a confirmatory protocol in `experiments/protocols/` if the experiment is meant to support or reject a claim
+3. Save outputs under `experiments/results/<experiment-id>/`
+4. Update `experiments/logs/`, `research/findings.md`, and `research/research-log.md`
 
-| Task | Skill | Location |
-|---|---|---|
-| Efficient attention | Flash Attention | `10-optimization/flash-attention/` |
-| 4/8-bit quantization | bitsandbytes | `10-optimization/bitsandbytes/` |
-| GPTQ quantization | GPTQ | `10-optimization/gptq/` |
-| AWQ quantization | AWQ | `10-optimization/awq/` |
-| GGUF format (llama.cpp) | GGUF | `10-optimization/gguf/` |
-| PyTorch-native quantization | Quanto | `10-optimization/quanto/` |
+### "I need to train or adapt a model"
 
-### Safety and Alignment
+1. Use `stable-diffusion-image-generation` for diffusion workflows when relevant
+2. Use `peft-fine-tuning` for adapter-style or low-rank adaptation
+3. Use `huggingface-accelerate` for scalable local multi-GPU execution
+4. Track runs with `weights-and-biases`, `tensorboard`, or `experiment-tracking-swanlab`
 
-| Task | Skill | Location |
-|---|---|---|
-| Constitutional AI training | Constitutional AI | `07-safety-alignment/constitutional-ai/` |
-| Content safety classification | LlamaGuard | `07-safety-alignment/llamaguard/` |
-| Guardrail pipelines | NeMo Guardrails | `07-safety-alignment/nemo-guardrails/` |
-| Prompt injection detection | Prompt Guard | `07-safety-alignment/prompt-guard/` |
+### "I need to assess whether a result is solid enough to keep"
 
-### Infrastructure
+1. Update `research/findings.md` with the current interpretation
+2. If the claim matters, use `ara-rigor-reviewer`
+3. After a meaningful synthesis step, use `ara-research-manager`
 
-| Task | Skill | Location |
-|---|---|---|
-| Serverless GPU compute | Modal | `09-infrastructure/modal/` |
-| Multi-cloud orchestration | SkyPilot | `09-infrastructure/skypilot/` |
-| GPU cloud instances | Lambda Labs | `09-infrastructure/lambda-labs/` |
+## Adding More Skills Later
 
-### Agents and RAG
+This workspace intentionally installs only a focused subset of skills.
 
-| Task | Skill | Location |
-|---|---|---|
-| Agent pipelines | LangChain | `14-agents/langchain/` |
-| Knowledge retrieval agents | LlamaIndex | `14-agents/llamaindex/` |
-| Lightweight agents | Smolagents | `14-agents/smolagents/` |
-| Claude-based agents | Claude Agent SDK | `14-agents/claude-agent-sdk/` |
-| Vector store (local) | Chroma | `15-rag/chroma/` |
-| Vector similarity search | FAISS | `15-rag/faiss/` |
-| Text embeddings | Sentence Transformers | `15-rag/sentence-transformers/` |
-| Managed vector DB | Pinecone | `15-rag/pinecone/` |
-| Scalable vector DB | Milvus | `15-rag/milvus/` |
+If future projects need capabilities that are not currently installed, browse the AI Research Skills repository and add the missing skills through `npx skills` rather than inventing ad hoc local replacements:
 
-### Prompt Engineering and Structured Output
+- `https://github.com/Orchestra-Research/AI-research-SKILLs`
 
-| Task | Skill | Location |
-|---|---|---|
-| Prompt optimization | DSPy | `16-prompt-engineering/dspy/` |
-| Structured LLM output | Instructor | `16-prompt-engineering/instructor/` |
-| Constrained generation | Guidance | `16-prompt-engineering/guidance/` |
-| Grammar-based generation | Outlines | `16-prompt-engineering/outlines/` |
-
-### Multimodal
-
-| Task | Skill | Location |
-|---|---|---|
-| Vision-language models | CLIP | `18-multimodal/clip/` |
-| Speech recognition | Whisper | `18-multimodal/whisper/` |
-| Visual instruction tuning | LLaVA | `18-multimodal/llava/` |
-| Vision-language (Qwen) | Qwen2-VL | `18-multimodal/qwen2-vl/` |
-| Vision-language (Mistral) | Pixtral | `18-multimodal/pixtral/` |
-| Visual understanding | Florence-2 | `18-multimodal/florence-2/` |
-| Document retrieval | ColPali | `18-multimodal/colpali/` |
-
-### Observability
-
-| Task | Skill | Location |
-|---|---|---|
-| LLM tracing and debugging | LangSmith | `17-observability/langsmith/` |
-| LLM observability platform | Phoenix | `17-observability/phoenix/` |
-
-### Emerging Techniques
-
-| Task | Skill | Location |
-|---|---|---|
-| Mixture of Experts training | MoE Training | `19-emerging-techniques/moe-training/` |
-| Combining trained models | Model Merging | `19-emerging-techniques/model-merging/` |
-| Extended context windows | Long Context | `19-emerging-techniques/long-context/` |
-| Faster inference via drafting | Speculative Decoding | `19-emerging-techniques/speculative-decoding/` |
-| Teacher-student compression | Knowledge Distillation | `19-emerging-techniques/knowledge-distillation/` |
-| Reducing model size | Model Pruning | `19-emerging-techniques/model-pruning/` |
-
-### Research Output
-
-| Task | Skill | Location |
-|---|---|---|
-| Generate research ideas | Research Ideation | `21-research-ideation/` |
-| Write publication-ready paper | ML Paper Writing | `20-ml-paper-writing/` |
-
-## Common Research Workflows
-
-### "I need to fine-tune a model and evaluate it"
-
-1. Pick fine-tuning skill based on needs (Unsloth for speed, Axolotl for flexibility)
-2. Use lm-evaluation-harness for standard benchmarks
-3. Track with W&B or MLflow
-
-### "I need to understand what the model learned"
-
-1. Use TransformerLens for circuit-level analysis
-2. Train SAEs with SAELens for feature-level understanding
-3. Run interventions with NNsight or Pyvene
-
-### "I need to do RL training"
-
-1. Start with TRL for standard PPO/DPO
-2. Use GRPO skill for DeepSeek-R1 style training
-3. Scale with OpenRLHF if needed
-
-### "I need to run experiments on cloud GPUs"
-
-1. Modal for quick serverless runs
-2. SkyPilot for multi-cloud optimization
-3. Lambda Labs for dedicated instances
-
-## Finding Skills
-
-If you're not sure which skill to use:
-
-```bash
-# Search by keyword in skill names
-ls */*/SKILL.md | head -20
-
-# Search skill descriptions for a keyword
-grep -l "keyword" */*/SKILL.md
-```
-
-Or search the repository's README.md which lists all skills with descriptions.
+Prefer installing only the skills that match the actual project bottlenecks so the workspace stays focused and easy for agents to route.

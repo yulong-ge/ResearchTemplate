@@ -1,6 +1,6 @@
 # Progress Reporting: Research Presentations
 
-When the research produces something worth sharing, create a compelling presentation — not a status dump, but a research story with visuals.
+When the research produces something worth sharing, create a compelling presentation if it would help the user steer, review, or communicate the work. This should be a research story with visuals, not a status dump.
 
 ## When to Report
 
@@ -12,7 +12,7 @@ You decide when progress is meaningful enough to report. Consider reporting:
 - Before requesting human input on a major decision
 - When concluding the research, before paper writing
 
-Only create a report when the user explicitly asks for one or when a handoff artifact is clearly required.
+Do not force a report cadence. Generate reports when they would materially help the human understand the work or make a decision.
 
 ## What Makes a Good Research Presentation
 
@@ -140,18 +140,20 @@ Replace placeholder content with your actual research data. Add, remove, or rear
 
 ### Claude Code
 
-Generate the HTML only when the user explicitly asks for a human-facing report, then show it to the human from a task-specific location:
+Generate the HTML, then show it to the human:
 
 ```bash
-open paper/progress-001.html
+open to_human/progress-001.html
 ```
 
-Generate a PDF version if needed. Options:
+### OpenClaw
+
+Generate a PDF version. Options:
 - Use Python `weasyprint` to convert HTML to PDF
 - Use `matplotlib` to generate plots directly as PDF
 - Create a simple markdown → PDF pipeline
 
-Note the PDF path in the active work log or share it directly in chat if a report was requested.
+Tell the human the PDF path directly in the conversation and store the PDF under `to_human/`.
 
 ## Presentation Quality Tips
 

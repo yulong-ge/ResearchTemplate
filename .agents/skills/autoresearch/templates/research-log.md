@@ -1,6 +1,6 @@
 # Research Log
 
-Chronological record of research decisions and actions. Append-only.
+Chronological record of research decisions and actions. Copy this template to `research/research-log.md`. Append-only.
 
 | # | Date | Type | Summary |
 |---|------|------|---------|

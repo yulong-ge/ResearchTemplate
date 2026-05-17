@@ -1,6 +1,6 @@
 # Skills-Driven ARA Research Template
 
-This template is a deep-learning research workspace driven by skills and ARA.
+This repository is a directly usable research workspace for deep learning, generative modeling, and interpretability projects driven by OpenCode skills.
 
 It keeps active research memory in `research/`, `literature/`, and `experiments/`, and uses `ara/` only as an epilogue provenance layer.
 
@@ -27,7 +27,12 @@ literature/
 experiments/
   protocols/                     # Protocol before confirmatory runs
   logs/                          # One human-readable record per meaningful run
-  results/                       # Small structured outputs, summaries, tables
+  results/                       # Shared structured outputs, summaries, tables across branches
+  <hypothesis-slug>/             # Optional per-direction experiment workspace
+    protocol.md                  # Direction-level protocol and prediction
+    code/                        # Experiment-specific code when it should not live in src/
+    results/                     # Direction-scoped outputs and analysis artifacts
+    analysis.md                  # What this branch taught the project
 
 src/                             # Reusable code written during research
 data/                            # Local inputs, cached analysis assets, reference stats
@@ -36,6 +41,14 @@ ara/                             # Derived provenance package, updated only in e
 docs/
   workflow.md                    # How to use the template
 ```
+
+## What This Workspace Does
+
+- Keeps project state, findings, and immediate priorities in `research/`
+- Stores durable paper notes in `literature/notes/` and a rolling synthesis in `literature/survey.md`
+- Separates confirmatory protocols, run logs, and structured outputs inside `experiments/`
+- Reserves `src/` for reusable code and `data/` for local inputs and cached assets
+- Uses `ara/` only after meaningful research progress has been synthesized
 
 ## Core Design
 
@@ -58,22 +71,27 @@ Derived provenance memory:
 
 ## Normal Research Flow
 
-1. Define or update the current objective in `research/current-task.md`.
-2. If the direction is new, use `idea-evaluator` before committing to it.
-3. Search literature and save durable notes under `literature/notes/`, then update `literature/survey.md`.
-4. Record hypotheses and loop state in `research/state.yaml`.
+1. If the direction is still unclear, use `brainstorming-research-ideas` or `creative-thinking-for-research` to generate or refine candidate ideas.
+2. If one candidate needs a structured go/no-go judgment, launch a fresh subagent and run `idea-evaluator` there.
+3. After the main session accepts a direction, update `research/current-task.md`, `research/state.yaml`, and `research/exploration-tree.yaml`.
+4. Search literature and save durable notes under `literature/notes/`, then update `literature/survey.md`.
 5. For confirmatory work, write a protocol under `experiments/protocols/` before running.
-6. Run the inner loop: execute, measure, log, interpret.
-7. Update `experiments/logs/`, `research/findings.md`, and `research/research-log.md`.
-8. Periodically run the outer loop: synthesize patterns, revise hypotheses, pivot if needed.
-9. After an outer-loop update, a direction pivot, or the end of a session that changed the next actionable step, run `ara-research-manager` to compile provenance into `ara/`.
+6. When a hypothesis becomes its own sustained branch, create `experiments/<hypothesis-slug>/` to hold that branch's protocol, code, results, and analysis.
+7. Run the inner loop: execute, measure, log, interpret.
+8. Update `experiments/logs/`, `research/findings.md`, and `research/research-log.md`.
+9. Periodically run the outer loop: synthesize patterns, revise hypotheses, pivot if needed.
+10. After an outer-loop update, a direction pivot, or the end of a session that changed the next actionable step, run `ara-research-manager` to compile provenance into `ara/`.
 
 The goal is to keep the research workflow direct while preserving structured memory, literature discipline, protocol-before-result, and provenance capture.
 
-## Start a New Project From This Template
+Top-level `experiments/protocols/`, `experiments/logs/`, and `experiments/results/` are the shared experiment index for the whole project. Use them for lightweight runs, cross-branch records, and standardized result exports. Promote a direction into `experiments/<hypothesis-slug>/` only when that hypothesis becomes a sustained branch with its own code, accumulated results, and analysis.
+
+`research/exploration-tree.yaml` is the live control tree for active research. `ara/trace/exploration_tree.yaml` is the epilogue-only archive of explored directions and should be updated only through `ara-research-manager`.
+
+## Start a New Project
 
 ```bash
-cp -R ~/code/skills-driven-ara-template <new-project>
+cp -R skills-driven-ara-template <new-project>
 cd <new-project>
 git init
 ```
@@ -84,13 +102,21 @@ If managed skills are present in `skills-lock.json`, restore them before the fir
 npx skills experimental_install
 ```
 
-The template expects the managed skills listed in `skills-lock.json` to exist under `.agents/skills/`. If they are missing, restore them first instead of editing workflow documents to work around the absence.
+The project expects the managed skills listed in `skills-lock.json` to exist under `.agents/skills/`. If they are missing, restore them first instead of editing workflow documents to work around the absence.
 
-Then open the project with OpenCode and work directly from `AGENTS.md` plus `docs/workflow.md`.
+Then open the project with OpenCode. `README.md` explains the workspace layout for humans; `AGENTS.md` tells the agent how to operate inside the project.
 
 ## Managed Skills
 
 Managed skills from AI-Research-SKILLs are tracked in `skills-lock.json` so updates remain source-aware and reproducible.
+
+## Agent Entry Point
+
+When an OpenCode agent starts working in this repository, it should follow `AGENTS.md` first. That file defines:
+
+- which files to read before starting research work
+- where to record state, findings, protocols, logs, and outputs
+- which rules govern autonomy, provenance, and deep-learning execution discipline
 
 ## Important Rules
 

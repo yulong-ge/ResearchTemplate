@@ -3,4 +3,17 @@ tree:
     type: question
     description: "<main research question>"
     status: open
+    rationale: "<why this question matters>"
     children: []
+
+# Suggested child node shape:
+# - id: H1
+#   type: hypothesis
+#   description: "<testable claim>"
+#   status: pending          # pending | active | supported | refuted | inconclusive | archived
+#   rationale: "<why this branch is worth exploring>"
+#   evidence:
+#     supporting: []
+#     conflicting: []
+#   experiments: []          # e.g. ["run_001", "run_002"]
+#   children: []

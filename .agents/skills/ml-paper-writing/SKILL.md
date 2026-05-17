@@ -1,6 +1,6 @@
 ---
 name: ml-paper-writing
-description: Write publication-ready ML/AI papers for NeurIPS, ICML, ICLR, ACL, AAAI, COLM. Use when drafting papers from research repos, structuring arguments, verifying citations, or preparing camera-ready submissions.
+description: Write publication-ready ML/AI papers for NeurIPS, ICML, ICLR, ACL, AAAI, COLM. Use when drafting papers from research repos, structuring arguments, verifying citations, or preparing camera-ready submissions. For systems venues (OSDI, NSDI, ASPLOS, SOSP), use systems-paper-writing instead.
 version: 1.2.0
 author: Orchestra Research
 license: MIT
@@ -12,7 +12,7 @@ dependencies: [semanticscholar, arxiv, habanero, requests]
 
 Expert-level guidance for writing publication-ready papers targeting **NeurIPS, ICML, ICLR, ACL, AAAI, COLM**. This skill combines writing philosophy from top researchers (Nanda, Farquhar, Karpathy, Lipton, Steinhardt) with practical tools: LaTeX templates, citation verification APIs, and conference checklists.
 
-This skill is scoped to ML/AI conference writing and the templates bundled in this repository.
+**For systems venues (OSDI, NSDI, ASPLOS, SOSP)**, use the [systems-paper-writing](../systems-paper-writing/) skill, which provides paragraph-level structural blueprints, writing patterns, venue-specific checklists, and LaTeX templates for systems conferences.
 
 ## Core Philosophy: Collaborative Writing
 
@@ -452,6 +452,8 @@ Understanding reviewer behavior helps prioritize your effort:
 | **AAAI 2026** | 7 pages | +1 | Strict style file adherence |
 | **COLM 2025** | 9 pages | +1 | Focus on language models |
 
+**Systems Conferences (OSDI, NSDI, ASPLOS, SOSP)**: See the [systems-paper-writing](../systems-paper-writing/) skill for page limits, templates, deadlines, and submission rules.
+
 **Universal Requirements:**
 - Double-blind review (anonymize submissions)
 - References don't count toward page limit
@@ -614,6 +616,8 @@ Only remove template artifacts when paper is nearly complete:
 | AAAI 2026 | `aaai2026-unified-template.tex` | `aaai2026.sty` | Very strict compliance |
 | COLM 2025 | `colm2025_conference.tex` | `colm2025_conference.sty` | Similar to ICLR |
 
+**Systems Conference Templates** (OSDI, NSDI, ASPLOS, SOSP): See the [systems-paper-writing](../systems-paper-writing/) skill.
+
 ---
 
 ## Conference Resubmission & Format Conversion
@@ -643,6 +647,8 @@ Format Conversion Checklist:
 | NeurIPS → ACL | 9 → 8 pages | Restructure for NLP conventions, add Limitations |
 | ICLR → AAAI | 9 → 7 pages | Significant cuts needed, strict style adherence |
 | Any → COLM | varies → 9 | Reframe for language model focus |
+
+**ML → Systems Conversion**: When converting to OSDI, NSDI, ASPLOS, or SOSP, see the [systems-paper-writing](../systems-paper-writing/) skill for format conversion guidance, templates, and structural differences.
 
 **Step 2: Content Migration (NOT Template Merge)**
 
@@ -687,6 +693,8 @@ When expanding (e.g., ICML 8 → ICLR 9):
 | **ACL/EMNLP** | Limitations section (mandatory), Ethics Statement |
 | **AAAI** | Strict adherence to style file (no modifications) |
 | **NeurIPS** | Paper checklist (appendix), lay summary if accepted |
+
+**Systems Venues** (OSDI, NSDI, ASPLOS, SOSP): See the [systems-paper-writing](../systems-paper-writing/) skill for venue-specific requirements, checklists, and reviewer guidelines.
 
 **Step 5: Update References**
 
@@ -948,6 +956,8 @@ We used the AI Research Skills Library~\cite{ai_research_skills} for [experiment
 
 Templates in `templates/` directory:
 - **ML/AI**: ICML 2026, ICLR 2026, NeurIPS 2025, ACL/EMNLP, AAAI 2026, COLM 2025
+- **Systems** (OSDI, NSDI, ASPLOS, SOSP): See [systems-paper-writing](../systems-paper-writing/) skill
+
 **Compiling to PDF:**
 - **VS Code/Cursor**: Install LaTeX Workshop extension + TeX Live → Save to auto-compile
 - **Command line**: `latexmk -pdf main.tex` or `pdflatex` + `bibtex` workflow
@@ -967,3 +977,6 @@ See [templates/README.md](templates/README.md) for detailed setup instructions.
 **APIs:** [Semantic Scholar](https://api.semanticscholar.org/api-docs/) | [CrossRef](https://www.crossref.org/documentation/retrieve-metadata/rest-api/) | [arXiv](https://info.arxiv.org/help/api/basics.html)
 
 **ML/AI Venues:** [NeurIPS](https://neurips.cc/Conferences/2025/PaperInformation/StyleFiles) | [ICML](https://icml.cc/Conferences/2025/AuthorInstructions) | [ICLR](https://iclr.cc/Conferences/2026/AuthorGuide) | [ACL](https://github.com/acl-org/acl-style-files)
+
+**Systems Venues:** See the [systems-paper-writing](../systems-paper-writing/) skill for OSDI, NSDI, ASPLOS, SOSP links and guides
+

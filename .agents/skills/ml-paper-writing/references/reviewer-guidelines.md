@@ -2,8 +2,6 @@
 
 This reference documents how reviewers evaluate papers at major ML/AI conferences, helping authors anticipate and address reviewer concerns.
 
-**For systems conference reviewer guidelines (OSDI, NSDI, ASPLOS, SOSP)**, see the [systems-paper-writing](../../systems-paper-writing/) skill.
-
 ## Contents
 
 - [Universal Evaluation Dimensions](#universal-evaluation-dimensions)

@@ -4,14 +4,12 @@
 
 There are only two memory layers.
 
-Active working memory:
+**Active working memory:**
+- `research/` (overview, findings, ideas, log, archive)
+- `literature/` (survey, notes)
+- `experiments/` (protocols, logs, results)
 
-- `research/`
-- `literature/`
-- `experiments/`
-
-Derived provenance:
-
+**Derived provenance:**
 - `ara/`
 
 Write to the active working memory during research. Update `ara/` only during epilogue.
@@ -22,9 +20,9 @@ Use when starting a project or pivoting to a new major question.
 
 1. Use `brainstorming-research-ideas` or `creative-thinking-for-research` to generate or refine candidate directions.
 2. If one candidate needs an isolated evaluation, launch a fresh subagent and run `idea-evaluator` there.
-3. Once the main session adopts a direction, write the immediate problem in `research/current-task.md`.
-4. Summarize the project question, hypotheses, and status in `research/state.yaml`.
-5. Update `research/exploration-tree.yaml` with the chosen branch.
+3. Once the main session adopts a direction, write the direction in `research/overview.md`.
+4. Summarize known scientific context in `research/findings.md`.
+5. Log the bootstrap in `research/research-log.md`.
 6. Search literature and create durable notes in `literature/notes/`.
 7. Update `literature/survey.md` with synthesized takeaways.
 
@@ -36,14 +34,13 @@ Use for fast experiment cycles.
 
 1. Choose one hypothesis.
 2. If confirmatory, write a protocol first in `experiments/protocols/`.
-3. Run the experiment or implementation task.
-4. Save meaningful results in `experiments/results/<experiment-id>/` or external trackers.
-5. Write a human-readable record in `experiments/logs/`.
-6. Update `research/state.yaml` with trajectory changes.
+3. Write an execution plan in `docs/plans/` if the protocol needs code-level specification.
+4. Run the experiment or implementation task.
+5. Save meaningful results in `experiments/results/<experiment-id>/` or external trackers.
+6. Write a human-readable record in `experiments/logs/`.
+7. Update `research/overview.md` with current state.
 
 If a hypothesis becomes a long-lived branch with multiple related experiments, create `experiments/<hypothesis-slug>/` and keep branch-level protocol, code, results, and analysis there. Use the shared `experiments/protocols/`, `experiments/logs/`, and `experiments/results/` paths for cross-branch indexing and lightweight records.
-
-Use `research/exploration-tree.yaml` as the live control tree while the project is active. Treat `ara/trace/exploration_tree.yaml` as epilogue-only archival output produced by `ara-research-manager`.
 
 `data/` is for local inputs, cached analysis assets, downloaded metadata, or reference statistics. Do not use it as a second experiment-results directory.
 
@@ -57,8 +54,9 @@ Use after several experiments or when patterns emerge.
    - patterns and insights
    - lessons and constraints
    - open questions
-3. Update `research/exploration-tree.yaml` when a branch deepens, fails, or pivots.
-4. Revise hypotheses or current direction in `research/state.yaml`.
+3. Update `research/ideas.md` with new candidates, parked, or rejected ideas.
+4. Update `research/overview.md` with any direction changes.
+5. Archive old state files to `research/archive/` if they are no longer actively used.
 
 ## Epilogue
 
@@ -87,4 +85,4 @@ In this workspace:
 
 ## Design Principle
 
-The project should stay operable even if the agent ignores one helper file. That is why the workflow relies on a small number of durable markdown/YAML files instead of a larger orchestration layer.
+The project should stay operable even if the agent ignores one helper file. That is why the workflow relies on a small number of durable markdown files instead of a larger orchestration layer.

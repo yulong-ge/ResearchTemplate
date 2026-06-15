@@ -31,6 +31,12 @@
       "skillPath": "0-autoresearch-skill/SKILL.md",
       "computedHash": "85747250f915e11a18fb1a4f7f9e25b0f138b32f8db4ad263229b0ca7ef4d03b"
     },
+    "benchmark-paper-template": {
+      "source": "local",
+      "sourceType": "local",
+      "skillPath": ".agents/skills/benchmark-paper-template/SKILL.md",
+      "computedHash": "daa63e695d0dccd317517b90b92d0f7e3f1f67f104ee5971ad6e9b5c120d3095"
+    },
     "brainstorming-research-ideas": {
       "source": "Orchestra-Research/AI-research-SKILLs",
       "sourceType": "github",
@@ -42,6 +48,12 @@
       "sourceType": "github",
       "skillPath": "21-research-ideation/creative-thinking-for-research/SKILL.md",
       "computedHash": "f30f52e194cc747753cd512b90045ceaef885c14d15ceab76248fd8e446ee7dd"
+    },
+    "data-experiment-readiness": {
+      "source": "local",
+      "sourceType": "local",
+      "skillPath": ".agents/skills/data-experiment-readiness/SKILL.md",
+      "computedHash": "d89f66715d201e7c183d21bdf8b91a5a868b219fe2758f57684b5b060abde5fc"
     },
     "evaluating-llms-harness": {
       "source": "Orchestra-Research/AI-research-SKILLs",
@@ -61,6 +73,12 @@
       "skillPath": "plugins/phd-research/skills/figure-designer/SKILL.md",
       "computedHash": "a1cc5bfec813d3b441cab6f8bf12d89ac8eea91315ea1df55272a86574d8afcf"
     },
+    "grill-me": {
+      "source": "mattpocock/skills",
+      "sourceType": "github",
+      "skillPath": "skills/productivity/grill-me/SKILL.md",
+      "computedHash": "784f0dbb7403b0f00324bce9a112f715342777a0daee7bbb7385f9c6f0a170ea"
+    },
     "huggingface-accelerate": {
       "source": "Orchestra-Research/AI-research-SKILLs",
       "sourceType": "github",
@@ -72,6 +90,12 @@
       "sourceType": "github",
       "skillPath": "plugins/phd-research/skills/idea-evaluator/SKILL.md",
       "computedHash": "52693957b4cd09a5ac0a999741d95323d9512c7446ffb5b4d6404cc3901af90a"
+    },
+    "intro-drafter": {
+      "source": "local",
+      "sourceType": "local",
+      "skillPath": ".agents/skills/intro-drafter/SKILL.md",
+      "computedHash": "0f8c8c4fbc1e11398fd4ea34dbead8a2c77a598b92b2beee3a079a7f6fd4896c"
     },
     "ml-paper-writing": {
       "source": "Orchestra-Research/AI-research-SKILLs",
@@ -85,11 +109,29 @@
       "skillPath": "04-mechanistic-interpretability/nnsight/SKILL.md",
       "computedHash": "ae5d91b37e48e030dd549ca03f0e9fb7761adae904755b1f4a5f4677b1754ea7"
     },
+    "paperclip": {
+      "source": "local",
+      "sourceType": "local",
+      "skillPath": ".agents/skills/paperclip/SKILL.md",
+      "computedHash": "02e5003bda3f8480a2b56e8431cc3a07de71517dabb00d866739b693908a2ac1"
+    },
     "peft-fine-tuning": {
       "source": "Orchestra-Research/AI-research-SKILLs",
       "sourceType": "github",
       "skillPath": "03-fine-tuning/peft/SKILL.md",
       "computedHash": "96d4710188d4452d82d1e89671275abcbfc4a0a104ae9406373dc286e2008994"
+    },
+    "pre-submission-reviewer": {
+      "source": "local",
+      "sourceType": "local",
+      "skillPath": ".agents/skills/pre-submission-reviewer/SKILL.md",
+      "computedHash": "e8f5acb709fe57a16e10a50399e9957104418a0d7348b3ca231d51c70aa3c1cc"
+    },
+    "presenting-conference-talks": {
+      "source": "Orchestra-Research/AI-research-SKILLs",
+      "sourceType": "github",
+      "skillPath": "20-ml-paper-writing/presenting-conference-talks/SKILL.md",
+      "computedHash": "ba2312db279bd6cb79ee48f3ad8bc32c5c991bf6f43203910017e3c06856feb4"
     },
     "pyvene-interventions": {
       "source": "Orchestra-Research/AI-research-SKILLs",
@@ -109,6 +151,12 @@
       "skillPath": "18-multimodal/stable-diffusion/SKILL.md",
       "computedHash": "5255b6e2dc1394c3a043092715f8b02a3dbf228bafbe0b2fb972b21882517328"
     },
+    "tech-paper-template": {
+      "source": "local",
+      "sourceType": "local",
+      "skillPath": ".agents/skills/tech-paper-template/SKILL.md",
+      "computedHash": "93625f319514cba10cb989cd670af6ee623b079f063ace8d1451af56c7c0c879"
+    },
     "tensorboard": {
       "source": "Orchestra-Research/AI-research-SKILLs",
       "sourceType": "github",
@@ -126,6 +174,12 @@
       "sourceType": "github",
       "skillPath": "13-mlops/weights-and-biases/SKILL.md",
       "computedHash": "6d98bac42f756c4ab15701e9aedd9f62d6f1d65dedf050d6c9814dc1525005fa"
+    },
+    "zotero-arxiv-import": {
+      "source": "local",
+      "sourceType": "local",
+      "skillPath": ".agents/skills/zotero-arxiv-import/SKILL.md",
+      "computedHash": "bf3e14f695ab1ef617c7e2341de8d27047d13d566d3bd11773fa930297809f39"
     }
   }
 }

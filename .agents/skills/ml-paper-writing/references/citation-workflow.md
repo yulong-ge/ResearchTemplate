@@ -1,6 +1,6 @@
 # Citation Management & Hallucination Prevention
 
-This reference provides a complete workflow for managing citations programmatically, preventing AI-generated citation hallucinations, and maintaining clean bibliographies.
+This reference provides a complete workflow for managing citations with the tools already available in this template, preventing AI-generated citation hallucinations, and maintaining clean bibliographies.
 
 ---
 
@@ -9,7 +9,6 @@ This reference provides a complete workflow for managing citations programmatica
 - [Why Citation Verification Matters](#why-citation-verification-matters)
 - [Citation APIs Overview](#citation-apis-overview)
 - [Verified Citation Workflow](#verified-citation-workflow)
-- [Python Implementation](#python-implementation)
 - [BibTeX Management](#bibtex-management)
 - [Common Citation Formats](#common-citation-formats)
 - [Troubleshooting](#troubleshooting)
@@ -38,28 +37,28 @@ Research has documented significant issues with AI-generated citations:
 
 ### Solution
 
-**Never generate citations from memory—always verify programmatically.**
+**Never generate citations from memory—always verify against authoritative sources.**
 
 ---
 
 ## Citation APIs Overview
 
-### Primary APIs
+### Primary Sources and Tools
 
-| API | Coverage | Rate Limits | Best For |
-|-----|----------|-------------|----------|
-| **Semantic Scholar** | 214M papers | 1 RPS (free key) | ML/AI papers, citation graphs |
-| **CrossRef** | 140M+ DOIs | Polite pool with mailto | DOI lookup, BibTeX retrieval |
-| **arXiv** | Preprints | 3-second delays | ML preprints, PDF access |
-| **OpenAlex** | 240M+ works | 100K/day, 10 RPS | Open alternative to MAG |
+| Tool | Best For |
+|------|----------|
+| **Semantic Scholar MCP** | ML/AI paper search, citation graphs, author lookups |
+| **alphaxiv MCP** | Reading and checking arXiv full text |
+| **Zotero MCP** | Saving verified references into a project bibliography |
+| **CrossRef / DOI lookup** | DOI metadata and BibTeX retrieval |
 
 ### API Selection Guide
 
 ```
-Need ML paper search? → Semantic Scholar
+Need ML paper search? → Semantic Scholar MCP
+Need to read the paper body? → alphaxiv MCP
+Need to save references? → Zotero MCP
 Have DOI, need BibTeX? → CrossRef content negotiation
-Looking for preprint? → arXiv API
-Need open data, bulk access? → OpenAlex
 ```
 
 ### No Official Google Scholar API
@@ -73,7 +72,7 @@ Google Scholar has no official API. Scraping violates ToS. Use SerpApi ($75-275/
 ### 5-Step Process
 
 ```
-1. SEARCH → Query Semantic Scholar with specific keywords
+1. SEARCH → Query Semantic Scholar MCP with specific keywords
      ↓
 2. VERIFY → Confirm paper exists in 2+ sources
      ↓
@@ -86,57 +85,17 @@ Google Scholar has no official API. Scraping violates ToS. Use SerpApi ($75-275/
 
 ### Step 1: Search
 
-Use Semantic Scholar for ML/AI papers:
-
-```python
-from semanticscholar import SemanticScholar
-
-sch = SemanticScholar()
-results = sch.search_paper("transformer attention mechanism", limit=10)
-
-for paper in results:
-    print(f"Title: {paper.title}")
-    print(f"Year: {paper.year}")
-    print(f"DOI: {paper.externalIds.get('DOI', 'N/A')}")
-    print(f"arXiv: {paper.externalIds.get('ArXiv', 'N/A')}")
-    print(f"Citation count: {paper.citationCount}")
-    print("---")
-```
+Use Semantic Scholar MCP for ML/AI papers. Capture title, year, DOI, arXiv id, and citation count in your notes or bibliography workflow.
 
 ### Step 2: Verify Existence
 
 Confirm paper exists in at least two sources:
 
-```python
-import requests
+1. Check the paper in Semantic Scholar MCP.
+2. Check DOI metadata via CrossRef or DOI resolution.
+3. If it is an arXiv paper, confirm the arXiv entry through alphaxiv.
 
-def verify_paper(doi=None, arxiv_id=None, title=None):
-    """Verify paper exists in multiple sources."""
-    sources_found = []
-
-    # Check Semantic Scholar
-    sch = SemanticScholar()
-    if doi:
-        paper = sch.get_paper(f"DOI:{doi}")
-        if paper:
-            sources_found.append("Semantic Scholar")
-
-    # Check CrossRef (via DOI)
-    if doi:
-        resp = requests.get(f"https://api.crossref.org/works/{doi}")
-        if resp.status_code == 200:
-            sources_found.append("CrossRef")
-
-    # Check arXiv
-    if arxiv_id:
-        resp = requests.get(
-            f"http://export.arxiv.org/api/query?id_list={arxiv_id}"
-        )
-        if "<entry>" in resp.text:
-            sources_found.append("arXiv")
-
-    return len(sources_found) >= 2, sources_found
-```
+Accept the citation only when at least two sources agree on the core metadata.
 
 ### Step 3: Retrieve BibTeX
 
@@ -162,247 +121,17 @@ print(bibtex)
 
 ### Step 4: Validate Claims
 
-Before citing a paper for a specific claim, verify the claim exists:
-
-```python
-def get_paper_abstract(doi):
-    """Get abstract to verify claims."""
-    sch = SemanticScholar()
-    paper = sch.get_paper(f"DOI:{doi}")
-    return paper.abstract if paper else None
-
-# Verify claim appears in abstract
-abstract = get_paper_abstract("10.48550/arXiv.1706.03762")
-claim = "attention mechanism"
-if claim.lower() in abstract.lower():
-    print("Claim appears in paper")
-```
+Before citing a paper for a specific claim, verify the claim exists in the abstract or full text. Use alphaxiv for full-text inspection when the abstract is insufficient.
 
 ### Step 5: Add to Bibliography
 
-Add verified entry to your .bib file with consistent key format:
-
-```python
-def generate_citation_key(bibtex: str) -> str:
-    """Generate consistent citation key: author_year_firstword."""
-    import re
-
-    # Extract author
-    author_match = re.search(r'author\s*=\s*\{([^}]+)\}', bibtex, re.I)
-    if author_match:
-        first_author = author_match.group(1).split(',')[0].split()[-1]
-    else:
-        first_author = "unknown"
-
-    # Extract year
-    year_match = re.search(r'year\s*=\s*\{?(\d{4})\}?', bibtex, re.I)
-    year = year_match.group(1) if year_match else "0000"
-
-    # Extract title first word
-    title_match = re.search(r'title\s*=\s*\{([^}]+)\}', bibtex, re.I)
-    if title_match:
-        first_word = title_match.group(1).split()[0].lower()
-        first_word = re.sub(r'[^a-z]', '', first_word)
-    else:
-        first_word = "paper"
-
-    return f"{first_author.lower()}_{year}_{first_word}"
-```
+Add the verified entry to your `.bib` file with a consistent key format such as `author_year_firstword`. If you are maintaining a project bibliography in Zotero, save the verified record there as well.
 
 ---
 
-## Python Implementation
+## Tool-First Workflow
 
-### Complete Citation Manager Class
-
-```python
-"""
-Citation Manager - Verified citation workflow for ML papers.
-"""
-
-import requests
-import time
-from typing import Optional, List, Dict, Tuple
-from dataclasses import dataclass
-
-try:
-    from semanticscholar import SemanticScholar
-except ImportError:
-    print("Install: pip install semanticscholar")
-    SemanticScholar = None
-
-@dataclass
-class Paper:
-    title: str
-    authors: List[str]
-    year: int
-    doi: Optional[str]
-    arxiv_id: Optional[str]
-    venue: Optional[str]
-    citation_count: int
-    abstract: Optional[str]
-
-class CitationManager:
-    """Manage citations with verification."""
-
-    def __init__(self, api_key: Optional[str] = None):
-        self.sch = SemanticScholar(api_key=api_key) if SemanticScholar else None
-        self.verified_papers: Dict[str, Paper] = {}
-
-    def search(self, query: str, limit: int = 10) -> List[Paper]:
-        """Search for papers using Semantic Scholar."""
-        if not self.sch:
-            raise RuntimeError("Semantic Scholar not available")
-
-        results = self.sch.search_paper(query, limit=limit)
-        papers = []
-
-        for r in results:
-            paper = Paper(
-                title=r.title,
-                authors=[a.name for a in (r.authors or [])],
-                year=r.year or 0,
-                doi=r.externalIds.get('DOI') if r.externalIds else None,
-                arxiv_id=r.externalIds.get('ArXiv') if r.externalIds else None,
-                venue=r.venue,
-                citation_count=r.citationCount or 0,
-                abstract=r.abstract
-            )
-            papers.append(paper)
-
-        return papers
-
-    def verify(self, paper: Paper) -> Tuple[bool, List[str]]:
-        """Verify paper exists in multiple sources."""
-        sources = []
-
-        # Already found in Semantic Scholar via search
-        sources.append("Semantic Scholar")
-
-        # Check CrossRef if DOI available
-        if paper.doi:
-            try:
-                resp = requests.get(
-                    f"https://api.crossref.org/works/{paper.doi}",
-                    timeout=10
-                )
-                if resp.status_code == 200:
-                    sources.append("CrossRef")
-            except:
-                pass
-
-        # Check arXiv if ID available
-        if paper.arxiv_id:
-            try:
-                resp = requests.get(
-                    f"http://export.arxiv.org/api/query?id_list={paper.arxiv_id}",
-                    timeout=10
-                )
-                if "<entry>" in resp.text and "<title>" in resp.text:
-                    sources.append("arXiv")
-            except:
-                pass
-
-        return len(sources) >= 2, sources
-
-    def get_bibtex(self, paper: Paper) -> Optional[str]:
-        """Get BibTeX for verified paper."""
-        if paper.doi:
-            try:
-                resp = requests.get(
-                    f"https://doi.org/{paper.doi}",
-                    headers={"Accept": "application/x-bibtex"},
-                    timeout=10,
-                    allow_redirects=True
-                )
-                if resp.status_code == 200:
-                    return resp.text
-            except:
-                pass
-
-        # Fallback: generate from paper data
-        return self._generate_bibtex(paper)
-
-    def _generate_bibtex(self, paper: Paper) -> str:
-        """Generate BibTeX from paper metadata."""
-        # Generate citation key
-        first_author = paper.authors[0].split()[-1] if paper.authors else "unknown"
-        first_word = paper.title.split()[0].lower().replace(',', '').replace(':', '')
-        key = f"{first_author.lower()}_{paper.year}_{first_word}"
-
-        # Format authors
-        authors = " and ".join(paper.authors) if paper.authors else "Unknown"
-
-        bibtex = f"""@article{{{key},
-  title = {{{paper.title}}},
-  author = {{{authors}}},
-  year = {{{paper.year}}},
-  {'doi = {' + paper.doi + '},' if paper.doi else ''}
-  {'eprint = {' + paper.arxiv_id + '},' if paper.arxiv_id else ''}
-  {'journal = {' + paper.venue + '},' if paper.venue else ''}
-}}"""
-        return bibtex
-
-    def cite(self, query: str) -> Optional[str]:
-        """Full workflow: search, verify, return BibTeX."""
-        # Search
-        papers = self.search(query, limit=5)
-        if not papers:
-            return None
-
-        # Take top result
-        paper = papers[0]
-
-        # Verify
-        verified, sources = self.verify(paper)
-        if not verified:
-            print(f"Warning: Could only verify in {sources}")
-
-        # Get BibTeX
-        bibtex = self.get_bibtex(paper)
-
-        # Cache
-        if bibtex:
-            self.verified_papers[paper.title] = paper
-
-        return bibtex
-
-
-# Usage example
-if __name__ == "__main__":
-    cm = CitationManager()
-
-    # Search and cite
-    bibtex = cm.cite("attention is all you need transformer")
-    if bibtex:
-        print(bibtex)
-```
-
-### Quick Functions
-
-```python
-def quick_cite(query: str) -> str:
-    """One-liner citation."""
-    cm = CitationManager()
-    return cm.cite(query)
-
-def batch_cite(queries: List[str], output_file: str = "references.bib"):
-    """Cite multiple papers and save to file."""
-    cm = CitationManager()
-    bibtex_entries = []
-
-    for query in queries:
-        print(f"Processing: {query}")
-        bibtex = cm.cite(query)
-        if bibtex:
-            bibtex_entries.append(bibtex)
-        time.sleep(1)  # Rate limiting
-
-    with open(output_file, 'w') as f:
-        f.write("\n\n".join(bibtex_entries))
-
-    print(f"Saved {len(bibtex_entries)} citations to {output_file}")
-```
+This template expects citation work to start with MCP tools and DOI metadata checks. Use local scripts only when the user explicitly wants automation and the required environment is already available.
 
 ---
 
@@ -551,11 +280,6 @@ Before adding a citation:
 - CrossRef: https://www.crossref.org/documentation/retrieve-metadata/rest-api/
 - arXiv: https://info.arxiv.org/help/api/basics.html
 - OpenAlex: https://docs.openalex.org/
-
-**Python Libraries:**
-- `semanticscholar`: https://pypi.org/project/semanticscholar/
-- `arxiv`: https://pypi.org/project/arxiv/
-- `habanero` (CrossRef): https://github.com/sckott/habanero
 
 **Verification Tools:**
 - Citely: https://citely.ai/citation-checker

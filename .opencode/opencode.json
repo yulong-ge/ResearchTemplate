@@ -1,0 +1,38 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  // Academic workspace — overrides global config
+  // MCPs tuned for research & paper writing
+  "plugin": [
+    "@prevalentware/opencode-goal-plugin"
+    // "opencode-background-agents"
+  ],
+  "mcp": {
+    "zotero": {
+      "type": "local",
+      "command": ["zotero-mcp"],
+      "environment": {
+        "ZOTERO_LOCAL": "true",
+        "ZOTERO_EMBEDDING_MODEL": "default",
+        "ZOTERO_API_KEY": "<zotero-api-key>",
+        "ZOTERO_LIBRARY_ID": "<zotero-library-id>",
+        "ZOTERO_LIBRARY_TYPE": "user"
+      },
+      "enabled": true
+    },
+    "alphaxiv": {
+      "type": "remote",
+      "url": "https://api.alphaxiv.org/mcp/v1",
+      "enabled": true
+    },
+    "semantic-scholar": {
+      "enabled": true
+    },
+    // Disable non-academic MCPs
+    "ssh-mcp": {
+      "enabled": true
+    },
+    "ticktick": {
+      "enabled": false
+    }
+  }
+}

@@ -4,32 +4,72 @@
 
 ### Start Here
 
-1. Read `research/state.yaml`, `research/findings.md`, and `research/current-task.md` first.
+1. Read `research/overview.md` before research or experiment work; it is the primary current-state research file.
 2. Treat `research/`, `literature/`, and `experiments/` as the active working memory.
 3. Treat `ara/` as epilogue output only.
 4. Load `autoresearch` when the task involves iterative research planning, experiments, and synthesis across multiple hypotheses.
 
-### How To Work
+### Research State
 
-- Keep the main research question, hypotheses, and next step in `research/state.yaml`.
+- Use `autoresearch` for research experiment planning, execution loops, synthesis, or result-recording decisions.
+- Keep the main research question, active direction, and current state in `research/overview.md`.
 - Keep synthesized technical understanding in `research/findings.md`.
 - Keep project-level progress in `research/research-log.md`.
-- Keep branch and hypothesis structure in `research/exploration-tree.yaml`.
+- Keep active/parked/rejected ideas in `research/ideas.md`.
+- `research/archive/` holds historical snapshots of state, exploration tree, and task documents for reference.
+- `research/exploration-tree.yaml` is optional — use it when managing multiple parallel hypotheses.
 - Save paper notes in `literature/notes/` and maintain the aggregate map in `literature/survey.md`.
+- `ctx_memory`/`ctx_search` are caches. If they conflict with `AGENTS.md` or `research/overview.md`, trust repo docs and clean the stale memory.
+- `ara/` is epilogue-only provenance; do not update `ara/trace/exploration_tree.yaml` during active work.
+
+### Repository Layout
+
+- Main reusable code lives in `src/`.
+- Experiment-specific code lives in `experiments/<hypothesis-slug>/`.
+- Write confirmatory experiment designs in `experiments/protocols/`.
+- Write concrete code/execution plans in `docs/plans/`.
+- Completed plans belong under `docs/plans/archive/`.
+- Third-party research code is vendored under `external/`.
+- Remote execution scripts live in `scripts/`.
+
+### Experiments
+
 - Write confirmatory protocols in `experiments/protocols/` before running experiments.
 - Save meaningful run records in `experiments/logs/` and shared structured outputs in `experiments/results/<experiment-id>/`.
 - Use the top-level `experiments/protocols/`, `experiments/logs/`, and `experiments/results/` paths as the project-wide index for lightweight runs, cross-branch records, and standardized exports.
-- When one outer-loop hypothesis becomes its own sustained branch, create `experiments/<hypothesis-slug>/` and keep that branch's protocol, experiment-specific code, results, and analysis there.
+- When one outer-loop hypothesis becomes its own sustained branch, create `experiments/<hypothesis-slug>/` and keep that branch's protocol, code, results, and analysis there.
+
+### Code Editing
+
+- When refactoring or replacing an obsolete design, remove the abandoned code path directly; do not add compatibility wrappers, legacy CLI aliases, migration shims, or old-format tests unless backward compatibility is explicitly requested.
+- If tests encode superseded behavior, rewrite or delete those tests with the refactor instead of preserving stale behavior as compatibility coverage.
+
+### Storage And Artifacts
+
+- Use `src/<project>/paths.py` as the single source of truth for storage paths (cloud roots, model dirs, data dirs, result roots).
+- Large models, datasets, and raw experiment artifacts should live on remote/cloud storage, not in the local repo.
+- Local `experiments/results/` is only a pointer; raw artifacts live on remote storage under `RESULTS_ROOT / <hypothesis-slug> / <run-id>`.
+- SwanLab or W&B can be used as lightweight tracking mirrors for metadata, metrics, and media only. Never upload checkpoints, latent caches, `.pt/.pth/.ckpt/.safetensors/.bin/.npy/.npz`, or archives.
+- Use unique timestamped run directories for experiments.
+
+### Remote Execution
+
+- Runtime targets are centralized in `scripts/remote_targets.sh`.
+- Before remote runs: `scripts/remote_sync.sh <target>` then `scripts/remote_preflight.sh <target>` from the local machine.
+- For debug/full/evaluation jobs, start a remote `tmux` session in the synced repo, source `scripts/remote_env.sh`, then run through `scripts/remote_python.sh`.
+- Long remote jobs must survive local session loss. Prefer remote `tmux`; if unavailable, use `nohup` with unbuffered output, stable logs, heartbeat/progress, and success/failure markers.
+- Use `.opencode/agents/remote-exec.md` (via `@remote-exec` in subagent dispatch) to keep main session context clean during long remote runs.
+- For repeated remote tmux/status tracking loops, dispatch a `remote-exec` subagent instead of manually polling in the main session.
 
 ### Rules
 
 - For a new direction, generate or refine candidate ideas with `brainstorming-research-ideas` or `creative-thinking-for-research` first.
 - Use `idea-evaluator` only after a candidate idea already exists and needs an isolated evaluation.
 - Run `idea-evaluator` in a fresh subagent so the evaluation is not mixed with the active working context.
-- After an `idea-evaluator` subagent returns, the main session decides whether to adopt the result and, if adopted, records the conclusion in `research/research-log.md` and updates `research/state.yaml`, `research/current-task.md`, and `research/exploration-tree.yaml` as needed.
 - Use `ara-rigor-reviewer` before treating an important claim as established.
 - Use `ara-research-manager` only after an outer-loop update, a direction pivot, or the end of a work unit that changed the next actionable step.
 - Do not start recurring `/loop`, cron, watchdog, or heartbeat jobs unless the user explicitly asks for continuous autonomous operation.
+- Use `grill-me` to stress-test a plan or design before committing to implementation.
 
 ### Directory Boundaries
 
@@ -37,7 +77,18 @@
 - `to_human/` is for optional human-facing summaries, decks, or reports when explicitly useful.
 - `paper/` is for manuscript assets and section drafts only.
 - Keep reusable code in `src/`, not buried inside one experiment folder.
-- `research/exploration-tree.yaml` is the live tree for active research. `ara/trace/exploration_tree.yaml` is epilogue-only archive state and should not be updated during active research.
+- `external/` is for vendored third-party code.
+- `docs/plans/` is for execution plans; `experiments/protocols/` is for confirmatory experiment designs.
+
+### OpenCode Configuration
+
+- `.opencode/opencode.json` defines MCP servers for academic research (Zotero, AlphaXiv, Semantic Scholar).
+- `.opencode/agents/remote-exec.md` is a subagent for running long training jobs on remote GPU servers.
+
+### Verification Commands
+
+- Run tests: `uv run pytest tests/`
+- Shell syntax check: `bash -n scripts/remote_targets.sh scripts/remote_env.sh scripts/remote_python.sh scripts/remote_sync.sh scripts/remote_preflight.sh`
 
 ### Deep Learning Discipline
 

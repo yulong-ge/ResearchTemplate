@@ -1,94 +1,30 @@
-# Agent Continuity: Optional Continuous Execution
+# 研究连贯性与接续指南 (Research Continuity)
 
-Continuous research execution can be useful for hours-long unattended work, but it is optional. This reference covers how to set up the wall-clock loop on each platform when the user explicitly wants autonomous continuation.
+研究文件是维持不同智能体工作会话之间记忆连贯性的核心图层。请务必保持它们的实时更新，以便下一个会话（智能体/人类）可以无缝接续。
 
-## Optional Setup
+## 核心状态文件 (Ground Truth Files)
 
-The wall-clock loop is an operational aid. It fires every 20 minutes and simply tells the agent: "keep working, check if anything's wrong."
-
-This is completely separate from the research inner/outer loops. The wall-clock loop is a fixed-interval prompt injection. The research loops run at experiment speed (minutes to hours per cycle). They will not sync and don't need to.
-
-## Claude Code: /loop
-
-If autonomous continuation is requested, run this:
-
-```
-/loop 20m Continue autoresearch. Read research/state.yaml and research/findings.md. Check: is the current experiment done? Are there errors? Is progress stalling? If everything is on track, keep working. If something is wrong, step back and fix it. Never idle.
-```
-
-### What Happens on Each Tick
-
-The `/loop` message fires every 20 minutes. When it fires:
-
-1. **Read state** — `research/state.yaml` and `research/findings.md` to remember where you are and what you've learned
-2. **Check health** — is the current experiment running? Did it error? Is training diverging?
-3. **If on track** → continue whatever you were doing (don't restart or re-plan)
-4. **If stuck or broken** → step back, diagnose the issue, fix it, then continue
-5. **If idle** → pick the next hypothesis or the next synthesis task
-
-The tick is a nudge, not a phase boundary. If the previous tick's work isn't done, just keep going.
-
-### When Experiments Run Longer Than 20 Minutes
-
-This is normal and expected. On the next tick:
-- Check if the experiment finished
-- If still running: monitor for errors, do lightweight work (update notes, search papers)
-- Don't restart or duplicate the experiment
-
-### Context Recovery
-
-Your primary memory between ticks is `research/state.yaml` and `research/findings.md`. Keep them updated after every experiment and reflection. If you lose context, read both files plus `research/research-log.md` to reconstruct where you are.
-
-## OpenClaw: Cron Job
-
-If autonomous continuation is requested, use the `cron.add` tool to create a recurring job bound to the current chat session:
-
-```json
-{
-  "name": "autoresearch-loop",
-  "schedule": { "kind": "every", "everyMs": 1200000 },
-  "sessionTarget": "current",
-  "payload": {
-    "kind": "agentTurn",
-    "message": "Continue autoresearch. Read research/state.yaml and research/findings.md. Check: is the current experiment done? Are there errors? Is progress stalling? If everything is on track, keep working. If something is wrong, step back and fix it. Never idle."
-  }
-}
-```
-
-Key details:
-- `sessionTarget: "current"` binds the cron to the current chat session (resolved to `session:<sessionKey>` at creation time), so it maintains conversation context across ticks
-- `everyMs: 1200000` = 20 minutes
-- Verify with `cron.list` that the job is created and enabled
-- To check run history later: `cron.runs` with the job ID
-
-### Context Between Cron Ticks
-
-OpenClaw cron invocations may start fresh each time. Your workspace files are your memory:
-
-- `research/state.yaml` — where you are, what's active
-- `research/findings.md` — what you've learned (read this every time!)
-- `research/research-log.md` — what happened chronologically
-
-Keep these updated after every action so the next cron tick can pick up seamlessly.
-
-### Progress Reports
-
-OpenClaw can't `open` HTML files locally like Claude Code can. When you have something to report:
-
-1. Generate a PDF progress summary (use Python with reportlab, matplotlib, or similar)
-2. Include: research question, key results, optimization trajectory plot, current understanding, next steps
-3. Send it to the user via Telegram, WhatsApp, or Slack — whichever channel they use
-4. When you get an exciting result or interesting plot, send it right away — don't wait for a full report
-
-## Research State as Ground Truth
-
-Both platforms share the same ground truth: the workspace files.
-
-| File | Purpose | Update Frequency |
+| 文件路径 | 核心目的 | 更新频率 |
 |---|---|---|
-| `research/state.yaml` | Machine-readable state | After every experiment and reflection |
-| `research/research-log.md` | Decision timeline | After every significant action |
-| `research/findings.md` | Narrative understanding + project memory | After every outer loop |
-| `experiments/*/results/` | Raw experimental data | After every experiment |
+| `research/overview.md` | 当前研究状态、活跃方向和下一步行动 | 当前目标、方向或阻塞条件变化后 |
+| `research/research-log.md` | 科学决策与里程碑时间线 | 每次重大研究行动后 |
+| `research/findings.md` | 科学发现与解释约束 | 科学理解变化后 |
+| `research/ideas.md` | 活跃、候选、搁置和拒绝的研究想法 | 方向增删、搁置或拒绝后 |
+| `experiments/results/` | 原始实验输出与数据资产 | 每次实验运行完毕后 |
 
-The wall-clock loop (`/loop` or cron) is just the trigger. The workspace files are the memory. Keep them current whenever you choose to run unattended.
+## 恢复并接续工作 (Resuming Work)
+
+当在一个已有的项目上恢复研究工作时：
+
+1. **首要步骤**：阅读 `research/overview.md` 和 `research/findings.md`。
+2. 仔细阅读最近的 `research/research-log.md` 记录，回忆起之前的上下文。
+3. 检查当前实验或分析是否已经在 `experiments/` 目录下拥有了输出文件。
+4. **拒绝重复造轮子**：直接从记录的“下一步骤”开始推进，切忌推倒重来或重新进行已经完成的逻辑推理。
+
+## 长期运行的实验 (Long Experiments)
+
+如果某项实验运行的时间超出了当前的活跃会话窗口：
+
+1. 详尽记录正在运行的任务、所使用的设备/进程以及输出文件被写入的路径。
+2. 记录相关的健康状态检查命令（如 GPU 状态、损失值日志输出位置）、部分观测到的中间结果、以及下一次应当检查的时间点。
+3. **不要重复提交**：除非有明确证据表明该次运行已挂掉或发散，否则绝不要重复启动相同的运行任务。

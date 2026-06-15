@@ -1,189 +1,209 @@
 ---
 name: autoresearch
-description: Orchestrates end-to-end AI research projects using a two-loop architecture. The inner loop runs rapid experiment iterations with clear optimization targets. The outer loop synthesizes results, identifies patterns, and steers research direction. Routes to domain-specific skills for execution and helps manage multi-hypothesis research efforts without requiring continuous autonomous loop execution.
-version: 1.0.0
-author: Orchestra Research
-license: MIT
-tags: [Research Orchestration, Two-Loop Architecture, Experiment Orchestration, Research Synthesis, Project Management]
+description: Use when planning, running, recording, or synthesizing iterative research experiments; deciding where research results, logs, findings, protocols, or next actions belong; or resuming an existing research project.
 ---
 
-# Autoresearch
+# 自动研究编排 (Autoresearch)
 
-Research orchestration for AI coding agents. You manage the full research lifecycle by maintaining structured state, running a two-loop experiment-synthesis cycle, and routing to domain-specific skills for execution.
+为 AI 编程智能体设计的研究编排技能。你将通过维护结构化的状态、运行实验-综合的双循环机制，并在执行过程中路由到特定领域的专业技能，来管理整个研究生命周期。
 
-You are a research project manager, not a domain expert. You orchestrate; the domain skills execute.
+你是一个研究项目经理，而不是某个领域的绝对专家。你负责编排和调度，具体领域的技能负责执行。
 
-Use the two-loop workflow decisively once a direction is clear, but do not force continuous background operation or generate progress reports unless they are useful for the current task.
+一旦研究方向明确，请果断使用双循环工作流，但不要强行进行无意义的后台运行，除非对当前任务有切实帮助，否则不要盲目生成进度报告。
 
-## Getting Started
+## 快速开始
 
-Users arrive in different states. Determine which and proceed:
+用户可能带着不同的初始状态开始。请判断其状态并按以下指南进行：
 
-| User State | What to Do |
+| 用户状态 | 应对策略 |
 |---|---|
-| Vague idea ("I want to explore X") | Brief discussion to clarify, then bootstrap |
-| Clear research question | Bootstrap directly |
-| Existing plan or proposal | Review plan, set up workspace, enter loops |
-| Resuming (`research/state.yaml` exists) | Read state, continue from where you left off |
+| 模糊的想法（“我想探索 X”） | 进行简短讨论以明确目标，然后开始引导初始化 |
+| 明确的研究问题 | 直接进行引导初始化 |
+| 已有计划或提案 | 评审计划，建立工作区，进入双循环机制 |
+| 恢复执行（`research/overview.md` 已存在） | 读取当前状态，从上次中断的地方继续执行 |
 
-If things are clear, don't over-discuss — proceed to research work. Most users want you to start making concrete progress once the task is scoped.
+如果目标已经很明确，不要过度讨论 —— 立即开展具体的研究工作。在确定任务范围后，大多数用户更希望看到你取得实质性的进展。
 
-### Initialize Workspace
+恢复执行时先读 `research/overview.md`。只有在解释科学证据、更新研究结论或 pivot 时才读/查 `research/findings.md`。`research/research-log.md` 是时间顺序日志，可能很大；只读末尾行或用搜索定位，不要整文件读取。
 
-Use this workspace layout:
+### 初始化工作区
+
+使用以下工作区布局：
 
 ```
 {project}/
 ├── research/
-│   ├── state.yaml            # Central state tracking
-│   ├── research-log.md       # Decision timeline
-│   ├── findings.md           # Evolving narrative synthesis
-│   ├── current-task.md       # Active work unit
-│   └── exploration-tree.yaml # Branch and hypothesis structure
-├── literature/               # Papers, survey notes
-├── src/                      # Reusable code (utils, plotting, shared modules)
-├── data/                     # Datasets, cached assets, reference assets
-├── experiments/              # Shared indexes plus per-hypothesis workspaces
-│   ├── protocols/            # Cross-branch confirmatory protocols
-│   ├── logs/                 # Cross-branch run records
-│   ├── results/              # Cross-branch structured outputs
-│   └── {hypothesis-slug}/    # Long-lived branch workspace when one hypothesis deepens
-│       ├── protocol.md       # Branch-level protocol and prediction
-│       ├── code/             # Experiment-specific code
-│       ├── results/          # Branch-scoped outputs and analysis assets
-│       └── analysis.md       # What this branch has taught the project
-├── to_human/                 # Optional progress presentations and reports for human review
-└── paper/                    # Final paper assets
+│   ├── overview.md           # 当前研究状态与下一步行动
+│   ├── research-log.md       # 决策与里程碑时间线（人类可读）
+│   ├── findings.md           # 科学发现与解释约束
+│   └── ideas.md              # 活跃、候选、搁置和拒绝的研究想法
+├── literature/               # 文献、论文阅读笔记与综述
+├── src/                      # 可复用的代码（工具函数、绘图脚本、共享模块等）
+├── DATA_ROOT/                # 由项目路径模块解析的数据集与缓存资产
+├── experiments/              # 共享的实验索引以及每个假设的分支工作区
+│   ├── protocols/            # 跨分支的验证性实验协议
+│   ├── logs/                 # 跨分支的运行日志记录（人类可读）
+│   ├── results/              # 跨分支的结构化输出
+│   └── {hypothesis-slug}/    # 长期活跃的假设分支工作区（当某个假设深入时使用）
+│       ├── protocol.md       # 分支层面的实验协议与预测
+│       ├── code/             # 分支特有的实验代码
+│       ├── results/          # 分支范围内的输出和分析资产
+│       └── analysis.md       # 该分支为项目带来的核心启示
+├── to_human/                 # 可选的面向人类评审的进度演示与报告
+└── paper/                    # 论文最终资产
 ```
 
-- **`src/`**: When you write useful code (plotting functions, data loaders, evaluation helpers), move it here so it can be reused across experiments. Don't duplicate code in every experiment directory.
-- **`data/`**: Save local inputs, cached analysis assets, metadata exports, and reference statistics here. Do not treat `data/` as a second experiment-results directory.
+- **`src/`**：当你编写了有用的代码（如绘图函数、数据加载器、评估辅助工具）时，将其移至此处，以便在不同实验中复用。不要在每个实验目录中重复复制相同的代码。
+- **数据资产**：使用项目路径模块定义的 `DATA_ROOT`。不要在仓库根目录创建本地 `data/` 作为真实 artifact 目录。
 
-Initialize the core state files from [templates/](templates/), then work from these project paths:
+从 [templates/](templates/) 初始化核心研究文件，并在以下项目路径中开展工作：
 
-- `research/state.yaml` for machine-readable project state
-- `research/research-log.md` for chronological decisions and milestones
-- `research/findings.md` for synthesized understanding
-- `research/current-task.md` for the active work unit
-- `research/exploration-tree.yaml` for question and hypothesis branching
-- `literature/` for paper notes and survey synthesis
-- `src/` for reusable code
-- `data/` for local inputs and cached assets
-- `experiments/` for protocols, logs, results, and per-hypothesis branch workspaces
-- `to_human/` for optional human-facing reports
-- `paper/` for manuscript assets
+- `research/overview.md`：当前研究状态、活跃方向、当前目标和下一步行动。
+- `research/research-log.md`：按时间顺序记录决策和里程碑；新增一行即可，读取时优先读尾部。
+- `research/findings.md`：科学发现与解释约束，不保存普通工程问题；只在科学综合时更新。
+- `research/ideas.md`：活跃、候选、搁置和拒绝的研究想法。
+- `literature/`：文献笔记与综述。
+- `src/`：可复用的代码。
+- `DATA_ROOT`：数据集、缓存资产和参考统计数据，由项目路径模块解析。
+- `experiments/`：实验协议、运行日志、实验结果以及每个假设的分支工作区。
+- `to_human/`：可选的面向人类的报告。
+- `paper/`：手稿与论文资产。
 
-## The Two-Loop Architecture
+### 记录位置速查
 
-This is the core engine. Everything else supports it.
-
-```
-BOOTSTRAP (once, lightweight)
-  Scope question → search literature → form initial hypotheses
-
-INNER LOOP (fast, autonomous, repeating)
-  Pick hypothesis → experiment → measure → record → learn → next
-  Goal: run constrained experiments with clear measurable outcomes
-
-OUTER LOOP (periodic, reflective)
-  Review results → find patterns → update research/findings.md →
-  new hypotheses → decide direction
-  Goal: synthesize understanding, find the story — this is where novelty comes from
-
-FINALIZE (when concluding)
-  Write paper via ml-paper-writing → final presentation → archive
-```
-
-The inner loop runs tight experiment cycles with clear measurable outcomes. This could be optimizing a benchmark (make val_loss go down) OR testing mechanistic hypotheses (does intervention X cause effect Y?). The outer loop steps back to ask: what do these results *mean*? What patterns emerge? What's the story? Research is open-ended — the two loops let you both optimize and discover.
-
-There is no rigid boundary between the two loops — you decide when enough inner loop results have accumulated to warrant reflection. Typically every 5-10 experiments, or when you notice a pattern, or when progress stalls. The agent's judgment drives the rhythm.
-
-### Research is Non-Linear
-
-The two-loop structure is a rhythm, not a railroad. At any point during research you can and should:
-
-- **Return to literature** when results surprise you, assumptions break, or you need context for a new direction — always save what you find to `literature/`
-- **Brainstorm new ideas** using `brainstorming-research-ideas` or `creative-thinking-for-research` when you're stuck or when results open unexpected questions
-- **Pivot the question entirely** if experiments reveal the original question was wrong or less interesting than what you found
-
-This is normal. Most real research projects loop back to literature 1-3 times and generate new hypotheses mid-stream. Don't treat bootstrap as the only time you read papers or brainstorm — do it whenever understanding would help.
-
-## Bootstrap: Literature and Hypotheses
-
-Before entering the loops, understand the landscape. Keep this efficient — the goal is to start experimenting, not to produce an exhaustive survey.
-
-1. **Search literature** for the research question. Use multiple sources — never stop at one:
-   - **Exa MCP** (`web_search_exa`) if available — best for broad discovery and finding relevant papers quickly
-   - **Semantic Scholar** — best for ML/AI papers, citation graphs, and specific paper lookup. See `ml-paper-writing` skill's `references/citation-workflow.md` for complete API code examples
-   - **arXiv / alphaXiv** — best for recent preprints and open-access papers
-   - **CrossRef / DOI lookup** — best for DOI lookup and BibTeX retrieval
-   - Keep searching until you have good coverage. If one source comes up empty, try another with different keywords
-
-   **Save everything to `literature/`**: For every paper you find, save a summary to `literature/` — title, authors, year, key findings, relevance to your question, and the URL/DOI. Create one file per paper and a running `literature/survey.md` with all summaries. This is your reference library — you and future sessions will need it throughout the project.
-
-2. **Identify gaps** from the literature
-   - What's been tried? What hasn't? Where do existing methods break?
-   - What do Discussion sections flag as future work?
-
-3. **Form initial hypotheses** — invoke research ideation skills
-   - `brainstorming-research-ideas` for structured diverge-converge workflow
-   - `creative-thinking-for-research` for deeper cognitive frameworks
-   - Each hypothesis must be testable with a clear prediction
-
-4. **Define the evaluation**
-   - Set the proxy metric and baseline before running experiments
-   - The metric should be computable quickly (minutes, not hours)
-   - Lock evaluation criteria upfront to prevent unconscious metric gaming
-
-5. **Record** in `research/state.yaml`, log the bootstrap in `research/research-log.md`
-
-## The Inner Loop
-
-Rapid iteration with clear measurable outcomes. Two flavors:
-
-- **Optimization**: make a metric go up/down (val_loss, accuracy, throughput). Think Karpathy's autoresearch.
-- **Discovery**: test mechanistic hypotheses about why something works. The metric is a measurement (does grokking happen faster? does entropy increase before forgetting?), not just a target to optimize.
-
-```
-1.  Pick the highest-priority untested hypothesis
-2.  Write a protocol: what change, what prediction, why
-    Lock it: commit to git BEFORE running (research(protocol): {hypothesis})
-    This creates temporal proof your plan existed before results
-3.  Run the experiment (invoke the relevant domain skill)
-4.  Sanity check before trusting results:
-    - Did training converge? No NaN/Inf?
-    - Does baseline reproduce expected performance?
-    - Data loading correct? (spot-check a few samples)
-5.  Measure the proxy metric
-6.  Record structured outputs in `experiments/results/<experiment-id>/`, with matching notes in `experiments/logs/`
-    If this hypothesis has become a long-lived branch, also maintain `experiments/<hypothesis-slug>/` for branch-local protocol, code, results, and analysis
-    Label clearly: CONFIRMATORY (in your protocol) vs EXPLORATORY (discovered during execution)
-7.  If positive: keep, note WHY it worked
-8.  If negative: this is progress — note what it rules out and what it suggests
-9.  Update `research/state.yaml`
-10. If stuck: search literature or invoke ideation skills — don't just keep trying random things
-```
-
-Keep the research moving. Even if something fails, find a path forward: debug, adjust, simplify, or pivot. The point is steady progress, not blind persistence.
-
-### Route to Domain Skills
-
-When you need domain-specific execution, search the skills library:
-
-| Research Activity | Relevant Skills |
+| 信息类型 | 写入位置 |
 |---|---|
-| Research direction and synthesis | `idea-evaluator`, `brainstorming-research-ideas`, `creative-thinking-for-research`, `ara-rigor-reviewer`, `ara-research-manager` |
-| Diffusion and image generation | `stable-diffusion-image-generation` |
-| Fine-tuning and adaptation | `peft-fine-tuning`, `huggingface-accelerate` |
-| Interpretability analysis | `transformer-lens-interpretability`, `sparse-autoencoder-training`, `pyvene-interventions`, `nnsight-remote-interpretability` |
-| Evaluation and experiment tracking | `evaluating-llms-harness`, `weights-and-biases`, `tensorboard`, `experiment-tracking-swanlab` |
-| Research writing and figures | `ml-paper-writing`, `figure-designer`, `academic-plotting` |
+| 当前方向、目标、下一步、阻塞 | `research/overview.md` |
+| 完整实验测量、结果解释、artifact 路径、下一步 | `experiments/logs/<date>-<slug>.md` |
+| 结构化输出、原始结果、样本、checkpoint、远端 metrics | `RESULTS_ROOT / <hypothesis-slug> / <run-id>` 或分支 `experiments/<hypothesis-slug>/results/` |
+| 一行时间线里程碑 | `research/research-log.md` |
+| 稳定科学结论、解释约束、被排除路径 | `research/findings.md` |
+| 候选/搁置/拒绝想法 | `research/ideas.md` |
 
-Read the relevant SKILL.md before starting — it has workflows, common issues, and code examples. See [references/skill-routing.md](references/skill-routing.md) for a complete guide.
+不要把完整实验数据只写进 `overview.md`。`overview.md` 可以指向 `experiments/logs/` 中的完整记录。
 
-### Track the Experiment Trajectory
+如果用户只是要求“记录这次实验/复评结果”，按上表执行：完整结果进 `experiments/logs/`，一行时间线进 `research/research-log.md`，`overview.md` 只更新当前状态摘要或指针。只有当结果改变了稳定科学结论、解释约束、被排除路径或研究故事时，才同时更新 `research/findings.md`。
 
-Maintain a running record of measurable outcomes across experiments:
+结果记录的默认细则：
+- 日志文件命名使用 `<YYYY-MM-DD>-<kebab-slug>.md`。
+- 新结果替换 `overview.md` 的“Latest result”摘要；历史留在 `experiments/logs/` 和 `research/research-log.md`，不要在 overview 里堆叠流水账。
+- 记录结果时检查 `overview.md` 的 Current State、Next Agent Action、Next Human Decision 是否需要同步；不变就不要改。
+- 只有当实验协议本身被修订或结果改变协议的 Go/No-Go 判断时，才更新 `experiments/protocols/`；普通测量结果不回写协议。
+- 不把普通实验结果写入 `ctx_memory`。只有跨会话会反复误用的稳定环境、命令或约束才写 memory。
+
+## 双循环架构
+
+这是自动研究的核心引擎，其他所有工作都为此服务。
+
+```
+引导阶段 (BOOTSTRAP) —— [运行一次，保持轻量]
+  明确问题 → 调研文献 → 形成初始假设
+
+内循环 (INNER LOOP) —— [快速、自主、不断重复]
+  选择假设 → 设计实验 → 运行测量 → 记录结果 → 提炼总结 → 下一步
+  目标：运行具有明确可测量结果的受控实验
+
+外循环 (OUTER LOOP) —— [周期性、深度反思]
+  评审实验结果 → 寻找模式规律 → 更新 research/findings.md →
+  生成新假设 → 决定研究方向
+  目标：综合提炼理解，发掘研究故事 —— 这正是学术新颖性 (Novelty) 的来源
+
+完成阶段 (FINALIZE) —— [当研究得出结论时]
+  使用 ml-paper-writing 撰写论文 → 最终成果汇报 → 归档
+```
+
+**内循环**运行紧凑的实验周期，并产出明确的可测量结果。这可以是优化某个基准测试（如让 val_loss 降低），也可以是测试某种机理性假设（如“干预 X 是否会导致效应 Y ？”）。**外循环**则需要你退一步思考：这些结果*意味着*什么？呈现出了什么规律？背后的核心故事是什么？研究是开放性的，双循环机制让你既能高效优化，又能不断探索新发现。
+
+内外循环之间并没有僵硬的界限 —— 你需要自行判断何时积累了足够的内循环结果并需要进行外循环反思。通常在每 5-10 次实验后，或者当你注意到某种特殊规律，或者研究陷入瓶颈时，应当触发外循环。智能体的判断力决定了研究的节奏。
+
+### 研究是非线性的
+
+双循环结构是一种研究节奏，而不是一根铁轨。在研究的任何阶段，你都能够且应当：
+
+- **重返文献调研**：当实验结果出乎意料、假设破灭或需要为新方向提供背景支持时 —— 务必将发现保存到 `literature/` 中。
+- **脑暴新想法**：当你卡壳或实验开启了意想不到的新问题时，使用 `brainstorming-research-ideas` 或 `creative-thinking-for-research` 技能。
+- **彻底调整核心问题 (Pivot)**：如果实验表明最初提出的问题是错误的，或者你发现的新现象远比原问题更有意思。
+
+这是科学研究的常态。大多数真实的研究项目都会经历 1-3 次重新调研文献，并在中途产生全新的假设。不要把“引导阶段”当成唯一阅读论文或脑暴的时刻 —— 只要对深入理解有帮助，随时都可以进行。
+
+## 引导阶段：文献调研与假设构建
+
+在进入循环之前，先摸清整体格局。保持这个过程高效 —— 我们的目标是开始做实验，而不是写一篇冗长的文献综述。
+
+1. **针对研究问题搜索文献**。使用多种来源 —— 绝不要只查一个源：
+   - **Exa MCP** (`web_search_exa`)：如果可用，这是进行广泛探索和快速寻找相关论文的最佳选择。
+   - **Semantic Scholar**：最适合寻找 ML/AI 论文、引用关系图和特定论文检索。请参考 `ml-paper-writing` 技能的 `references/citation-workflow.md` 获取完整的 API 代码示例。
+   - **arXiv / alphaXiv**：最适合获取最新的预印本和开放获取论文。
+   - **CrossRef / DOI 查询**：最适合查询 DOI 和获取 BibTeX。
+   - 持续搜索，直到覆盖面足够广。如果一个源没有搜到，尝试使用不同的关键词切换到另一个源。
+
+   **将所有文献保存到 `literature/`**：对于你找到的每篇论文，在 `literature/` 下保存一份总结 —— 包含标题、作者、年份、关键发现、与本研究的相关性以及 URL/DOI。每篇论文单独建一个文件，并维护一个汇总所有总结的 `literature/survey.md`。这是你的参考图书馆 —— 你和后续的智能体回话在整个项目期间都会需要它。
+
+2. **从文献中识别研究空白 (Gaps)**
+   - 别人尝试过什么？没试过什么？现有方法在哪里会失效？
+   - 相关论文的“讨论 (Discussion)”部分指出了哪些未来的工作？
+
+3. **形成初始假设** —— 调用研究构思技能
+   - 使用 `brainstorming-research-ideas` 进行结构化的“发散-收敛”工作流。
+   - 使用 `creative-thinking-for-research` 获取更深层次的认知思考框架。
+   - 每个假设都必须具有可测试性，并伴有明确的预测。
+
+4. **定义评估基准**
+   - 在运行实验之前，先锁定代理指标 (Proxy Metric) 和基线 (Baseline)。
+   - 指标应当能够被快速计算（几分钟，而不是几小时）。
+   - 提前锁定评估标准，以防止在看到实验结果后下意识地迎合指标。
+
+5. **记录状态**：在 `research/overview.md` 中记录当前方向和下一步行动，在 `research/ideas.md` 中记录候选方向，并在 `research/research-log.md` 中记录引导过程。
+
+## 内循环 (Inner Loop)
+
+通过明确且可测量的结果进行快速迭代。包含两种主要形式：
+
+- **优化型 (Optimization)**：让某个指标上升/下降（如 val_loss、准确率、吞吐量）。类似于 Karpathy 的自动研究模式。
+- **探索机理型 (Discovery)**：测试关于某种机制为何起作用的机理性假设。此时的指标是一项测量值（例如：Grokking 现象是否发生得更快？在发生遗忘之前熵是否会增加？），而不仅仅是一个要优化的死目标。
+
+```
+1.  挑选优先级最高且尚未测试的假设。
+2.  编写实验协议 (Protocol)：说明做了什么改动、预测结果是什么、以及为什么。
+    锁定协议：在运行实验之前，将其提交到 Git (提交信息格式：research(protocol): {hypothesis})。
+    这为你在看到结果之前就已经有了明确计划提供了时间线上的证明。
+3.  运行实验（调用相关的领域技能）。
+4.  在信任实验结果之前进行一致性与合理性检查 (Sanity Check)：
+    - 训练是否收敛？是否有 NaN/Inf？
+    - 基线模型是否重现了预期性能？
+    - 数据加载是否正确？（抽样检查几个样本）
+5.  测量代理指标。
+6.  在 `RESULTS_ROOT / <hypothesis-slug> / <run-id>` 或分支 `experiments/<hypothesis-slug>/results/` 中保存结构化输出，并在 `experiments/logs/` 中同步记录完整人类可读日志。
+    如果该假设演变为一个长期分支，请同时维护 `experiments/<hypothesis-slug>/` 目录，更新其分支内部的协议、代码、结果和分析。
+    清晰标注：验证性实验 (CONFIRMATORY，符合锁定的协议) 还是 探索性实验 (EXPLORATORY，在执行过程中意外发现的)。
+7.  如果结果是积极的：保留该改动，并详细记录为什么它起作用。
+8.  如果结果是消极的：这同样是重大的科学进展 —— 记录它排除了什么，以及它启发了什么新方向。
+9.  如当前目标、下一步行动或阻塞条件发生变化，更新 `research/overview.md`；在 `research/research-log.md` 只追加一行里程碑。
+10. 如果陷入瓶颈：去检索文献或调用构思技能 —— 绝不要盲目地尝试各种随机改动。
+```
+
+追加 `research/research-log.md` 时只需要读取末尾几行以获得最后序号和格式；不要为了追加一行而整文件读取。
+
+保持研究的推进。即使实验失败，也要找到前进的道路：调试、调整、简化或调整方向。关键在于稳步的认知进展，而不是盲目的固执坚持。
+
+### 路由至领域技能
+
+当你需要特定领域的执行能力时，请在技能库中搜索：
+
+| 研究活动 | 相关技能 |
+|---|---|
+| 研究方向规划与综合 | `idea-evaluator`, `brainstorming-research-ideas`, `creative-thinking-for-research`, `ara-rigor-reviewer`, `ara-research-manager` |
+| 扩散与图像生成 | `stable-diffusion-image-generation` |
+| 微调与适配器训练 | `peft-fine-tuning`, `huggingface-accelerate` |
+| 可解释性分析 | `transformer-lens-interpretability`, `sparse-autoencoder-training`, `pyvene-interventions`, `nnsight-remote-interpretability` |
+| 评估与实验跟踪 | `evaluating-llms-harness`, `weights-and-biases`, `tensorboard`, `experiment-tracking-swanlab` |
+| 论文撰写与插图 | `ml-paper-writing`, `figure-designer`, `academic-plotting` |
+
+在开始之前，阅读相关技能的 `SKILL.md` —— 它包含了具体的工作流、常见问题和代码示例。完整指南参见 [references/skill-routing.md](references/skill-routing.md)。
+
+### 跟踪实验轨迹
+
+维护一份跨实验的可测量结果的动态记录：
 
 ```json
 {
@@ -193,233 +213,190 @@ Maintain a running record of measurable outcomes across experiments:
   "baseline": 0.812,
   "delta": "+0.035",
   "wall_time_min": 23,
-  "change_summary": "Added cosine annealing warmup schedule"
+  "change_summary": "添加了余弦退火热身学习率调度器"
 }
 ```
 
-This trajectory produces the optimization plot (like Karpathy's progress chart) — include it in progress reports. Humans love seeing the upward curve.
+该轨迹将生成优化进度曲线图（类似于 Karpathy 的研究进展图）—— 务必将其包含在进度报告中。人类研究员非常喜欢看到性能曲线稳步上扬。
 
-## The Outer Loop
+## 外循环 (Outer Loop)
 
-Step back from individual experiments. Synthesize.
-
-```
-1. Review all results since last reflection
-2. Cluster by type: what kinds of changes worked? Which didn't?
-3. Ask WHY — identify the mechanism behind successes and failures
-4. Update `research/findings.md` with current understanding
-5. Search literature if results were surprising or assumptions need revisiting
-6. Generate new hypotheses if warranted
-7. Decide direction (see criteria below)
-8. Update `research/state.yaml` with new direction
-9. Log the reflection in `research/research-log.md`
-10. If there's something meaningful and the user would benefit from it, generate a progress presentation
-```
-
-### Deciding Direction
-
-Don't just pick randomly — use these criteria:
-
-**DEEPEN** — a supported result raises follow-up questions
-- Does the effect hold under different conditions? What's the mechanism?
-- Action: generate sub-hypotheses (H1.1, H1.2) → back to inner loop
-
-**BROADEN** — current results are solid, but adjacent questions are untested
-- New questions emerged. The current contribution is clear but more is possible.
-- Action: generate new root hypotheses → back to inner loop
-
-**PIVOT** — results invalidate key assumptions or something more interesting appeared
-- A core assumption was wrong, or an unexpected finding is more promising than the original question.
-- Action: return to literature with new questions → re-bootstrap
-
-**CONCLUDE** — sufficient evidence for a contribution
-- At least one hypothesis is strongly supported (or a coherent set of negative results)
-- Key ablations completed, error analysis done
-- `research/findings.md` reads like a paper backbone — a human could write the abstract from it
-- No critical open questions that would change the story
-
-Note: coherent negative results are a valid contribution. "X does NOT work because Y" is publishable if the reasoning is rigorous.
-
-### `research/findings.md` Is Your Project Memory
-
-This file serves two purposes: it's the research narrative for humans AND your accumulated knowledge base as an agent. Read it at the start of every session, /loop tick, or heartbeat to remember what you've learned.
-
-After every outer loop, update it to answer:
-
-- What do we know so far? (Current Understanding)
-- What patterns explain our results? (Patterns and Insights)
-- What specific things did we learn not to repeat? (Lessons and Constraints)
-- What remains open? (Open Questions)
-
-The "Lessons and Constraints" section is especially important — it captures specific actionable learnings like "weight decay > 0.1 diverges at this scale" or "baseline only reproduces with batch_size=64." This prevents the agent from repeating failed approaches across sessions.
-
-**Quality test**: After 30 inner loop experiments, a human should be able to read `research/findings.md` and write a paper abstract from it. If they can't, the outer loop isn't synthesizing; it's just logging.
-
-## Agent Continuity (Optional)
-
-Continuous loop execution is optional in this repository. Use it only when the user explicitly wants unattended autonomous operation.
-
-### Claude Code
-
-If the user explicitly requests autonomous continuation, you can run:
+退一步，跳出单一实验的范畴。总结提炼，融会贯通。
 
 ```
-/loop 20m Continue autoresearch. Read research/state.yaml and research/findings.md. Re-read the autoresearch SKILL.md occasionally to stay aligned. Step back and reflect holistically: is the research making real progress? Are you deepening understanding or just running experiments? If stalling, pivot or search literature for new ideas. Keep making research progress. Update research/findings.md, research/research-log.md, and research/state.yaml when there is new progress. When useful, prepare a report in to_human/. Only when the research is truly complete should you invoke the ml-paper-writing skill to write the paper.
+1. 评审自上次反思以来所有的实验结果。
+2. 进行归类聚合：哪些类型的改动起作用了？哪些没起作用？
+3. 追问为什么 —— 识别成功与失败背后的底层机理。
+4. 用当前的最新认知更新 `research/findings.md`。
+5. 如果结果出乎意料或核心假设破灭，重返文献调研寻找线索。
+6. 如果合理，产生全新的一级或二级假设。
+7. 决定下一步的研究方向（参考下方决策标准）。
+8. 在 `research/overview.md` 中更新当前方向。
+9. 在 `research/research-log.md` 中记录反思过程。
+10. 如果取得了阶段性突破且能为用户带来启发，生成一份进度报告/演示。
 ```
 
-This fires every 20 minutes regardless of what's happening. It's a rhythm for unattended work, not a research phase boundary. If your previous work isn't done, just continue it.
+### 决定下一步研究方向
 
-### OpenClaw
+不要随机挑选 —— 使用以下标准：
 
-If the user explicitly requests unattended autonomous continuation, you can set up a 20-minute cron job in the current session.
+**深化 (DEEPEN)** —— 实验证实了某个结果，并引发了更深层次的追问
+- 该效应在不同条件下是否依然成立？底层的机理是什么？
+- 动作：产生子假设（H1.1, H1.2） → 返回内循环。
 
-Use the `cron.add` tool to create a recurring job bound to this chat session:
+**拓宽 (BROADEN)** —— 当前结果扎实，但相邻的关联问题尚未测试
+- 涌现出了新问题。当前的贡献很明确，但还有更大的挖掘空间。
+- 动作：产生新的根假设 → 返回内循环。
 
-```json
-{
-  "name": "autoresearch-loop",
-  "schedule": { "kind": "every", "everyMs": 1200000 },
-  "sessionTarget": "current",
-  "payload": {
-    "kind": "agentTurn",
-    "message": "Continue autoresearch. Read research/state.yaml and research/findings.md. Re-read the autoresearch SKILL.md occasionally to stay aligned. Step back and reflect holistically: is the research making real progress? Are you deepening understanding or just running experiments? If stalling, pivot or search literature for new ideas. Keep making research progress. Update research/findings.md, research/research-log.md, and research/state.yaml when there is new progress. When useful, prepare a report in to_human/. Only when the research is truly complete should you invoke the ml-paper-writing skill to write the paper."
-  }
-}
-```
+**调整方向 (PIVOT)** —— 实验彻底推翻了核心假设，或者发现了远比原问题更有意思的现象
+- 核心假设是错的，或者一个意外的发现比原定研究问题更具前景。
+- 动作：带着新问题重新调研文献 → 重新进行引导初始化。
 
-Key details:
-- `sessionTarget: "current"` binds the cron to this chat session so it maintains conversation context across ticks
-- `everyMs: 1200000` = 20 minutes
-- After creation, verify with `cron.list` that the job exists and is enabled
-- If the cron fires while you're mid-experiment, just continue — the tick is a nudge, not a restart
+**得出结论 (CONCLUDE)** —— 已有足够的证据形成学术贡献
+- 至少有一个假设得到了强有力的支持（或一系列高度自洽的否定性结果）。
+- 关键的消融实验已全部完成，错误分析到位。
+- `research/findings.md` 的内容已经构成了一篇论文的骨架 —— 人类只需阅读它就能直接写出摘要。
+- 没有会颠覆故事主线的关键悬而未决的问题。
 
-### What the Loop Does
+注：高度自洽、论证严密的否定性结果也是非常有价值的学术贡献。“因为机理 Y，方法 X 无法起作用”只要论证足够严谨，完全具备发表价值。
 
-The `/loop` and cron job are purely **wall-clock rhythm**. They are completely separate from your research loops (inner/outer). On each tick:
+### `research/findings.md` 是你的项目记忆
 
-1. Read `research/state.yaml` and `research/findings.md` — remember where you are
-2. Check if anything is broken (failed experiments, stalled training, errors)
-3. If on track → keep working on whatever you were doing
-4. If stuck or something's wrong → step back, diagnose, fix, then continue
-5. Never idle. Always be making progress.
+这个文件记录科学发现与解释约束。它不是工程日志，也不是当前任务列表。恢复会话时先阅读 `research/overview.md`；只有当你需要解释证据、检查既有科学结论、更新发现或 pivot 时，才阅读或搜索 `research/findings.md`。
 
-## Progress Reporting
+在每次外循环之后，更新它以回答：
+- 截至目前我们了解到了什么？（当前认知 - Current Understanding）
+- 哪些规律或模式可以解释我们的实验结果？（规律与洞察 - Patterns and Insights）
+- 我们学到了哪些科学层面的不应重复的教训？（科学约束 - Scientific Constraints）
+- 还有哪些未决问题？（未决问题 - Open Questions）
 
-When you have something meaningful to share, create a research presentation — not just a status dashboard, but a compelling story.
+“科学约束 (Scientific Constraints)” 部分尤其重要。工程约束、环境坑和稳定命令模式应写入 `ctx_memory` 或运行日志，而不是污染 `research/findings.md`。
 
-**When to report** (your judgment):
-- After an outer loop that found a significant pattern
-- When the optimization trajectory shows clear progress (include the plot!)
-- After a pivot in direction
-- Before requesting human input on a decision
-- When concluding
+**质量测试**：在进行 30 次内循环实验后，人类研究员应当能通过阅读 `research/findings.md` 直接写出论文的 Abstract。如果不能，说明外循环只是在记流水账，没有真正起到总结和提炼的作用。
 
-**What to include** (adapt to what's compelling):
-- The research question and why it matters
-- Key results with visualizations (plots, metric tables)
-- The optimization trajectory chart (metric over experiments)
-- What was tried and why (selective, not exhaustive)
-- Current understanding (the findings narrative)
-- What's planned next
+## 智能体接续 (Agent Continuity) —— 可选
 
-For Claude Code: generate HTML and `open` it. If HTML fails to open or render, convert to PDF as fallback (use `weasyprint`, `playwright pdf`, or `wkhtmltopdf`). For OpenClaw: generate PDF directly.
+在此代码库中，持续的循环运行是可选的。只有当用户明确要求进行无人值守的自主探索时，才启用该机制。
 
-See [references/progress-reporting.md](references/progress-reporting.md) for template scaffolding and the optimization plot approach. Use the template as a starting point — be creative with what you show.
+### OpenCode 场景
 
-## Git Protocol
+在 OpenCode 中需要定时唤醒当前会话时，使用 `opencode-schedule-current-session-autostop` 技能配置 scheduler job。该 job 应当回到当前 session，先读取 `research/overview.md`，再判断训练/下载/分析是否完成以及下一步动作；只有科学综合需要时才读取 `research/findings.md`。
 
-Commit at natural research milestones:
+调度任务必须有明确停止条件，例如实验完成、出现不可恢复错误、达到最大 tick 数、或用户要求停止。不要为了“保持活跃”而创建无终止条件的循环；如果只是一次性长任务，优先使用远程 `tmux` 或 `nohup`，而不是 scheduler。
 
-| When | Message Pattern |
+### 循环机制在做什么
+
+`/loop`、cron 任务和 OpenCode scheduler job 纯粹是**物理时间层面的唤醒节奏**。它们与你的科学研究循环（内/外循环）完全独立。在每次被唤醒时：
+1. 阅读 `research/overview.md` —— 记起你目前所处的阶段。
+2. 检查是否有任何环节出错（失败的实验、停滞的训练、意料之外的报错）。
+3. 如果一切正常 → 继续做你正在做的工作。
+4. 如果卡壳或出错 → 退一步，诊断原因，修复它，然后继续。
+5. 决不闲置。始终在取得进展。
+
+## 进度报告与成果演示
+
+当你取得了有意义的科学进展并想要分享时，请制作一份研究演示报告 —— 不要只贴一个死板的监控看板，而是讲一个引人入胜的研究故事。
+
+**何时进行报告**（由你自行判断）：
+- 在外循环反思中发现了显著的物理规律时。
+- 当优化轨迹显示出明显的性能提升时（务必附上进展曲线图！）。
+- 在研究方向发生重大调整 (Pivot) 之后。
+- 在一项重大决策上需要人类研究员进行输入/选择时。
+- 当研究得出结论时。
+
+**报告中应当包含的内容**（根据实际故事进行调整）：
+- 研究问题及其重要意义。
+- 关键实验结果与可视化（图表、指标对比表）。
+- 实验进展曲线图（指标随着实验次数的演变）。
+- 尝试过什么以及为什么（挑选有启发性的，而不是流水账）。
+- 当前对问题的理解（Findings 中的叙事）。
+- 下一步的计划。
+
+对于 Claude Code 场景：生成 HTML 报告并执行 `open` 命令打开。如果 HTML 打开或渲染失败，生成 PDF 作为备用（使用 `weasyprint`、`playwright pdf` 或 `wkhtmltopdf`）。对于 OpenClaw 场景：直接生成 PDF。
+
+参考 [references/progress-reporting.md](references/progress-reporting.md) 获取模板框架和进展图绘制方法。将该模板作为起点 —— 并在展示形式上保持创造力。
+
+## Git 协议
+
+在自然的研究里程碑处进行代码提交：
+
+| 提交时机 | Commit 消息模式 |
 |---|---|
-| Workspace initialized | `research(init): {project} — {question}` |
-| Experiment protocol locked | `research(protocol): {hypothesis}` |
-| Significant results | `research(results): {hypothesis} — {outcome}` |
-| Outer loop direction change | `research(reflect): {direction} — {reason}` |
-| Paper draft complete | `research(paper): {title}` |
+| 工作区初始化 | `research(init): {project} — {question}` |
+| 实验协议锁定 | `research(protocol): {hypothesis}` |
+| 取得重要实验结果 | `research(results): {hypothesis} — {outcome}` |
+| 外循环方向调整 | `research(reflect): {direction} — {reason}` |
+| 论文草稿完成 | `research(paper): {title}` |
 
-**Hard rule**: Protocol commits MUST precede result commits. Never combine them. The git history is your lightweight pre-registration — it proves what you planned before you saw results. Don't commit after every experiment — commit when there's meaningful progress.
+**硬性规则**：协议锁定的提交（protocol）**必须**先于实验结果的提交（results）。绝不要将它们合并在同一个 commit 中。Git 历史记录是你的轻量级“预注册 (Pre-registration)”机制 —— 它能在时间线上自证你的实验设计早于结果呈现。不需要每次微小的实验都提交 Git —— 只有在取得阶段性进展时再提交。
 
-## Concluding: Paper Writing
+## 研究纪律
 
-When the outer loop decides to CONCLUDE:
+在所有阶段都需要持续强化的核心原则：
 
-1. Ensure `research/findings.md` has a clear, well-supported narrative
-2. Study 2-3 top related papers to learn their format, style, and section structure
-3. Invoke the `ml-paper-writing` skill to draft and refine the paper
-4. Feed it the accumulated literature, experimental results, and findings
-5. Follow its citation verification workflow — never hallucinate references
-6. Generate a final comprehensive research presentation
+- **运行前先锁定**：在执行实验脚本前，务必先将实验协议提交到 Git。这证明了你的计划在看到实验数据之前就已存在。决不要把 protocol 和 results 合并在一次 commit 中。
+- **验证性 vs 探索性**：完全符合锁定协议的实验结果属于验证性实验。其他在实验过程中意外调整或发现的属于探索性实验 —— 这很有趣，但需要持有更审慎的怀疑态度。
+- **否定性结果也是进展**：一个被推翻的假设同样告诉了你重要的信息。记录它排除了什么，以及指明了什么方向。绝不要把它当成“失败”。
+- **分析前的合理性检查**：在信任你的核心指标之前，务必验证训练是否收敛、基线模型是否能复现、数据加载是否完全正确。
+- **困惑时重返文献**：不要凭空猜测 —— 去搜索。如果结果出乎意料或核心假设破灭，去论文中寻找答案。使用 Exa MCP 进行广泛探索，使用 Semantic Scholar 检索具体的 ML/AI 论文，使用 arXiv 获取最新预印本。
+- **永不停滞**：不要在日常的常规决策上等待人类的批准。如果某个技能或工具提示需要协同，灵活处理并继续推进。自主寻找最佳的解法。人类随时可以通过进度报告查看你的进展并进行重定向。
+- **充分利用可用算力**：根据用户的具体环境灵活调整 —— 本地 GPU、集群作业提交系统、云端 GPU 实例。如果没有可用的 GPU，判断实验规模，如果规模很小，可以使用CPU。
 
-Proceed autonomously through the writing process. If the ml-paper-writing skill suggests human collaboration points, adapt and keep going — produce the best draft you can. The human will review and provide feedback.
+## 质量标准
 
-## Research Discipline
+**优秀的智能体行为：**
+- 假设具有机理性解释（“因为 Y，所以做 X，预测产出 Z”），而不仅仅是盲目的“试试 X”。
+- `research/findings.md` 能够构建出连贯、流畅的学术叙事，而不是冰冷的数据流水账。
+- 否定性结果被详尽记录，并附带明确排除了哪些技术路径。
+- 当实验结果与预期相违背时，智能体能够主动更新自身的科学认知模型。
+- 进度演示汇报能通过直观、精美的可视化图表讲好一个研究故事。
 
-Principles to enforce continuously — not tied to any specific phase:
+**糟糕的智能体行为：**
+- 仅仅在做盲目的超参扫参，没有任何学术解释。
+- `research/findings.md` 只是简单地把实验日志复制粘贴过来。
+- 在实验失败后，智能体从来不重新审视自己的前置假设。
+- 纯粹为了刷指标而优化，却完全不理解为什么某项改动能起作用。
 
-- **Lock before you run**: Commit your experiment protocol to git before executing. This proves your plan existed before you saw results. Never combine protocol + results in one commit.
-- **Confirmatory vs exploratory**: Results matching your locked protocol are confirmatory. Everything else is exploratory — interesting but requiring more skepticism.
-- **Negative results are progress**: A refuted hypothesis tells you something. Log what it rules out and what it suggests. Don't treat it as failure.
-- **Sanity check before analysis**: Verify training converged, baselines reproduce, and data is correct before trusting your primary metric.
-- **Return to literature when confused**: Don't guess — search. If results surprise you or assumptions break, go find papers. Use Exa MCP for discovery, Semantic Scholar for specific ML/AI paper lookup, arXiv for preprints.
-- **Never stop**: Don't wait for human approval on routine decisions. If a skill or tool suggests collaboration, adapt and keep going. Find the best path forward autonomously. The human will see your progress reports and can redirect if needed.
-- **Use whatever compute is available**: Adapt to the user's environment — local GPU, cluster job submission, cloud instances, or just CPU. If no GPU is available, use CPU and adjust experiment scale accordingly. Don't block on compute availability.
+## 何时使用本技能 vs 其他替代技能
 
-## Quality Standards
+**在以下情况使用 autoresearch：**
+- 你有一个可以通过实验进行探索的研究课题。
+- 存在一个明确的、可测量的代理指标用于内循环优化。
+- 最终的学术贡献需要超越单一指标的深度反思与总结提炼。
+- 你需要进行无人值守的、自主持续的自动研究工作。
 
-**Good agent behavior:**
-- Hypotheses have mechanistic reasoning ("X because Y, predicting Z"), not just "try X"
-- `research/findings.md` builds a coherent narrative, not a flat list of results
-- Negative results are recorded with what they rule out
-- The agent updates its model when experiments contradict expectations
-- Progress reports tell a research story with compelling visualizations
+**在以下情况使用单个领域特化技能：**
+- 你有一个非常具体的、一次性的任务（例如：训练一个模型、运行某项评测、或者仅仅是润色论文）。
+- 不需要迭代运行多轮实验。
 
-**Bad agent behavior:**
-- Pure hyperparameter sweeps without interpretation
-- `research/findings.md` is just experiment logs copy-pasted
-- Agent never revisits its assumptions after failures
-- Optimizing metrics without understanding why changes work
+## 常见问题与诊断
 
-## When to Use vs Alternatives
+**内循环陷入瓶颈（指标无法提升）**
+运行一次外循环。思考：该代理指标是否合理？探索空间是否已耗尽？考虑拓宽 (Broaden) 或是彻底调整方向 (Pivot)。到文献中检索最新的解决思路。
 
-**Use autoresearch when:**
-- You have a research question explorable through experiments
-- There's a measurable proxy metric for inner loop optimization
-- The real contribution requires synthesis beyond the metric
-- You want continuous autonomous research operation
+**卡壳且无法取得进展**
+不要一遍遍尝试随机的参数微调。退一步：去文献库中检索相关工作、调用研究构思技能脑暴、或者运行一次深刻的外循环反思。卡壳意味着你需要引入新的信息或全新视角，而不是更多重复的实验。
 
-**Use individual domain skills instead when:**
-- You have a specific one-off task (train a model, run eval, write a paper)
-- No iterative experimentation needed
+**实验结果与基线预期相冲突**
+刨根问底，决不要视而不见。重返文献调研 —— 你的实验协议可能存在 bug，或者发表的论文基线存在偏差，亦或是实验条件存在差异。将你的发现和探究过程更新到 `research/findings.md` 中。
 
-## Common Issues
+**智能体在不同 tick 之间丢失上下文**
+确保在研究方向、当前目标或下一步行动变化时更新 `research/overview.md`，在科学理解变化时更新 `research/findings.md`。这些文件是跨会话恢复的物理大脑。
 
-**Inner loop stalls (no metric improvement)**
-Run an outer loop. Is the metric the right one? Is the search space exhausted? Consider broadening or pivoting. Search literature for new approaches.
+**找不到相关的学术论文**
+按以下顺序尝试多种检索方式：使用 Exa MCP 进行广泛的主题探索；使用alphaxiv 和semantic scholar mcp工具进行检索。也可以使用 Semantic Scholar 程序化检索具体的 ML/AI 论文（`uv pip install semanticscholar`）；使用 arXiv 获取预印本（`uv pip install arxiv`）。参考 `ml-paper-writing` 技能的 `references/citation-workflow.md` 获取完整的 API 调用代码。
 
-**Stuck and not making progress**
-Don't keep trying random changes. Step back: search literature for related work, invoke ideation skills, or run an outer loop reflection. Being stuck means you need new information or a new perspective, not more experiments.
+**没有可用的 GPU**
+直接使用 CPU 并等比例缩小实验规模（例如：使用极小的玩具模型、极小的数据子集）。许多研究任务（如特征分析、模型可解释性探究、小规模对比）在 CPU 上完全能够运行。让你的实验设计自适应当前可用的算力，而不是卡住等待。
 
-**Results contradict baseline expectations**
-Investigate, don't ignore. Return to literature — your protocol might have an error, the published baseline may be wrong, or conditions differ. Update `research/findings.md` with what you learn.
+**实验耗时超过了唤醒时间周期**
+这是正常现象。在下一个 tick 被唤醒时，检查实验是否跑完。如果尚未结束，继续等待或在此期间做其他有意义的事（如整理文献笔记、撰写综述等）。如果需要，可以适当调整唤醒周期。
 
-**Agent loses context between ticks**
-Ensure `research/state.yaml` and `research/findings.md` are updated after every action. These files are your memory across sessions.
+**无法确定何时应当得出结论并收尾**
+追问自己三个核心问题：1. 你是否拥有一个得到了强有力数据支持的学术发现？2. 你是否能清晰解释其起作用的底层机理？3. 现在的 `research/findings.md` 是否已经能构成一个极具说服力的论文 Abstract？如果三个问题答案均为“是”，立即收尾并转入论文撰写阶段。
 
-**Can't find relevant papers**
-Try multiple approaches in order: Exa MCP for broad search, Semantic Scholar for specific ML/AI paper lookup (`pip install semanticscholar`), arXiv for preprints (`pip install arxiv`). Check `ml-paper-writing` skill's `references/citation-workflow.md` for complete API code. Note: Google Scholar has no official API — use Semantic Scholar instead for programmatic search.
+## 进阶主题
 
-**No GPU available**
-Use CPU and scale experiments down. Many research tasks (analysis, interpretability, small model training) run fine on CPU. Adjust experiment design to fit available compute rather than blocking.
-
-**Experiments take longer than /loop interval**
-Normal. On the next tick, check if it finished. If not, keep waiting or do something else useful (update notes, search papers). Adjust interval if needed.
-
-**Not sure when to conclude**
-Three questions: Do you have a strongly supported finding? Can you explain why it works? Would `research/findings.md` make a convincing paper abstract? If yes to all: conclude.
-
-## Advanced Topics
-
-- **Detailed agent continuity**: [references/agent-continuity.md](references/agent-continuity.md)
-- **Progress presentation templates**: [references/progress-reporting.md](references/progress-reporting.md)
-- **Complete skill routing**: [references/skill-routing.md](references/skill-routing.md)
+- **详细的智能体接续与状态继承**：[references/agent-continuity.md](references/agent-continuity.md)
+- **进度报告与演示模板**：[references/progress-reporting.md](references/progress-reporting.md)
+- **完整的技能路由表**：[references/skill-routing.md](references/skill-routing.md)

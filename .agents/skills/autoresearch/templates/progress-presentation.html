@@ -1,14 +1,14 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Research Progress</title>
+    <title>研究进展</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
             background: #0d1117;
             color: #e6edf3;
             line-height: 1.6;
@@ -181,14 +181,13 @@
 <body>
 
     <!--
-        AGENT INSTRUCTIONS:
-        This is a starting point. Fill in, rearrange, add, or remove sections
-        based on what's compelling from your current research. The goal is a
-        research story, not a status dashboard.
+        智能体指令指南 (AGENT INSTRUCTIONS)：
+        这是一个展示起点。根据你当前研究所发掘出的最具说服力的内容，自由地填充、重排、添加或删除章节。
+        你的目标是讲好一个引人入胜的“研究故事”，而不仅仅是罗列死板的数据面板。
 
-        Replace {{PLACEHOLDERS}} with actual content.
-        Embed SVG charts inline (see progress-reporting.md for the trajectory plot function).
-        Add additional sections as needed.
+        使用真实的研究内容替换双大括号 {{PLACEHOLDERS}} 占位符。
+        内联嵌入核心证据图；优化型任务可参考 progress-reporting.md 的轨迹曲线图生成函数。
+        根据需要自由添加额外的自定义章节。
     -->
 
     <header>
@@ -196,77 +195,77 @@
         <p class="subtitle">{{RESEARCH_QUESTION}}</p>
         <p class="meta">
             <span>{{DATE}}</span>
-            <span>{{N_EXPERIMENTS}} experiments</span>
-            <span>Status: {{STATUS}}</span>
+            <span>{{N_EXPERIMENTS}} 次实验</span>
+            <span>状态: {{STATUS}}</span>
         </p>
     </header>
 
-    <!-- Summary stats -->
+    <!-- 汇总核心数据指标 -->
     <section>
         <div class="result-grid">
             <div class="stat-card positive">
                 <div class="value">{{BEST_METRIC}}</div>
-                <div class="label">Best Metric</div>
+                <div class="label">最优指标 (Best Metric)</div>
             </div>
             <div class="stat-card">
                 <div class="value">{{BASELINE_METRIC}}</div>
-                <div class="label">Baseline</div>
+                <div class="label">基准指标 (Baseline)</div>
             </div>
             <div class="stat-card positive">
                 <div class="value">{{IMPROVEMENT}}</div>
-                <div class="label">Improvement</div>
+                <div class="label">改进幅度 (Improvement)</div>
             </div>
             <div class="stat-card">
                 <div class="value">{{N_HYPOTHESES}}</div>
-                <div class="label">Hypotheses Tested</div>
+                <div class="label">已测试假设数 (Hypotheses)</div>
             </div>
         </div>
     </section>
 
-    <!-- Background and motivation -->
+    <!-- 研究背景与动机 -->
     <section id="background">
-        <h2>Background & Motivation</h2>
+        <h2>背景与动机 (Background & Motivation)</h2>
         <div class="card">
-            <!-- Why does this research matter? What gap are we addressing? -->
+            <!-- 为什么这项研究重要？我们正在解决什么研究空白？ -->
             <p>{{BACKGROUND_TEXT}}</p>
         </div>
     </section>
 
-    <!-- Optimization trajectory - THE key visual -->
+    <!-- 核心证据图 —— 优化型任务可用轨迹图，诊断/机制型任务可替换为对比图、频谱图、轨迹图或消融表 -->
     <section id="trajectory">
-        <h2>Optimization Trajectory</h2>
+        <h2>核心证据 (Core Evidence)</h2>
         <div class="chart-container">
-            <!-- Embed SVG chart here. See references/progress-reporting.md
-                 for the generate_trajectory_svg() function. -->
+            <!-- 在此处嵌入 SVG 或图片。优化型任务可参考 references/progress-reporting.md
+                 中的 generate_trajectory_svg() 函数。 -->
             {{TRAJECTORY_SVG}}
         </div>
     </section>
 
-    <!-- Key findings -->
+    <!-- 关键科学发现 -->
     <section id="findings">
-        <h2>Key Findings</h2>
-        <!-- Add cards for each significant finding -->
+        <h2>关键发现 (Key Findings)</h2>
+        <!-- 为每个重大发现添加卡片展示 -->
         <div class="card">
             <h3>{{FINDING_1_TITLE}}</h3>
             <p>{{FINDING_1_DESCRIPTION}}</p>
-            <!-- Include inline plots, tables, or metrics as needed -->
+            <!-- 根据需要嵌入内联绘图、表格或详细指标 -->
         </div>
     </section>
 
-    <!-- What was tried -->
+    <!-- 实验探索历程 -->
     <section id="experiments">
-        <h2>What We Tried</h2>
+        <h2>实验探索 (What We Tried)</h2>
         <table>
             <thead>
                 <tr>
-                    <th>Hypothesis</th>
-                    <th>Change</th>
-                    <th>Result</th>
-                    <th>Status</th>
+                    <th>假设</th>
+                    <th>具体改动</th>
+                    <th>实验结果</th>
+                    <th>状态</th>
                 </tr>
             </thead>
             <tbody>
-                <!-- Add rows for notable experiments -->
+                <!-- 为每个值得瞩目的实验添加行数据 -->
                 <tr>
                     <td>{{H_ID}}</td>
                     <td>{{CHANGE_SUMMARY}}</td>
@@ -277,18 +276,18 @@
         </table>
     </section>
 
-    <!-- Current understanding -->
+    <!-- 当前研究认知 -->
     <section id="understanding">
-        <h2>Current Understanding</h2>
+        <h2>当前认知 (Current Understanding)</h2>
         <div class="card">
-            <!-- The narrative from findings.md, but presented compellingly -->
+            <!-- 提取自 findings.md 的学术叙事，以引人入胜的方式呈现 -->
             <p>{{CURRENT_UNDERSTANDING}}</p>
         </div>
     </section>
 
-    <!-- Next steps -->
+    <!-- 下一步计划 -->
     <section id="next">
-        <h2>Next Steps</h2>
+        <h2>下一步计划 (Next Steps)</h2>
         <div class="next-steps">
             <ul>
                 <li>{{NEXT_STEP_1}}</li>
@@ -299,7 +298,7 @@
     </section>
 
     <footer>
-        Generated by Autoresearch | {{DATE}}
+        由 自动研究编排工具 (Autoresearch) 自动生成 | {{DATE}}
     </footer>
 
 </body>

@@ -23,7 +23,7 @@ Eight empirically grounded frameworks from cognitive science, applied to compute
 **Do NOT use this skill when**:
 - You need structured project-level brainstorming workflows (use `brainstorming-research-ideas`)
 - You have a well-defined problem and need execution help (use domain-specific skills)
-- You need a literature survey. Use the repository's standard literature-search workflow instead.
+- You need a literature survey first; use the template's literature workflow and save the result under `literature/`
 
 **Relationship to Brainstorm skill**: The brainstorm skill provides operational workflows (diverge → converge → refine) and practical filters. This skill provides the deeper cognitive engines that power creative leaps. Use them together: creative-thinking to generate raw insight, brainstorm to structure and evaluate it.
 

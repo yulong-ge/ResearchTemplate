@@ -1,7 +1,7 @@
 .DS_Store
 node_modules/
 .opencode/node_modules/
-**/.opencode/node_modules/
+.rk/state/
 .pytest_cache/
 .uv-cache/
 .venv/

@@ -1,97 +1,42 @@
-# Skills-Driven ARA Research Workspace
+# ResearchKit Framework Development Guide
 
-## Research Agent Operating Guide
+## Layer Boundary
 
-### Start Here
+This repository is the framework/template source, not a live research project.
 
-1. Read `research/overview.md` before research or experiment work; it is the primary current-state research file.
-2. Treat `research/`, `literature/`, and `experiments/` as the active working memory.
-3. Treat `ara/` as epilogue output only.
-4. Load `autoresearch` when the task involves iterative research planning, experiments, and synthesis across multiple hypotheses.
+- Root files are for developing the `rk` framework and the copyable template.
+- `templates/ara-research-workspace/` is the project template that users copy to start research work.
+- `templates/ara-research-workspace/AGENTS.md` is the consumer-facing agent guide for copied projects.
+- Do not mix framework-development instructions into the template-level `AGENTS.md`.
 
-### Research State
+## Start Here
 
-- Use `autoresearch` for research experiment planning, execution loops, synthesis, or result-recording decisions.
-- Keep the main research question, active direction, and current state in `research/overview.md`.
-- Keep synthesized technical understanding in `research/findings.md`.
-- Keep project-level progress in `research/research-log.md`.
-- Keep active/parked/rejected ideas in `research/ideas.md`.
-- `research/archive/` holds historical snapshots of state, exploration tree, and task documents for reference.
-- `research/exploration-tree.yaml` is optional — use it when managing multiple parallel hypotheses.
-- Save paper notes in `literature/notes/` and maintain the aggregate map in `literature/survey.md`.
-- `ctx_memory`/`ctx_search` are caches. If they conflict with `AGENTS.md` or `research/overview.md`, trust repo docs and clean the stale memory.
-- `ara/` is epilogue-only provenance; do not update `ara/trace/exploration_tree.yaml` during active work.
+1. Read `docs/adr/0002-batchcom-rk-lite.md` and `docs/plans/2026-06-30-batchcom-rk-lite-design.md` for the accepted current direction.
+2. Treat `docs/handoffs/2026-06-30-framework-refactor-handoff.md` as historical context; ADR 0002 and the batchcom RK-lite design supersede any conflicting remote-sync, Mutagen, or runtime-placement guidance there.
+3. Read `docs/adr/` before changing repository structure or runtime architecture.
+4. Treat `docs/plans/` as framework implementation plans.
+5. Treat `templates/ara-research-workspace/docs/` as documentation that will be copied into downstream research projects.
 
-### Repository Layout
+## Framework Direction
 
-- Main reusable code lives in `src/`.
-- Experiment-specific code lives in `experiments/<hypothesis-slug>/`.
-- Write confirmatory experiment designs in `experiments/protocols/`.
-- Write concrete code/execution plans in `docs/plans/`.
-- Completed plans belong under `docs/plans/archive/`.
-- Third-party research code is vendored under `external/`.
-- Remote execution scripts live in `scripts/`.
+- The runtime command is named `rk`.
+- `rk` source belongs at the framework repository root, not inside copied project templates.
+- Copied projects contain `.rk/project.toml` and use `rk` as an external execution tool.
+- The current v1 target is batchcom-specific, Git-first, and RK-lite.
+- Do not generalize to multi-remote or Mutagen workflows until a concrete future remote requires it.
 
-### Experiments
+## Development Rules
 
-- Write confirmatory protocols in `experiments/protocols/` before running experiments.
-- Save meaningful run records in `experiments/logs/` and shared structured outputs in `experiments/results/<experiment-id>/`.
-- Use the top-level `experiments/protocols/`, `experiments/logs/`, and `experiments/results/` paths as the project-wide index for lightweight runs, cross-branch records, and standardized exports.
-- When one outer-loop hypothesis becomes its own sustained branch, create `experiments/<hypothesis-slug>/` and keep that branch's protocol, code, results, and analysis there.
+- Use ADRs for architectural decisions.
+- Keep framework docs in root `docs/`.
+- Keep copyable research workspace files under `templates/ara-research-workspace/`.
+- Treat `templates/ara-research-workspace/` as a carefully designed baseline. Before deleting or replacing existing template artifacts, document what they do and ask for confirmation unless the deletion was explicitly approved.
+- When replacing obsolete structure, remove the old path directly rather than adding compatibility shims unless compatibility is explicitly requested.
+- Prefer small commits after verified framework changes.
 
-### Code Editing
+## Verification
 
-- When refactoring or replacing an obsolete design, remove the abandoned code path directly; do not add compatibility wrappers, legacy CLI aliases, migration shims, or old-format tests unless backward compatibility is explicitly requested.
-- If tests encode superseded behavior, rewrite or delete those tests with the refactor instead of preserving stale behavior as compatibility coverage.
-
-### Storage And Artifacts
-
-- Use `src/<project>/paths.py` as the single source of truth for storage paths (cloud roots, model dirs, data dirs, result roots).
-- Large models, datasets, and raw experiment artifacts should live on remote/cloud storage, not in the local repo.
-- Local `experiments/results/` is only a pointer; raw artifacts live on remote storage under `RESULTS_ROOT / <hypothesis-slug> / <run-id>`.
-- SwanLab or W&B can be used as lightweight tracking mirrors for metadata, metrics, and media only. Never upload checkpoints, latent caches, `.pt/.pth/.ckpt/.safetensors/.bin/.npy/.npz`, or archives.
-- Use unique timestamped run directories for experiments.
-
-### Remote Execution
-
-- Runtime targets are centralized in `scripts/remote_targets.sh`.
-- Before remote runs: `scripts/remote_sync.sh <target>` then `scripts/remote_preflight.sh <target>` from the local machine.
-- For debug/full/evaluation jobs, start a remote `tmux` session in the synced repo, source `scripts/remote_env.sh`, then run through `scripts/remote_python.sh`.
-- Long remote jobs must survive local session loss. Prefer remote `tmux`; if unavailable, use `nohup` with unbuffered output, stable logs, heartbeat/progress, and success/failure markers.
-- Use `.opencode/agents/remote-exec.md` (via `@remote-exec` in subagent dispatch) to keep main session context clean during long remote runs.
-- For repeated remote tmux/status tracking loops, dispatch a `remote-exec` subagent instead of manually polling in the main session.
-
-### Rules
-
-- For a new direction, generate or refine candidate ideas with `brainstorming-research-ideas` or `creative-thinking-for-research` first.
-- Use `idea-evaluator` only after a candidate idea already exists and needs an isolated evaluation.
-- Run `idea-evaluator` in a fresh subagent so the evaluation is not mixed with the active working context.
-- Use `ara-rigor-reviewer` before treating an important claim as established.
-- Use `ara-research-manager` only after an outer-loop update, a direction pivot, or the end of a work unit that changed the next actionable step.
-- Do not start recurring `/loop`, cron, watchdog, or heartbeat jobs unless the user explicitly asks for continuous autonomous operation.
-- Use `grill-me` to stress-test a plan or design before committing to implementation.
-
-### Directory Boundaries
-
-- `data/` is for local inputs, cached analysis assets, downloaded metadata, or reference statistics, not experiment outputs.
-- `to_human/` is for optional human-facing summaries, decks, or reports when explicitly useful.
-- `paper/` is for manuscript assets and section drafts only.
-- Keep reusable code in `src/`, not buried inside one experiment folder.
-- `external/` is for vendored third-party code.
-- `docs/plans/` is for execution plans; `experiments/protocols/` is for confirmatory experiment designs.
-
-### OpenCode Configuration
-
-- `.opencode/opencode.json` defines MCP servers for academic research (Zotero, AlphaXiv, Semantic Scholar).
-- `.opencode/agents/remote-exec.md` is a subagent for running long training jobs on remote GPU servers.
-
-### Verification Commands
-
-- Run tests: `uv run pytest tests/`
-- Shell syntax check: `bash -n scripts/remote_targets.sh scripts/remote_env.sh scripts/remote_python.sh scripts/remote_sync.sh scripts/remote_preflight.sh`
-
-### Deep Learning Discipline
-
-- Use conda, never the `base` environment, for deep-learning work.
-- Check GPU and storage before large training or downloads.
-- Do not silently swallow critical model, data, checkpoint, or config failures.
+- Template shell syntax check:
+  `bash -n templates/ara-research-workspace/scripts/remote_targets.sh templates/ara-research-workspace/scripts/remote_env.sh templates/ara-research-workspace/scripts/remote_python.sh templates/ara-research-workspace/scripts/remote_sync.sh templates/ara-research-workspace/scripts/remote_preflight.sh`
+- Template tests, when Python tests exist:
+  `cd templates/ara-research-workspace && uv run pytest tests/`

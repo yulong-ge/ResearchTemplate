@@ -5,9 +5,7 @@
 ### Start Here
 
 1. Read `research/overview.md` before research or experiment work; it is the primary current-state research file.
-2. Treat `research/`, `literature/`, and `experiments/` as the active working memory.
-3. Treat `ara/` as epilogue output only.
-4. Load `autoresearch` when the task involves iterative research planning, experiments, and synthesis across multiple hypotheses.
+2. Treat `research/`, `literature/`as the active working memory.
 
 ### Research State
 
@@ -17,15 +15,13 @@
 - Keep project-level progress in `research/research-log.md`.
 - Keep active/parked/rejected ideas in `research/ideas.md`.
 - `research/archive/` holds historical snapshots of state, exploration tree, and task documents for reference.
-- `research/exploration-tree.yaml` is optional — use it when managing multiple parallel hypotheses.
+- `research/exploration-tree.yaml` is optional; use it when managing multiple parallel hypotheses.
 - Save paper notes in `literature/notes/` and maintain the aggregate map in `literature/survey.md`.
 - `ctx_memory`/`ctx_search` are caches. If they conflict with `AGENTS.md` or `research/overview.md`, trust repo docs and clean the stale memory.
 - `ara/` is epilogue-only provenance; do not update `ara/trace/exploration_tree.yaml` during active work.
 
 ### Repository Layout
 
-- `rk` is an external framework tool; its source does not live in this project.
-- Project path configuration lives in `.rk/project.toml`.
 - Main reusable code lives in `src/`.
 - Experiment-specific code lives in `experiments/<hypothesis-slug>/`.
 - Write confirmatory experiment designs in `experiments/protocols/`.
@@ -33,7 +29,6 @@
 - Completed plans belong under `docs/plans/archive/`.
 - Third-party research code is vendored under `external/`.
 - Remote execution scripts live in `scripts/`.
-- Target/server profile facts and notes live in `remote/`.
 
 ### Experiments
 
@@ -49,27 +44,19 @@
 
 ### Storage And Artifacts
 
-- Use `src/project_paths.py` as the project helper for `RK_*` storage paths injected by `rk run`.
-- Large models, datasets, and raw experiment artifacts should live under the configured `RK_*` roots, not as untracked ad hoc files in the Git repo.
-- Local `experiments/results/` is only a pointer/index; raw artifacts live under `$RK_RUNS_DIR / <run-id>` or, for sustained branches, a branch-specific subdirectory below the configured run/output root.
+- Use `src/<project>/paths.py` as the single source of truth for storage paths.
+- Large models, datasets, and raw experiment artifacts should live on remote/cloud storage, not in the local repo.
+- Local `experiments/results/` is only a pointer; raw artifacts live on remote storage under `RESULTS_ROOT / <hypothesis-slug> / <run-id>`.
 - SwanLab or W&B can be used as lightweight tracking mirrors for metadata, metrics, and media only. Never upload checkpoints, latent caches, `.pt/.pth/.ckpt/.safetensors/.bin/.npy/.npz`, or archives.
 - Use unique timestamped run directories for experiments.
 
-### batchcom RK-lite Execution
+### Remote Execution
 
-- This project uses Git as the code synchronization source of truth between Mac and batchcom.
-- Before editing, run `git status` and `git pull --ff-only`.
-- Before meaningful training runs, prefer committed code. `rk run` records the commit hash in the run manifest.
-- `rk` is an external framework tool; its source does not live in this project.
-- Project path configuration lives in `.rk/project.toml`.
-- Run commands through `rk run <launcher> ...` so `RK_*` paths, W&B local directories, logs, and manifests are set consistently.
-- Store data, logs, outputs, checkpoints, and local W&B files under `$RK_PROJECT_ROOT` unless explicitly using `rk run --scratch`.
-- Use `/home/dataset-assist-0/research/<project>` as canonical storage on batchcom.
-- Use `/home/dataset-local/<project>` only for explicit high-performance scratch workflows with `rk stage` and `rk collect`.
-- Do not assume server-local MCP parity with the Mac. Use the Mac for MCP-heavy literature and planning workflows.
-- Legacy `scripts/remote_*.sh` files are retained as reference/fallback. Do not delete them without explicit confirmation.
+- Runtime targets are centralized in `scripts/remote_targets.sh`.
+- Before remote runs: `scripts/remote_sync.sh <target>` then `scripts/remote_preflight.sh <target>` from the local machine.
+- For debug/full/evaluation jobs, start a remote `tmux` session in the synced repo, source `scripts/remote_env.sh`, then run through `scripts/remote_python.sh`.
 - Long remote jobs must survive local session loss. Prefer remote `tmux`; if unavailable, use `nohup` with unbuffered output, stable logs, heartbeat/progress, and success/failure markers.
-- Use `.opencode/agents/remote-exec.md` (via `@remote-exec` in subagent dispatch) to keep main session context clean during long remote runs.
+- Use `.opencode/agents/remote-exec.md` via subagent dispatch to keep main session context clean during long remote runs.
 - For repeated remote tmux/status tracking loops, dispatch a `remote-exec` subagent instead of manually polling in the main session.
 
 ### Rules
@@ -93,7 +80,7 @@
 
 ### OpenCode Configuration
 
-- `.opencode/opencode.json` defines MCP servers for academic research (Zotero, AlphaXiv, Semantic Scholar).
+- `.opencode/opencode.json` defines MCP servers for academic research.
 - `.opencode/agents/remote-exec.md` is a subagent for running long training jobs on remote GPU servers.
 
 ### Verification Commands

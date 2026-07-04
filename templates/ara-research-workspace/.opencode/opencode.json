@@ -4,7 +4,6 @@
   // MCPs tuned for research & paper writing
   "plugin": [
     "@prevalentware/opencode-goal-plugin"
-    // "opencode-background-agents"
   ],
   "mcp": {
     "zotero": {

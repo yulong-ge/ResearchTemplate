@@ -394,9 +394,3 @@ description: Use when planning, running, recording, or synthesizing iterative re
 
 **无法确定何时应当得出结论并收尾**
 追问自己三个核心问题：1. 你是否拥有一个得到了强有力数据支持的学术发现？2. 你是否能清晰解释其起作用的底层机理？3. 现在的 `research/findings.md` 是否已经能构成一个极具说服力的论文 Abstract？如果三个问题答案均为“是”，立即收尾并转入论文撰写阶段。
-
-## 进阶主题
-
-- **详细的智能体接续与状态继承**：[references/agent-continuity.md](references/agent-continuity.md)
-- **进度报告与演示模板**：[references/progress-reporting.md](references/progress-reporting.md)
-- **完整的技能路由表**：[references/skill-routing.md](references/skill-routing.md)

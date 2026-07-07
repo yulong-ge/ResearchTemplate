@@ -8,10 +8,11 @@ Two-disk model (BatchCom server):
     survives power cycles. Holds every canonical asset: the repo, dataset
     master copies, and the results/checkpoint archive.
   - Local disk (``/home/dataset-local``): per-machine nvme high-perf. Holds the
-    training hot cache (staged copies) and conda environments.
+    training hot cache (staged copies), the library cache (HF/torch downloads)
+    and conda environments.
 
 The system disk (``/``, ``/home/batchcom``) is ephemeral — never store project
-data or conda envs there.
+data, library caches, or conda envs there.
 
 See ``docs/plans/2026-07-07-template-refactor.md`` for the full design.
 """
@@ -42,13 +43,15 @@ if _IS_SERVER:
     DATA_ROOT: Path | None = RESEARCH_ROOT / _PROJ / "data"
     RESULTS_ROOT: Path | None = RESEARCH_ROOT / _PROJ / "results"
 
-    # Local disk: per-machine high-perf — training hot cache + conda envs.
+    # Local disk: per-machine high-perf — training hot cache + library cache + conda envs.
     LOCAL_ROOT: Path | None = Path("/home/dataset-local")
     DATA_CACHE: Path | None = LOCAL_ROOT / _PROJ / "data"
+    LIB_CACHE: Path | None = LOCAL_ROOT / "cache"  # cross-project HF/torch downloads
     CONDA_ENV: str | None = _CONDA_ENV
     # uv builds the project venv inside the active conda env at REPO_ROOT/.venv
     # (gitignored). Route new conda envs to the local disk via .condarc
-    # ``envs_dirs`` — see research/environment.md.
+    # ``envs_dirs`` — see research/environment.md. Library cache dirs (HF_HOME,
+    # TORCH_HOME, ...) are exported in the server's ~/.bashrc_custom to LIB_CACHE.
 else:
     # Mac (darwin): edit here, run on the server.
     REPO_ROOT: Path = Path.home() / "code" / _PROJ
@@ -56,6 +59,7 @@ else:
     LOCAL_ROOT = None
     DATA_ROOT = None
     DATA_CACHE = None
+    LIB_CACHE = None
     RESULTS_ROOT = None
     CONDA_ENV = None  # Mac uses uv only; no conda.
 

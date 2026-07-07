@@ -10,3 +10,27 @@ __pycache__/
 **/__pycache__/
 *.log
 *.tmp
+
+# Experiment tracking local caches (metadata lives in W&B cloud)
+wandb/
+mlruns/
+
+# Large model / checkpoint / tensor artifacts — never commit; live in RESULTS_ROOT
+*.pt
+*.pth
+*.ckpt
+*.safetensors
+*.bin
+*.npy
+*.npz
+*.h5
+*.arrow
+
+# Local secrets / per-machine overrides
+.env
+.env.*
+*.local
+config.local.*
+
+# Notebook checkpoints
+.ipynb_checkpoints/

@@ -62,6 +62,6 @@ Use the strongest available group key, in this order when available: patient/cas
 
 ## Handoff to Other Skills
 
-- Remote-local sync: use `remote-local-mutagen-development`.
+- Remote-local sync: Git-first — both ends pull/push the Gitee origin (see `AGENTS.md`).
 - SSH/tmux/log strategy: use `remote-terminal-tool-strategy`.
 - Periodic monitoring into current session: use `opencode-schedule-current-session-autostop`; if unavailable, use a tmux watchdog.

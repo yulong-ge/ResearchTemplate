@@ -26,12 +26,9 @@
     "semantic-scholar": {
       "enabled": true
     },
-    // Disable non-academic MCPs
+    // Disabled: native SSH + ControlMaster + tmux replaces ssh-mcp (see AGENTS.md)
     "ssh-mcp": {
-      "enabled": true
-    },
-    "ticktick": {
       "enabled": false
-    }
+    },
   }
 }

@@ -2,9 +2,9 @@
 
 Detailed execution plans go here (code-level, command-level).
 
-**Separation of concerns:**
-- `experiments/protocols/` = what and why (scientific design)
-- `docs/plans/` = how and when (implementation details)
+**Scope split:**
+- `docs/plans/` = how and when: implementation steps, commands, execution detail.
+- `research/` = the scientific record (questions, hypotheses, run records, findings) — see the `research-record` skill.
 
 ## File Naming
 

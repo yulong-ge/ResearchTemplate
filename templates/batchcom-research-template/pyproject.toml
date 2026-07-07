@@ -1,0 +1,15 @@
+[project]
+name = "<proj>"
+version = "0.1.0"
+description = "Research project scaffolded from the BatchCom research template."
+requires-python = ">=3.11"
+dependencies = []
+
+# Run-from-repo-root project (not built as a package).
+# `from src.* import ...` works with the repo root on sys.path
+# (true for `uv run python -m ...`, `-c`, and scripts run from the root).
+[tool.uv]
+package = false
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

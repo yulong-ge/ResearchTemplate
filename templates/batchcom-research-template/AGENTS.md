@@ -21,12 +21,7 @@ Server disk policy (the part `paths.py` does not explain):
 
 ## Environment
 - **Mac:** `uv` only (`uv venv`, `uv run`).
-- **Server:** `conda` for the big env (CUDA/torch — what uv cannot install); `uv` builds the project `.venv` (gitignored) inside it.
-- Route new conda envs to local disk (one-time per server) — `~/.condarc`:
-  ```yaml
-  envs_dirs: [/home/dataset-local/conda/envs]
-  pkgs_dirs: [/home/dataset-local/conda/pkgs]
-  ```
+- **Server:** `conda` for the big env (CUDA/torch — what uv cannot install); `uv` builds the project `.venv` (gitignored) inside it. Conda envs live on the local disk (`/home/dataset-local/conda/envs`, per the server `.condarc`).
 
 ## Running code
 - **Server:** run directly in a tmux session — `conda activate <env> && uv run python ...`.

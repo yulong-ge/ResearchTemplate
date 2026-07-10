@@ -14,4 +14,16 @@ variables:
     prompt: "服务器 conda 环境名（如 ml）"
     required: true
     validation: '^[A-Za-z0-9_.-]+$'
+  - token: "<zotero-api-key>"
+    field: zotero_api_key
+    render_files: [".opencode/opencode.json"]
+    prompt: "Zotero API key（不用 Zotero 可留空）"
+    required: false
+    validation: '^[A-Za-z0-9]*$'
+  - token: "<zotero-library-id>"
+    field: zotero_library_id
+    render_files: [".opencode/opencode.json"]
+    prompt: "Zotero library ID（用户库数字 ID，可留空）"
+    required: false
+    validation: '^[0-9]*$'
 exclude: []

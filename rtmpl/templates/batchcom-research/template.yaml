@@ -1,0 +1,17 @@
+name: batchcom-research
+display: "BatchCom 深度学习研究模板"
+version: "0.1.0"
+variables:
+  - token: "<proj>"
+    field: proj
+    render_files: ["pyproject.toml", "src/paths.py"]
+    prompt: "项目 slug（如 my-research）"
+    required: true
+    validation: '^[a-z0-9][a-z0-9-]*$'
+  - token: "<conda-env>"
+    field: conda_env
+    render_files: ["src/paths.py"]
+    prompt: "服务器 conda 环境名（如 ml）"
+    required: true
+    validation: '^[A-Za-z0-9_.-]+$'
+exclude: []

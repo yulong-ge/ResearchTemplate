@@ -10,7 +10,7 @@ opencode injects `Platform` (`darwin` = Mac, `linux` = BatchCom server); `src/pa
 - **Server:** full execution.
 
 ## Paths
-`src/paths.py` is the single source of truth — import it, never hardcode. Set the two placeholders per project: `<proj>`, `<conda-env>`.
+`src/paths.py` is the single source of truth — import it, never hardcode. Project values (`<proj>`, `<conda-env>`) are rendered from `.rtmpl/config.yaml` by `rtmpl` at scaffold/update time; edit them there, not in source.
 
 Server disk policy (the part `paths.py` does not explain):
 | Disk | Path | Policy |

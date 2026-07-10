@@ -34,3 +34,10 @@ config.local.*
 
 # Notebook checkpoints
 .ipynb_checkpoints/
+
+# rtmpl internals — state files (config.yaml, state.json) ARE tracked; these are not
+.rtmpl/.backup-*/
+.rtmpl/*.tmp
+.rtmpl/.lock
+.rtmpl/.pending
+*.new

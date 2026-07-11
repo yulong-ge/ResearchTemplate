@@ -15,7 +15,12 @@ __pycache__/
 wandb/
 mlruns/
 
-# Large model / checkpoint / tensor artifacts — never commit; live in RESULTS_ROOT
+# Canonical assets may live below REPO_ROOT on BatchCom but never belong in Git.
+/data/
+/models/
+/results/
+
+# Defense in depth for misplaced large artifacts.
 *.pt
 *.pth
 *.ckpt

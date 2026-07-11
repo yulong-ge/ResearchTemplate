@@ -52,7 +52,7 @@ Single home per fact; never duplicate content across files — link instead.
 
 - **→ W&B:** metrics, curves, media, hyperparams, system metrics, config snapshot, code version, data/model artifacts (versioned). NEVER checkpoints / `.pt` / `.safetensors` / caches.
 - **→ Markdown:** human narrative, interpretation, decision rationale, single-run meaning, mature conclusions, ideas, provenance.
-- **→ gitignored (neither):** large raw artifacts → `RESULTS_ROOT` via `src/paths.py`.
+- **→ gitignored (neither):** large raw artifacts → `RESULTS_ROOT`; reusable project/shared data and models → their canonical roots in `src/paths.py`.
 
 ## Common Mistakes
 

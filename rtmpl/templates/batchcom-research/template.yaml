@@ -1,6 +1,6 @@
 name: batchcom-research
 display: "BatchCom 深度学习研究模板"
-version: "0.1.0"
+version: "0.1.1"
 variables:
   - token: "<proj>"
     field: proj

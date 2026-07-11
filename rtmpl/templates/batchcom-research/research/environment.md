@@ -10,20 +10,20 @@
 
 ## Storage Layout (BatchCom server)
 
-Two-disk model — see `src/paths.py` (single source of truth) and the server's
-`~/.bashrc_custom` for the cache env-var exports.
+See `src/paths.py` for resolved paths and `~/.bashrc_custom` for library-cache
+environment variables.
 
-| Disk | Path | Role | Holds |
+| Storage | Path | Durability contract | Holds |
 |---|---|---|---|
-| Research (durable) | `/home/dataset-assist-0/research` | cross-machine, survives restarts | repo, dataset master (`DATA_ROOT`), results archive (`RESULTS_ROOT`) |
-| Local (nvme, fast) | `/home/dataset-local` | per-machine high-perf | `DATA_CACHE` (project hot data), `LIB_CACHE` (HF/torch downloads), conda envs |
-| System (ephemeral) | `/`, `~` | lost on instance stop | **never** put project data, caches, or envs here |
+| Research NFS | `/home/dataset-assist-0/research` | canonical, cross-machine, restart-independent | repo, shared/project data and models, results |
+| Local NVMe | `/home/dataset-local` | performance storage; not the canonical root | staged project data, library caches, conda envs |
+| System/container | `/`, `~`, `/tmp` | ephemeral and small | **never** store research assets here |
 
-Library caches (`HF_HOME`, `HF_HUB_CACHE`, `TRANSFORMERS_CACHE`, `HF_DATASETS_CACHE`,
-`TORCH_HOME`) are exported in the server's `~/.bashrc_custom` to
-`/home/dataset-local/cache`, so HF/torch downloads never fill `~`. `DATA_CACHE`
-and `LIB_CACHE` are distinct: the former is project-scoped staged training data,
-the latter is a cross-project shared library download cache.
+Shared assets use `SHARED_DATA_ROOT` / `SHARED_MODEL_ROOT`; project assets use
+`DATA_ROOT` / `MODEL_ROOT` / `RESULTS_ROOT`. `DATA_CACHE` and `LIB_CACHE` are
+performance caches, not canonical asset locations. Run IDs and subdirectories
+below `RESULTS_ROOT` are managed by the project, Lightning, W&B, or another
+selected framework.
 
 ## Compute
 
@@ -41,13 +41,13 @@ the latter is a cross-project shared library download cache.
 
 | Dataset | Version / split | Location | Notes |
 |---|---|---|---|
-| | | `DATA_ROOT/...` | |
+| | | `DATA_ROOT/...` or `SHARED_DATA_ROOT/...` | |
 
 ## Model / Checkpoint Registry
 
-| Checkpoint | Producing run | Location | Purpose |
+| Model / checkpoint | Version / producing run | Location | Purpose |
 |---|---|---|---|
-| | `runs/<slug>.md` | `RESULTS_ROOT/...` | |
+| | | `MODEL_ROOT/...`, `SHARED_MODEL_ROOT/...`, or `RESULTS_ROOT/...` | |
 
 ## Seeds & Reproducibility Notes
 

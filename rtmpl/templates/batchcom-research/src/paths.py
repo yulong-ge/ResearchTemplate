@@ -1,20 +1,19 @@
 """Project path resolution — single source of truth for storage paths.
 
 Platform-aware: resolves to BatchCom server paths on Linux, to local Mac paths
-on Darwin. Edit ``_PROJ`` and ``_CONDA_ENV`` after copying the template.
+on Darwin. Project values are rendered by ``rtmpl``.
 
 Two-disk model (BatchCom server):
-  - Research disk (``/home/dataset-assist-0/research``): durable, cross-machine,
-    survives power cycles. Holds every canonical asset: the repo, dataset
-    master copies, and the results/checkpoint archive.
-  - Local disk (``/home/dataset-local``): per-machine nvme high-perf. Holds the
-    training hot cache (staged copies), the library cache (HF/torch downloads)
-    and conda environments.
+  - Research disk (``/home/dataset-assist-0/research``): durable NFS. Holds every
+    canonical asset: repos, datasets, reusable models, and run outputs.
+  - Local disk (``/home/dataset-local``): per-machine high-performance NVMe.
+    Holds staged dataset copies, download caches, and conda environments.
+    BatchCom persistence is optional, so it is never the canonical asset root.
 
 The system disk (``/``, ``/home/batchcom``) is ephemeral — never store project
 data, library caches, or conda envs there.
 
-See ``docs/plans/2026-07-07-template-refactor.md`` for the full design.
+See ``research/environment.md``for the full contract.
 """
 from __future__ import annotations
 
@@ -32,18 +31,22 @@ _IS_SERVER = platform.system() == "Linux"
 def _unavailable(name: str) -> None:
     raise RuntimeError(
         f"{name} is not available on Mac (darwin). "
-        "Datasets and results live on the BatchCom server — run there."
+        "Research assets live on the BatchCom server — run there."
     )
 
 
 if _IS_SERVER:
-    # Research disk: durable, cross-machine — canonical home for everything.
+    # Research NFS: canonical assets. Never use a cache as the only copy.
     RESEARCH_ROOT: Path | None = Path("/home/dataset-assist-0/research")
-    REPO_ROOT: Path = RESEARCH_ROOT / _PROJ
-    DATA_ROOT: Path | None = RESEARCH_ROOT / _PROJ / "data"
-    RESULTS_ROOT: Path | None = RESEARCH_ROOT / _PROJ / "results"
+    SHARED_DATA_ROOT: Path | None = RESEARCH_ROOT / "_shared" / "data"
+    SHARED_MODEL_ROOT: Path | None = RESEARCH_ROOT / "_shared" / "models"
 
-    # Local disk: per-machine high-perf — training hot cache + library cache + conda envs.
+    REPO_ROOT: Path = RESEARCH_ROOT / _PROJ
+    DATA_ROOT: Path | None = REPO_ROOT / "data"
+    MODEL_ROOT: Path | None = REPO_ROOT / "models"
+    RESULTS_ROOT: Path | None = REPO_ROOT / "results"
+
+    # Local NVMe: high-performance data staging + shared library caches.
     LOCAL_ROOT: Path | None = Path("/home/dataset-local")
     DATA_CACHE: Path | None = LOCAL_ROOT / _PROJ / "data"
     LIB_CACHE: Path | None = LOCAL_ROOT / "cache"  # cross-project HF/torch downloads
@@ -56,23 +59,43 @@ else:
     # Mac (darwin): edit here, run on the server.
     REPO_ROOT: Path = Path.home() / "code" / _PROJ
     RESEARCH_ROOT = None
+    SHARED_DATA_ROOT = None
+    SHARED_MODEL_ROOT = None
     LOCAL_ROOT = None
     DATA_ROOT = None
+    MODEL_ROOT = None
     DATA_CACHE = None
     LIB_CACHE = None
     RESULTS_ROOT = None
     CONDA_ENV = None  # Mac uses uv only; no conda.
 
 
+def _require_path(name: str, value: Path | None) -> Path:
+    if value is None:
+        _unavailable(name)
+    return value
+
+
+def require_shared_data_root() -> Path:
+    """Return the canonical cross-project dataset root."""
+    return _require_path("SHARED_DATA_ROOT", SHARED_DATA_ROOT)
+
+
+def require_shared_model_root() -> Path:
+    """Return the canonical cross-project reusable-model root."""
+    return _require_path("SHARED_MODEL_ROOT", SHARED_MODEL_ROOT)
+
+
 def require_data_root() -> Path:
     """Return ``DATA_ROOT``, raising a clear error off-server."""
-    if DATA_ROOT is None:
-        _unavailable("DATA_ROOT")
-    return DATA_ROOT
+    return _require_path("DATA_ROOT", DATA_ROOT)
+
+
+def require_model_root() -> Path:
+    """Return the canonical project-owned reusable-model root."""
+    return _require_path("MODEL_ROOT", MODEL_ROOT)
 
 
 def require_results_root() -> Path:
     """Return ``RESULTS_ROOT``, raising a clear error off-server."""
-    if RESULTS_ROOT is None:
-        _unavailable("RESULTS_ROOT")
-    return RESULTS_ROOT
+    return _require_path("RESULTS_ROOT", RESULTS_ROOT)

@@ -27,7 +27,12 @@
 | **J. 资源** | 文献笔记、数据/模型注册表、外部链接 | 累积 |
 | **K. 交流** | 报告、演示、论文草稿 | 后期 |
 
-> **数字/曲线/media 不在此表** —— 它们进 W&B，不进 markdown。大体积原始 artifact（checkpoint 等）进 `RESULTS_ROOT`（gitignored），不进 Git、也不进 W&B。
+> **数字/曲线/media 不在此表** —— 它们进 W&B，不进 markdown。大体积原始 artifact（checkpoint 等）进入 `RESULTS_ROOT`（gitignored），不进 Git、也不进 W&B。
+
+物理资产同样遵守“每个事实只有一个家”：跨项目复用的数据和模型分别进入
+`SHARED_DATA_ROOT`、`SHARED_MODEL_ROOT`；项目独有的数据和可复用模型分别进入
+`DATA_ROOT`、`MODEL_ROOT`；项目结果进入 `RESULTS_ROOT`。`DATA_CACHE` 和
+`LIB_CACHE` 位于本机高速盘，不作为 canonical asset root。
 
 ## 二、维度 → 文件 速查
 

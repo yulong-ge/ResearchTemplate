@@ -8,6 +8,14 @@
   Update when the environment, key datasets, or canonical checkpoints change.
 -->
 
+## Storage Layout
+
+- **Canonical shared:** `SHARED_DATA_ROOT`, `SHARED_MODEL_ROOT`
+- **Canonical project:** `DATA_ROOT`, `MODEL_ROOT`, `RESULTS_ROOT`
+- **Performance caches:** `DATA_CACHE`, `LIB_CACHE`
+
+Caches are not canonical asset locations.
+
 ## Compute
 
 - **Platform:** <!-- BatchCom A100×8 / Mac -->
@@ -24,13 +32,13 @@
 
 | Dataset | Version / split | Location | Notes |
 |---|---|---|---|
-| | | `DATA_ROOT/...` | |
+| | | `DATA_ROOT/...` or `SHARED_DATA_ROOT/...` | |
 
 ## Model / Checkpoint Registry
 
-| Checkpoint | Producing run | Location | Purpose |
+| Model / checkpoint | Version / producing run | Location | Purpose |
 |---|---|---|---|
-| | `runs/<slug>.md` | `RESULTS_ROOT/...` | |
+| | | `MODEL_ROOT/...`, `SHARED_MODEL_ROOT/...`, or `RESULTS_ROOT/...` | |
 
 ## Seeds & Reproducibility Notes
 

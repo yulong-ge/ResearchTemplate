@@ -13,7 +13,7 @@ Two-disk model (BatchCom server):
 The system disk (``/``, ``/home/batchcom``) is ephemeral — never store project
 data, library caches, or conda envs there.
 
-See ``research/environment.md``for the full contract.
+See ``research/environment.md`` for the full contract.
 """
 from __future__ import annotations
 

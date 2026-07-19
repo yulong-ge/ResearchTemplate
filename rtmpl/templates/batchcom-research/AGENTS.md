@@ -2,7 +2,13 @@
 
 ## Resume
 - Read `research/overview.md` first (the only file meant for full-read; keep <~150 lines).
-- For anything you record, use the `research-record` skill — it owns the where-each-fact-lives table, read discipline, and W&B boundary. Scaffold a fresh workspace from its `templates/`.
+- For recording or reconciliation, use the global `research-record` skill. This repository's README and instructions own the concrete file layout; the global skill does not.
+
+## Research records
+- Keep cross-experiment state under `research/`; keep experiment protocol, committed config, and milestone analysis under `experiments/<id>/`.
+- Do not create per-run Markdown or custom run JSON by default. The selected experiment tracker and durable results store own run-level state; `analysis.md` records only conclusions worth retaining and links to runs.
+- A project may replace this default only through an explicit project-level policy or skill. Existing code, tracker layouts, or conventions from another repository do not change it.
+- Reconciliation may correct current-state documentation from verified evidence, but must preserve historical results and must not silently change governance or methodology.
 
 ## Context
 opencode injects `Platform` (`darwin` = Mac, `linux` = BatchCom server); `src/paths.py` mirrors it. You always know which end you're on.

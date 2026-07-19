@@ -27,7 +27,7 @@ Last updated: YYYY-MM-DD
 
 ## Current State
 
-<!-- Latest result summary + pointer to runs/<slug>.md or log.md. No narrative dump. -->
+<!-- Latest result summary + pointer to the owning experiment analysis or log.md. No narrative dump. -->
 
 ## Next Agent Action
 

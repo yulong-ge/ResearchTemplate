@@ -4,7 +4,7 @@ Detailed execution plans go here (code-level, command-level).
 
 **Scope split:**
 - `docs/plans/` = how and when: implementation steps, commands, execution detail.
-- `research/` = the scientific record (questions, hypotheses, run records, findings) — see the `research-record` skill.
+- `research/` = durable cross-experiment state; `experiments/<id>/` = protocol, committed config, and milestone analysis. Use the global `research-record` skill to follow repository ownership.
 
 ## File Naming
 

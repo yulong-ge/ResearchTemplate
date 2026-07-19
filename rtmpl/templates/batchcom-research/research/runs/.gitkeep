@@ -1,4 +1,0 @@
-# One record per significant run: copy the skill template
-# `.agents/skills/research-record/templates/runs/TEMPLATE.md` into
-# `research/runs/<YYYY-MM-DD>-<slug>.md`. Throwaway/exploratory runs are a
-# one-liner in research/log.md, not a file here.

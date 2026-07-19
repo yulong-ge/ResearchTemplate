@@ -2,7 +2,7 @@
 
 <!--
   Generative backlog. Each hypothesis lives HERE (single home).
-  runs/<slug>.md references a hypothesis by id, never redefines it.
+  Experiment protocols reference a hypothesis by id, never redefine it.
 
   Lifecycle: active -> parked -> rejected (with reason), or promoted to a
   finding in findings.md once validated.

@@ -2,11 +2,13 @@
 from __future__ import annotations
 
 import argparse
+import os
 import sys
 
 from . import __version__
 from .commands import adopt, list as list_cmd, new, repair, status, update
 from .commands._common import CommandError
+from .core.update_check import latest_known_version, staleness_banner
 
 
 def _parse_var(items) -> dict[str, str]:
@@ -61,7 +63,25 @@ def build_parser() -> argparse.ArgumentParser:
     return p
 
 
+def _print_staleness_banner() -> None:
+    """Warn on stderr when the installed rtmpl is behind the template repo.
+
+    Never blocks execution and never demands network: offline / CI /
+    RTMPL_NO_UPDATE_CHECK=1 degrade to silence.
+    """
+    if os.environ.get("RTMPL_NO_UPDATE_CHECK", "") not in ("", "0", "false", "False"):
+        return
+    try:
+        latest = latest_known_version(__version__)
+    except Exception:
+        return
+    banner = staleness_banner(__version__, latest)
+    if banner:
+        print(banner, file=sys.stderr)
+
+
 def main(argv=None) -> int:
+    _print_staleness_banner()
     parser = build_parser()
     args = parser.parse_args(argv)
     if hasattr(args, "var"):

@@ -10,7 +10,8 @@
   Recording discipline (keep this file an INDEX, not a content store):
   - Periodic health audits of a running job (step-continuity checks, routine
     overflow/recovery events, tracker heartbeats) do NOT get their own rows —
-    they belong in the owning experiment analysis or tracker only.
+    keep them in machine logs or tracker state; they do not trigger Markdown
+    writes by themselves.
   - Add a row only for: a new experiment launch/completion/result, a decision,
     a finding, or a periodic MILESTONE (checkpoint gates, coarse step
     boundaries, first occurrence of a new event type).

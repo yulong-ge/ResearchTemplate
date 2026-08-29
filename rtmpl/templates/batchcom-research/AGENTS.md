@@ -7,6 +7,7 @@
 ## Research records
 - Keep cross-experiment state under `research/`; keep experiment protocol, committed config, and milestone analysis under `experiments/<id>/`.
 - Do not create per-run Markdown or custom run JSON by default. The selected experiment tracker and durable results store own run-level state; `analysis.md` records only conclusions worth retaining and links to runs.
+- Operational heartbeats and routine health checks stay in machine logs or tracker state. Update Markdown only at launch, protocol change, failure/recovery that changes interpretation, a coarse checkpoint/result milestone, or completion.
 - A project may replace this default only through an explicit project-level policy or skill. Existing code, tracker layouts, or conventions from another repository do not change it.
 - Reconciliation may correct current-state documentation from verified evidence, but must preserve historical results and must not silently change governance or methodology.
 

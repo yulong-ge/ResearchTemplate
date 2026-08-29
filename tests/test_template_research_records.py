@@ -20,6 +20,7 @@ def test_template_owns_experiments_but_not_per_run_git_records():
     )
     assert "experiments/<id>/" in policy
     assert "Do not create per-run Markdown or custom run JSON" in policy
+    assert "Operational heartbeats and routine health checks stay in machine logs" in policy
 
 
 def test_template_does_not_copy_global_skills():

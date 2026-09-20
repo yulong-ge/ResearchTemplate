@@ -21,9 +21,10 @@ from ..core.classify import (
     ORPHANED_PRISTINE,
     UNCHANGED,
     USERDELETED,
+    SEEDONLY,
     classify_universe,
 )
-from ..core.state import OK, State, load_state, save_state
+from ..core.state import OK, SEED_ONLY, State, load_state, save_state
 from ..core.template import load_manifest, walk_payload
 from ..core.tx import (
     LockBusy,
@@ -39,6 +40,7 @@ from ._common import (
     format_report,
     local_path,
     load_config,
+    ownership_for,
     report,
     rtmpl_dir,
     save_config,
@@ -119,7 +121,14 @@ def _apply(states, decisions, project_root, rendered, old_hashes) -> dict[str, s
             else:  # skip
                 new_hashes[rel] = rec
         elif st == USERDELETED:
-            new_hashes[rel] = None  # tombstone
+            if fs.ownership != SEED_ONLY or fs.in_template:
+                new_hashes[rel] = None  # tombstone
+        elif st == SEEDONLY:
+            # Project-owned records are never replaced by template bytes. Keep
+            # an observed hash when present so state remains useful for audits.
+            path = local_path(project_root, rel)
+            if fs.in_template or path.exists():
+                new_hashes[rel] = hashmod.hash_file(path)[0] if path.exists() else None
         elif st == ORPHANED_PRISTINE:
             if decisions.get(rel) == "delete":
                 atomic_remove(local_path(project_root, rel))  # entry dropped
@@ -183,7 +192,16 @@ def _run_locked(args, project_root: Path, rd: Path) -> int:
             )
 
     rendered = rendermod.render_payload(walk_payload(template, manifest), manifest, values)
-    states = classify_universe(project_root, rendered, state.hashes)
+    ownership = dict(state.ownership)
+    for rel in rendered:
+        ownership[rel] = ownership_for(ownership, rel, manifest)
+    states = classify_universe(
+        project_root,
+        rendered,
+        state.hashes,
+        ownership=ownership,
+        policy_for=manifest.policy_for,
+    )
     print(format_report(report(states)))
 
     if getattr(args, "dry_run", False):
@@ -203,7 +221,28 @@ def _run_locked(args, project_root: Path, rd: Path) -> int:
         new_hashes = _apply(states, decisions, project_root, rendered, state.hashes)
         if backfill:
             save_config(project_root, cfg)
-        save_state(rd, State(template_version=manifest.version, hashes=new_hashes))
+        new_ownership = dict(ownership)
+        for fs in states:
+            rel = fs.path
+            if fs.ownership == SEED_ONLY:
+                if fs.in_template or fs.on_disk:
+                    new_ownership[rel] = SEED_ONLY
+                else:
+                    # A manually migrated seed record that is gone from both
+                    # the template and disk no longer needs state protection.
+                    new_ownership.pop(rel, None)
+            elif fs.state == DEADORPHAN or (
+                fs.state == ORPHANED_PRISTINE and decisions.get(rel) == "delete"
+            ):
+                new_ownership.pop(rel, None)
+        save_state(
+            rd,
+            State(
+                template_version=manifest.version,
+                hashes=new_hashes,
+                ownership=new_ownership,
+            ),
+        )
     finally:
         clear_pending(rd)
     print(f"Updated to {template} @ {manifest.version}")

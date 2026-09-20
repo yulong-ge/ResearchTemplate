@@ -52,3 +52,9 @@ selected framework.
 ## Seeds & Reproducibility Notes
 
 <!-- random seeds used, determinism caveats, non-deterministic ops -->
+
+## Skills registry
+
+| Skill | Version/commit | Purpose | Local changes |
+|---|---|---|---|
+| | | | |

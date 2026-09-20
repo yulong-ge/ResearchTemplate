@@ -1,1 +1,1 @@
-"""Command implementations: new, update, adopt, repair, status, list."""
+"""Command implementations for template lifecycle and research handoff."""

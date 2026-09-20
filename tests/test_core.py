@@ -63,6 +63,11 @@ def test_state_load_statuses(tmp_path):
     s, st = state.load_state(rd)
     assert st == "ok" and s.template_version == "1.0" and s.hashes["b"] is None
 
+    (rd / "state.json").write_text(
+        json.dumps({"schema": 2, "template_version": "1.0", "hashes": {}, "ownership": {"x": "bad"}})
+    )
+    assert state.load_state(rd)[1] == "corrupt"
+
 
 def test_state_atomic_save_roundtrip(tmp_path):
     rd = tmp_path / ".rtmpl"
@@ -138,3 +143,21 @@ def test_render_residual_check():
     # No residual after a complete render → check passes (no raise).
     render.check_render_residuals(payload, m)
     assert payload["a.txt"] == b"name=ab"
+
+
+def test_manifest_file_policy_routes_and_excludes(tmp_path, monkeypatch):
+    root = tmp_path / "templates" / "demo"
+    root.mkdir(parents=True)
+    (root / "template.yaml").write_text(
+        "name: demo\nversion: '1'\nfile_policies:\n  seed_only: ['research/ideas.md']\n  generated: ['research/_generated/**']\n"
+    )
+    (root / "research").mkdir()
+    (root / "research" / "ideas.md").write_text("ideas")
+    (root / "research" / "_generated").mkdir()
+    (root / "research" / "_generated" / "graph.json").write_text("{}")
+    monkeypatch.setenv("RTMPL_TEMPLATES_ROOT", str(tmp_path / "templates"))
+    from rtmpl.core.template import load_manifest, walk_payload
+
+    manifest = load_manifest("demo")
+    assert manifest.policy_for("research/ideas.md") == "seed_only"
+    assert "research/_generated/graph.json" not in walk_payload("demo", manifest)

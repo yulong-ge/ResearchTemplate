@@ -1,0 +1,8 @@
+flowchart LR
+  H0[Hypothesis] -. tested by .-> E0[Experiment]
+  E0 --> R0[Result]
+  R0 -. supports or challenges .-> C0[Claim]
+  D0[Decision] -. authorizes .-> E0
+
+%% This is a derived view. The source of truth is research-state.yaml and the
+%% linked experiment, finding, claim, and decision records.

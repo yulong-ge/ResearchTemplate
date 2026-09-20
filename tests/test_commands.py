@@ -15,6 +15,7 @@ from rtmpl.commands.update import _write_new
 from rtmpl.core import hash as h
 from rtmpl.core.render import RenderError
 from rtmpl.core.state import load_state, save_state
+from rtmpl.cli import build_parser
 
 
 def _a(**kw):
@@ -48,6 +49,23 @@ def test_new_renders_and_state(mini_template, tmp_path):
     s, st = load_state(proj / ".rtmpl")
     assert st == "ok" and s.template_version == "0.1.0"
     assert "AGENTS.md" in s.hashes and "binary.pdf" in s.hashes
+
+
+def test_new_and_init_use_the_same_creation_interface():
+    parser = build_parser()
+    new_args = vars(parser.parse_args(["new", "demo", "--no-input"]))
+    init_args = vars(parser.parse_args(["init", "demo", "--no-input"]))
+    new_args.pop("command")
+    init_args.pop("command")
+    assert new_args == init_args
+
+
+def test_init_prints_next_files_to_fill(mini_template, tmp_path, capsys):
+    _new(tmp_path / "p")
+    output = capsys.readouterr().out
+    assert "初始化后的优先顺序" in output
+    assert "AGENTS.md — fill the first project note" in output
+    assert "rtmpl check && rtmpl resume" in output
 
 
 def test_new_nonempty_target_error(mini_template, tmp_path):
@@ -206,3 +224,101 @@ def test_interrupt_aborts(mini_template, tmp_path, monkeypatch):
     (proj / ".rtmpl" / ".pending").write_text("interrupted")
     with pytest.raises(CommandError):
         _update(proj, monkeypatch)
+
+
+def test_seed_only_record_survives_force_update(mini_template, tmp_path, monkeypatch):
+    manifest = mini_template / "template.yaml"
+    manifest.write_text(
+        manifest.read_text().replace(
+            "exclude: []",
+            "exclude: []\nfile_policies:\n  seed_only: [AGENTS.md]",
+        )
+    )
+    proj = tmp_path / "p"
+    _new(proj)
+    (proj / "AGENTS.md").write_text("# project record\n")
+    mini_template.joinpath("AGENTS.md").write_text("# template replacement\n")
+
+    _update(proj, monkeypatch, force=True)
+
+    assert (proj / "AGENTS.md").read_text() == "# project record\n"
+    saved, status = load_state(proj / ".rtmpl")
+    assert status == "ok"
+    assert saved.ownership["AGENTS.md"] == "seed_only"
+
+
+def test_manifest_seed_only_upgrade_protects_existing_record(mini_template, tmp_path, monkeypatch):
+    proj = tmp_path / "p"
+    _new(proj)
+    (proj / "AGENTS.md").write_text("# project record\n")
+    manifest = mini_template / "template.yaml"
+    manifest.write_text(
+        manifest.read_text().replace(
+            "exclude: []",
+            "exclude: []\nfile_policies:\n  seed_only: [AGENTS.md]",
+        )
+    )
+    mini_template.joinpath("AGENTS.md").write_text("# template replacement\n")
+
+    _update(proj, monkeypatch, force=True)
+
+    assert (proj / "AGENTS.md").read_text() == "# project record\n"
+    saved, status = load_state(proj / ".rtmpl")
+    assert status == "ok"
+    assert saved.ownership["AGENTS.md"] == "seed_only"
+
+
+def test_seed_only_record_is_preserved_when_template_removes_it(mini_template, tmp_path, monkeypatch):
+    manifest = mini_template / "template.yaml"
+    manifest.write_text(
+        manifest.read_text().replace(
+            "exclude: []",
+            "exclude: []\nfile_policies:\n  seed_only: [AGENTS.md]",
+        )
+    )
+    proj = tmp_path / "p"
+    _new(proj)
+    (proj / "AGENTS.md").write_text("# project record\n")
+    mini_template.joinpath("AGENTS.md").unlink()
+
+    _update(proj, monkeypatch, force=True)
+
+    assert (proj / "AGENTS.md").read_text() == "# project record\n"
+
+
+def test_deleted_orphaned_seed_record_is_pruned_from_state(mini_template, tmp_path, monkeypatch):
+    manifest = mini_template / "template.yaml"
+    manifest.write_text(
+        manifest.read_text().replace(
+            "exclude: []",
+            "exclude: []\nfile_policies:\n  seed_only: [AGENTS.md]",
+        )
+    )
+    proj = tmp_path / "p"
+    _new(proj)
+    (proj / "AGENTS.md").unlink()
+    mini_template.joinpath("AGENTS.md").unlink()
+
+    _update(proj, monkeypatch, force=True)
+
+    saved, status = load_state(proj / ".rtmpl")
+    assert status == "ok"
+    assert "AGENTS.md" not in saved.hashes
+    assert "AGENTS.md" not in saved.ownership
+
+
+def test_new_force_does_not_replace_existing_seed_record(mini_template, tmp_path):
+    manifest = mini_template / "template.yaml"
+    manifest.write_text(
+        manifest.read_text().replace(
+            "exclude: []",
+            "exclude: []\nfile_policies:\n  seed_only: [AGENTS.md]",
+        )
+    )
+    proj = tmp_path / "p"
+    proj.mkdir()
+    (proj / "AGENTS.md").write_text("# existing record\n")
+
+    _new(proj, force=True)
+
+    assert (proj / "AGENTS.md").read_text() == "# existing record\n"

@@ -1,0 +1,42 @@
+# 治理契约，不是权限沙箱或自动停机机制。具体授权写入 decisions.md。
+schema_version: 1
+mode: human_guided
+continuous_operation: opt_in # disabled | opt_in
+
+# Each loop can be run automatically or paused for human editing. These are
+# defaults; a direction decision may set a finite override.
+loop_control:
+  inner: auto # auto | human
+  outer: human # auto | human
+  allow_manual_override: true
+
+ownership:
+  recording_owner: main_agent
+  subagent_shared_record_writes: false
+  run_evidence_owner: tracker_and_results_store
+  generated_views_are_authoritative: false
+
+execution:
+  new_experiment_requires_approved_protocol: true
+  new_experiment_requires_explicit_budget: true
+  missing_authorization_action: do_not_launch
+  material_protocol_change_invalidates_grant: true
+  retry_allowance_must_be_explicit: true
+  cloud_resource_expansion_requires_approval: true
+  direction_change_requires_approval: true
+  claim_finalization_requires_approval: true
+
+recording:
+  write_before_launch: true
+  record_scientific_milestones: true
+  reconcile_at_task_end: true
+  record_routine_heartbeats_in_markdown: false
+  per_run_git_records: false
+  preserve_claim_revision_history: true
+  unknown_provenance_action: mark_unknown
+
+review:
+  require_human_decision_for_direction_change: true
+  require_human_decision_for_budget_change: true
+  external_release_requires_approval: true
+  ai_review_is_not_independent_replication: true

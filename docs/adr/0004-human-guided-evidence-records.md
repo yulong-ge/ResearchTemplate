@@ -1,0 +1,3 @@
+# Human-guided evidence records
+
+Accepted 2026-09-12. ResearchTemplate 0.3 keeps `rtmpl` as a template lifecycle tool and gives each research fact one project-owned home. The generated workspace records hypotheses, experiments, claims, decisions, and evidence with explicit provenance and finite authorization, while derived views remain disposable. Template manifests classify durable research records as `seed_only`; the updater persists that ownership so even `--force` cannot reclaim or overwrite them. Upstream ARA capabilities are available as opt-in global skills for standalone artifacts, and they complement the project’s single record system; experiment execution follows the project’s human authorization rules.

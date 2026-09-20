@@ -1,0 +1,3 @@
+# 复制后替换为项目实际可执行配置。不要把本模板当作通用训练 schema。
+experiment_id: E<id>
+protocol_revision: 1

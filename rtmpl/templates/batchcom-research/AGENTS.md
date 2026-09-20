@@ -1,59 +1,49 @@
 # BatchCom Research Workspace
 
-## Resume
-- Read `research/overview.md` first (the only file meant for full-read; keep <~150 lines).
-- For recording or reconciliation, use the global `research-record` skill. This repository's README and instructions own the concrete file layout; the global skill does not.
+## Resume and ownership
 
-## Research records
-- Keep cross-experiment state under `research/`; keep experiment protocol, committed config, and milestone analysis under `experiments/<id>/`.
-- Do not create per-run Markdown or custom run JSON by default. The selected experiment tracker and durable results store own run-level state; `analysis.md` records only conclusions worth retaining and links to runs.
-- Operational heartbeats and routine health checks stay in machine logs or tracker state. Update Markdown only at launch, protocol change, failure/recovery that changes interpretation, a coarse checkpoint/result milestone, or completion.
-- A project may replace this default only through an explicit project-level policy or skill. Existing code, tracker layouts, or conventions from another repository do not change it.
-- Reconciliation may correct current-state documentation from verified evidence, but must preserve historical results and must not silently change governance or methodology.
+- Read `research-state.yaml`, `findings.md`, and `to_human/latest.md` first. `to_human/latest.md` is the daily human entry; follow its links for detailed records.
+- Use the global `research-record` skill for recording and reconciliation. It routes entries to this project's declared paths.
+- `research-state.yaml`, `hypotheses.md`, `research-log.md`, `findings.md`, `claims.md`, `decisions.md`, `research/environment.md`, `research/policy.yaml`, and `literature/survey.md` are project-owned seed records. `rtmpl update --force` preserves them byte-for-byte.
+- Use `docs/research-workflow.md` for object ownership, evidence rules, and review triggers.
+- Use `docs/manual-migration.md` when a newer template introduces new record homes; migrate prose manually and run `rtmpl check` afterward.
 
-## Context
-opencode injects `Platform` (`darwin` = Mac, `linux` = BatchCom server); `src/paths.py` mirrors it. You always know which end you're on.
-- **Mac:** edit, lint, small CPU tests only. No GPU; canonical asset and server-cache roots resolve to `None` and raise on access.
-- **Server:** full execution.
+## Research execution
 
-## Paths
-`src/paths.py` is the single source of truth — import it, never hardcode. Project values (`<proj>`, `<conda-env>`) are rendered from `.rtmpl/config.yaml` by `rtmpl` at scaffold/update time; edit them there, not in source.
+- A new experiment needs a versioned `experiments/<id>/protocol.md`, committed `config.yaml`, a result summary, and an explicit D authorization before launch.
+- Exploration and confirmation are separate labels. A later result cannot rewrite an exploratory protocol into a confirmatory one.
+- Launch training, resource changes, metric revisions, and automatic loop jobs only within an explicit authorization naming scope, budget, and stop conditions. Inner and Outer Loop modes are configurable; neither is forced to be manual.
+- Trackers and durable results under `RESULTS_ROOT` own run-level state; record milestones in the selected analysis record.
+- Operational heartbeats and routine health checks stay in machine logs or tracker state. Update Markdown at scientific milestones and interpretation-changing failures.
 
-- **Research NFS (canonical):** shared assets → `SHARED_DATA_ROOT` / `SHARED_MODEL_ROOT`; project assets → `DATA_ROOT` / `MODEL_ROOT` / `RESULTS_ROOT`.
-- **Local NVMe (performance):** staged project data → `DATA_CACHE`; shared HF/Torch/uv downloads → `LIB_CACHE`. Neither is the canonical copy.
-- **System disk:** do not store research data, models, results, caches, or environments under `/`, `/home/batchcom`, or `/tmp`.
-- Run-directory naming and layout below `RESULTS_ROOT` belong to the project or its training/tracking framework; this template does not define a `run_id` scheme.
-- Code under `external/` follows its upstream path contract, including required relative data/output paths. Do not relocate those paths unless explicitly integrating that code into the project-owned layout.
+## Paths and storage
 
-## Environment
-- **Mac:** `uv` only (`uv venv`, `uv run`).
-- **Server:** `conda` for the big env (CUDA/torch — what uv cannot install); `uv` builds the project `.venv` (gitignored) inside it. Conda envs live on the local disk (`/home/dataset-local/conda/envs`, per the server `.condarc`).
+`src/paths.py` is the single source of truth. Project values are rendered from `.rtmpl/config.yaml`; edit the source config and run the template workflow instead of hardcoding values.
 
-## Running code
-- **Server:** run directly in a tmux session — `conda activate <env> && uv run python ...`.
-- **From Mac:** native SSH + ControlMaster (in the Mac's `~/.ssh/config`, not in this repo) + tmux. The login shell resolves `conda` — never hardcode a conda binary.
-  - One-off: `ssh batchcom-a100 'bash -lc "cd <repo> && conda activate <env> && uv run python ..."'`
-  - Long job: `ssh -t batchcom-a100 'tmux new -s <name> "cd <repo> && conda activate <env> && uv run python -m train"'`
-  - Preflight before GPU work: `ssh batchcom-a100 'bash -lc "nvidia-smi; df -h /home/dataset-local /home/dataset-assist-0/research; python -c \"import torch;print(torch.cuda.is_available())\""'`
-- Stage project data to `DATA_CACHE` only when NFS I/O is the bottleneck; otherwise read `DATA_ROOT` directly.
+- Research NFS: `SHARED_DATA_ROOT`, `SHARED_MODEL_ROOT`, `DATA_ROOT`, `MODEL_ROOT`, and `RESULTS_ROOT` are canonical.
+- Local NVMe: `DATA_CACHE` and `LIB_CACHE` are disposable acceleration layers, and keep canonical copies under the declared research roots.
+- System disk, `/home/batchcom`, and `/tmp` must not hold research assets, models, results, caches, or environments.
 
-## Git
-- Origin is **Gitee**. Use plain `git` (not `gh` — GitHub-only, irrelevant here).
-- Single `main`: `git pull --rebase` before editing, `git push` at session end.
-- Never commit raw artifacts. Durable outputs go below `RESULTS_ROOT` (gitignored); metrics/curves/media also go to W&B when configured. Full boundary in `research-record`.
+## Environment and execution
 
-## Verify
-- `uv run python -c "from src.paths import REPO_ROOT, RESULTS_ROOT; print(REPO_ROOT, RESULTS_ROOT)"`
-- `uv run pytest tests/`
-- Residual sweep (expect zero hits): `rg -n 'mutagen|ara-rigor|ara-research|ssh-mcp|REMOTE_MUTAGEN' .`
+- Mac uses `uv` for environments and CPU checks. No GPU work runs locally.
+- BatchCom uses conda for CUDA/torch and `uv` for the project environment. Conda environments live under `/home/dataset-local/conda/envs`.
+- On BatchCom, run in tmux: `conda activate <env> && uv run python ...`.
+- From Mac, use native SSH and tmux. Preflight GPU work with `nvidia-smi`, `df -h /home/dataset-local /home/dataset-assist-0/research`, and a torch CUDA check.
 
-## Conventions
-- Replacing an obsolete design: remove the old path directly; no compatibility shims, legacy aliases, or migration wrappers.
-- conda never `base`; check `nvidia-smi` and `df -h` before large training or downloads; don't swallow critical model/data/config failures.
-- Don't start `/loop`, cron, or watchdog jobs unless the user explicitly asks for continuous autonomous operation.
+## Git and verification
+
+Keep raw artifacts out of Git. Run `uv run pytest tests/` and
+`uv run python -c "from src.paths import REPO_ROOT, RESULTS_ROOT; print(REPO_ROOT, RESULTS_ROOT)"` after changes.
 
 ## Skills
-- `research-record` — any recording or resume.
-- `idea-evaluator` — evaluate a candidate idea (run in a fresh subagent).
-- `weights-and-biases` — experiment tracking (prefer over tensorboard).
-- `grill-me` — stress-test a plan before implementing.
+
+- `autoresearch` orchestrates authorized Bootstrap, Inner Loop, and Outer Loop execution and synthesis.
+- `research-record` routes recording and resume work.
+- `ara-session-manager` is an opt-in ARA epilogue for standalone ARA artifacts; project records remain under this workspace’s declared homes.
+- `rigor-reviewer` reviews an existing ARA artifact; authorization stays in `decisions.md`, and claim changes follow the project record workflow.
+- `ara-compiler` is an opt-in importer for building a separate ARA from supplied research material.
+- `research-ideation`, `paper-retrieval`, and `paper-writing` provide stage-specific guidance.
+- `grill-with-docs` may be used for a design interview and ADR when a decision still needs user resolution.
+
+External Skills operate within this project's ownership, authorization, evidence, and stop rules.

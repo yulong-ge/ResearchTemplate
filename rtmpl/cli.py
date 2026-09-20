@@ -6,7 +6,7 @@ import os
 import sys
 
 from . import __version__
-from .commands import adopt, list as list_cmd, new, repair, status, update
+from .commands import adopt, check, list as list_cmd, new, repair, resume, status, update
 from .commands._common import CommandError
 from .core.update_check import latest_known_version, staleness_banner
 
@@ -21,6 +21,15 @@ def _parse_var(items) -> dict[str, str]:
     return out
 
 
+def _add_project_creation_args(parser: argparse.ArgumentParser) -> None:
+    parser.add_argument("name", help="project name (proj variable + default dir)")
+    parser.add_argument("--template", "-t")
+    parser.add_argument("--path", help="target directory (default: ./<name>)")
+    parser.add_argument("--var", action="append", default=[], metavar="field=value")
+    parser.add_argument("--no-input", action="store_true")
+    parser.add_argument("--force", action="store_true")
+
+
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(prog="rtmpl", description="Research-project template sync CLI.")
     p.add_argument("--version", action="version", version=f"rtmpl {__version__}")
@@ -29,14 +38,10 @@ def build_parser() -> argparse.ArgumentParser:
     sp = sub.add_parser("list", help="list available templates")
     sp.set_defaults(func=list_cmd.run)
 
-    sp = sub.add_parser("new", help="create a new project from a template")
-    sp.add_argument("name", help="project name (proj variable + default dir)")
-    sp.add_argument("--template", "-t")
-    sp.add_argument("--path", help="target directory (default: ./<name>)")
-    sp.add_argument("--var", action="append", default=[], metavar="field=value")
-    sp.add_argument("--no-input", action="store_true")
-    sp.add_argument("--force", action="store_true")
-    sp.set_defaults(func=new.run)
+    for name in ("new", "init"):
+        sp = sub.add_parser(name, help="create a new project from a template")
+        _add_project_creation_args(sp)
+        sp.set_defaults(func=new.run)
 
     sp = sub.add_parser("update", help="sync template updates into the current project")
     sp.add_argument("--force", action="store_true")
@@ -55,6 +60,12 @@ def build_parser() -> argparse.ArgumentParser:
 
     sp = sub.add_parser("status", help="show pending changes (= update --dry-run)")
     sp.set_defaults(func=status.run)
+
+    sp = sub.add_parser("resume", help="show the compact research handoff")
+    sp.set_defaults(func=resume.run)
+
+    sp = sub.add_parser("check", help="validate the research record contract")
+    sp.set_defaults(func=check.run)
 
     sp = sub.add_parser("repair", help="rebuild .rtmpl/state.json from disk")
     sp.add_argument("--template", "-t")

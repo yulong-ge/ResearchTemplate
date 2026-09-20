@@ -1,6 +1,6 @@
 name: batchcom-research
 display: "BatchCom 深度学习研究模板"
-version: "0.2.1"
+version: "0.4.0"
 variables:
   - token: "<proj>"
     field: proj
@@ -26,4 +26,45 @@ variables:
     prompt: "Zotero library ID（用户库数字 ID，可留空）"
     required: false
     validation: '^[0-9]*$'
-exclude: []
+init_guidance:
+  - path: "research-state.yaml"
+    purpose: "先填研究问题、当前状态、active direction、active hypothesis 和唯一 next_action。"
+  - path: "to_human/latest.md"
+    purpose: "写给人看的短摘要：最近变化、下一步、等待事项和需要确认的决定。"
+  - path: "hypotheses.md"
+    purpose: "建立第一个可检验 H，写清预测、理由、范围和最小区分实验。"
+  - path: "research/policy.yaml"
+    purpose: "选择 Inner Loop 与 Outer Loop 的默认模式：auto 或 human。"
+  - path: "decisions.md"
+    purpose: "在启动实验前记录有限授权、预算、允许变化和停止条件。"
+  - path: "experiments/_template/protocol.md"
+    purpose: "只有确定 H 和授权后，复制为具体 E 的 protocol.md 并锁定协议。"
+exclude:
+  - "research/_generated/**"
+  - "to_human/_generated/**"
+file_policies:
+  managed:
+    - "AGENTS.md"
+    - "README.md"
+    - "docs/**"
+    - "experiments/README.md"
+    - "experiments/_template/**"
+    - "paper/README.md"
+    - "src/**"
+    - ".gitignore"
+  seed_only:
+    - "research-state.yaml"
+    - "hypotheses.md"
+    - "research-log.md"
+    - "findings.md"
+    - "claims.md"
+    - "decisions.md"
+    - "to_human/latest.md"
+    - "to_human/evolution.mmd"
+    - "to_human/evidence.mmd"
+    - "to_human/trajectory.csv"
+    - "research/environment.md"
+    - "research/policy.yaml"
+    - "literature/survey.md"
+  generated:
+    - "research/_generated/**"

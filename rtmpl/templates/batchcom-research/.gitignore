@@ -37,6 +37,10 @@ mlruns/
 *.local
 config.local.*
 
+# Derived research views can be deleted and rebuilt.
+research/_generated/
+to_human/_generated/
+
 # Notebook checkpoints
 .ipynb_checkpoints/
 

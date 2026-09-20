@@ -1,30 +1,25 @@
 # BatchCom Research Template Framework Guide
 
-## Layer Boundary
+This repository maintains the framework and copyable template source.
 
-This repository is the framework/template source, not a live research project.
+- Root code and `docs/` maintain the `rtmpl` CLI and its decisions.
+- `rtmpl/templates/batchcom-research/` is the consumer-facing project template.
+- Keep framework-development rules here and research-workspace rules in the template's `AGENTS.md`.
 
-- Root files are for maintaining the copyable BatchCom research template.
-- `templates/batchcom-research-template/` is the project template that users copy to start research work.
-- `templates/batchcom-research-template/AGENTS.md` is the consumer-facing agent guide for copied projects.
-- Do not mix framework-development instructions into the template-level `AGENTS.md`.
+## Framework direction
 
+`rtmpl` creates and updates Git-first research projects. It owns template lifecycle commands and hash-protected file updates; generated projects define experiment execution and storage workflows.
 
-## Framework Direction
+The template uses evidence-traceable records with configurable human or automatic Inner and Outer Loops. Seed-only research records remain project-owned after scaffolding and are never overwritten by template updates, including `--force`. Natural-language record migration is intentionally manual after applying a newer template.
 
-- This repository currently owns a copyable BatchCom research project template only.
-- There is no framework runtime tool in this repository.
-- Do not add runtime, scheduler, manifest, file-sync daemon, or multi-remote platform features until a concrete future design is accepted.
-- Keep `templates/batchcom-research-template/` as a carefully designed baseline.
-- The template is Git-first: Mac local work and BatchCom server-local work synchronize through the same Git repository.
+## Development rules
 
-## Development Rules
-
-- Use ADRs for architectural decisions.
-- Keep framework docs in root `docs/`.
-- Keep copyable research workspace files under `templates/batchcom-research-template/`.
-- When replacing obsolete structure, remove the old path directly rather than adding compatibility shims unless compatibility is explicitly requested.
-- Prefer small commits after verified framework changes.
+- Use ADRs for architectural decisions and keep them in `docs/adr/`.
+- Keep copyable workspace files below `rtmpl/templates/batchcom-research/`.
+- Remove obsolete paths directly unless compatibility is explicitly requested.
+- Preserve unrelated working-tree changes and make small verified commits.
+- Run Python and tests with `uv`.
 
 ## Verification
 
+Run `uv run pytest` before delivery. For template changes, exercise `rtmpl list`, scaffold a disposable project with `rtmpl new`, and verify `rtmpl status` plus seed-only protection on update.

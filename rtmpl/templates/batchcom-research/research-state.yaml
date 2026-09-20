@@ -1,0 +1,38 @@
+schema_version: 1
+updated_at: YYYY-MM-DD
+
+# This is the compact index of the project. Full prose belongs in the linked
+# record, so an agent can restore context without reading the whole repository.
+research_question: "<one-line research question>"
+status: candidate # candidate | active | waiting | closed
+active_direction: null # D<id>
+active_hypothesis: null # H<id>
+
+loop_control:
+  inner: inherit_policy # auto | human | inherit_policy
+  outer: inherit_policy # auto | human | inherit_policy
+
+next_action:
+  owner: agent # agent | human
+  text: "<one concrete next action>"
+  done_when: "<observable stopping condition>"
+  estimate_minutes: null
+
+waiting:
+  reason: null
+  on: null
+  unblock_action: null
+
+objects:
+  hypotheses: [] # H ids
+  experiments: [] # E ids
+  results: [] # R ids
+  findings: [] # F ids
+  claims: [] # C ids
+  decisions: [] # D ids
+
+relations: []
+# Example:
+# - from: H1
+#   to: E1
+#   type: tested_by # tested_by | produced | supports | challenges | authorizes | follows

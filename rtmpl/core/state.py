@@ -2,6 +2,9 @@
 validation, tombstone helpers.
 
 Schema v2: ``{"schema": 2, "template_version": "<v>", "hashes": {<posix>: <sha256|null>}}``.
+The optional ``ownership`` map was added without changing the schema number so
+existing projects can be upgraded in place. Values are ``managed`` or
+``seed_only``; generated files are never tracked.
 A ``null`` hash value is a tombstone (a managed file the user deleted).
 """
 from __future__ import annotations
@@ -21,6 +24,10 @@ CORRUPT = "corrupt"
 UNSUPPORTED = "unsupported"
 VERSION_UNKNOWN = "version_unknown"
 
+MANAGED = "managed"
+SEED_ONLY = "seed_only"
+VALID_OWNERS = {MANAGED, SEED_ONLY}
+
 _UNSAFE_PREFIXES = (".rtmpl/", ".git/")
 
 
@@ -28,13 +35,20 @@ _UNSAFE_PREFIXES = (".rtmpl/", ".git/")
 class State:
     template_version: str
     hashes: dict[str, str | None] = field(default_factory=dict)
+    ownership: dict[str, str] = field(default_factory=dict)
 
     def to_dict(self) -> dict:
         return {
             "schema": SCHEMA_VERSION,
             "template_version": self.template_version,
             "hashes": dict(self.hashes),
+            "ownership": dict(self.ownership),
         }
+
+    @property
+    def owners(self) -> dict[str, str]:
+        """Compatibility alias for callers that use the shorter name."""
+        return self.ownership
 
 
 def is_valid_path_key(key: object) -> bool:
@@ -65,6 +79,12 @@ def _valid_hashes(hashes: object) -> bool:
     return True
 
 
+def _valid_ownership(ownership: object) -> bool:
+    if not isinstance(ownership, dict):
+        return False
+    return all(is_valid_path_key(k) and v in VALID_OWNERS for k, v in ownership.items())
+
+
 def load_state(rtmpl_dir: Path) -> tuple[State | None, str]:
     """Load state.json. Returns ``(state_or_None, status)``.
 
@@ -85,7 +105,10 @@ def load_state(rtmpl_dir: Path) -> tuple[State | None, str]:
         return None, VERSION_UNKNOWN
     if not _valid_hashes(raw.get("hashes")):
         return None, CORRUPT
-    return State(template_version=tv, hashes=dict(raw["hashes"])), OK
+    ownership = raw.get("ownership", raw.get("owners", {}))
+    if not _valid_ownership(ownership):
+        return None, CORRUPT
+    return State(template_version=tv, hashes=dict(raw["hashes"]), ownership=dict(ownership)), OK
 
 
 def save_state(rtmpl_dir: Path, state: State) -> None:

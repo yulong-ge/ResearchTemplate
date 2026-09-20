@@ -1,37 +1,37 @@
 # BatchCom research project
 
-This template keeps reusable research methods in global Skills and keeps concrete record ownership in the repository. Do not copy global Skills into the project. Add a project-level Skill only when the project needs rules that differ from this default.
+This template keeps reusable methods in global Skills and keeps research facts in the project. `rtmpl` manages the template lifecycle; experiment execution follows the project protocol and the selected tracker.
 
 ## Record ownership
 
-Each fact has one home. Other documents use short links rather than copied narratives.
-
 | Location | Owns |
 |---|---|
-| `research/overview.md` | current status, blocker, next action, pending decision, and links |
-| `research/ideas.md` | unapproved hypotheses, predictions, and parked directions |
-| `research/decisions.md` | durable approved choices and rationale across experiments |
-| `research/findings.md` | mature cross-experiment conclusions and open scientific questions |
-| `research/environment.md` | verified environment, data, model, and storage facts |
-| `research/log.md` | concise research milestones with links |
-| `experiments/<id>/protocol.md` | experiment question, scope, conditions, metrics, validity, and amendments |
-| `experiments/<id>/config.yaml` | committed executable experiment configuration |
-| `experiments/<id>/analysis.md` | milestone results, tracker references, anomalies, and interpretation |
-| `literature/` | literature survey and paper notes |
+| `research-state.yaml` | compact current state, object IDs, relations, loop mode, and next action |
+| `to_human/latest.md` | the only daily human reading entry |
+| `hypotheses.md` | H hypotheses, predictions, sources, and status |
+| `findings.md` | Outer Loop synthesis and open questions |
+| `claims.md` | C claims, scope, evidence for/against, and revisions |
+| `decisions.md` | D direction decisions and finite experiment authorizations |
+| `research-log.md` | concise Inner/Outer Loop timeline |
+| `research/policy.yaml` | default loop mode and human confirmation rules |
+| `experiments/<id>/` | protocol, committed config, result summary, and analysis |
+| `literature/` | survey and paper notes |
 | `paper/` | manuscript assets |
 
-Run-level config, metrics, logs, media, and manifests belong to the selected tracker and durable results store. Do not create per-run Markdown or custom run JSON in Git unless a project-level policy explicitly adopts that model.
+Run-level metrics, logs, media, configs, and artifacts belong to the selected tracker and durable results store. `to_human/` graphs and trajectories are derived views and are never a second source of truth.
 
-## Research lifecycle
+## Lifecycle
 
-1. Record candidate directions in `research/ideas.md`.
-2. Create `experiments/<id>/protocol.md` and committed `config.yaml` when an experiment is ready to define.
-3. Run from identifiable code and let the tracker/results store own run-level evidence.
-4. Summarize only meaningful milestones in `analysis.md`; add a one-line pointer to `research/log.md` when useful.
-5. Promote only durable cross-experiment knowledge into `research/findings.md` or `research/decisions.md`.
+1. Record a candidate H and its prediction.
+2. Write and lock an E protocol and config, then attach an approved D authorization.
+3. Run the declared scope. Inner and Outer Loop can each be `auto` or `human` according to policy and the active decision.
+4. Record the result and validity checks, then update `research-state.yaml`, `findings.md`, and `to_human/latest.md`.
+5. Revise C claims or record a D decision only when the evidence and required human review support it.
 
-Use the global `research-record` Skill for routing and reconciliation. It must discover and follow this repository policy rather than supply paths of its own. If a downstream project changes ownership, record the replacement in project `AGENTS.md` or a project-specific Skill.
+When applying a newer template, `rtmpl` seeds the new record homes and preserves project-owned prose. Migrate natural-language content manually, carrying IDs and uncertainty forward instead of asking the template tool to infer meaning.
+
+Use the global `research-record` skill for routing. ARA is opt-in through `ara-compiler` or `ara-session-manager`; it produces a standalone artifact alongside this project’s records.
 
 ## Storage
 
-`src/paths.py` is the executable source for storage roots. Shared assets use `SHARED_DATA_ROOT` and `SHARED_MODEL_ROOT`; project assets use `DATA_ROOT` and `MODEL_ROOT`; durable outputs use `RESULTS_ROOT`. `DATA_CACHE` and `LIB_CACHE` are disposable acceleration layers, never the unique copy.
+Import storage roots from `src/paths.py`. Shared assets use `SHARED_DATA_ROOT` and `SHARED_MODEL_ROOT`; project assets use `DATA_ROOT`, `MODEL_ROOT`, and `RESULTS_ROOT`. `DATA_CACHE` and `LIB_CACHE` are disposable caches.

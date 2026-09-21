@@ -50,6 +50,28 @@ def rtmpl_dir(project_root: Path) -> Path:
     return project_root / RTMPL_DIRNAME
 
 
+def find_project_root(start: Path) -> Path | None:
+    """Walk up from ``start`` and return the directory that holds
+    ``.rtmpl/config.yaml``, or ``None`` when there is none."""
+    current = start.resolve()
+    for directory in (current, *current.parents):
+        if (directory / RTMPL_DIRNAME / CONFIG_NAME).is_file():
+            return directory
+    return None
+
+
+def require_project_root(start: Path) -> Path:
+    """Return the project root for ``start`` or fail with a clear hint."""
+    root = find_project_root(start)
+    if root is None:
+        raise CommandError(
+            "not inside an rtmpl project (no .rtmpl/config.yaml found in "
+            f"{start} or any parent). Run 'rtmpl new' or 'rtmpl adopt' first, "
+            "or cd into a project root."
+        )
+    return root
+
+
 def default_template() -> str:
     """Pick the sole available template, or error if ambiguous/none."""
     names = list_templates()

@@ -12,13 +12,13 @@ from ..core.research import (
     validate_policy,
     validate_state,
 )
-from ._common import CommandError
+from ._common import CommandError, require_project_root
 
 _PLACEHOLDERS = ("<one-line research question>", "<one concrete next action>")
 
 
 def run(args) -> int:
-    root = Path.cwd()
+    root = require_project_root(Path.cwd())
     failures: list[str] = []
 
     for rel in REQUIRED_RECORDS:

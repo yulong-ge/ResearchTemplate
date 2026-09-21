@@ -68,6 +68,11 @@ def _project(tmp_path: Path) -> Path:
     target = tmp_path / "research" / "policy.yaml"
     target.parent.mkdir(parents=True, exist_ok=True)
     target.write_text(yaml.safe_dump(policy, sort_keys=False), encoding="utf-8")
+    # Mark the directory as an rtmpl project root so cwd-based commands resolve it.
+    (tmp_path / ".rtmpl").mkdir(exist_ok=True)
+    (tmp_path / ".rtmpl" / "config.yaml").write_text(
+        "template: batchcom-research\n", encoding="utf-8"
+    )
     return tmp_path
 
 
@@ -311,7 +316,19 @@ def test_graph_rejects_non_image_extension(tmp_path, monkeypatch):
 
 def test_graph_missing_evolution_errors(tmp_path, monkeypatch):
     tmp_path.joinpath("to_human").mkdir()
+    (tmp_path / ".rtmpl").mkdir()
+    (tmp_path / ".rtmpl" / "config.yaml").write_text(
+        "template: batchcom-research\n", encoding="utf-8"
+    )
     monkeypatch.chdir(tmp_path)
 
     with pytest.raises(CommandError, match="evolution.mmd"):
         graph.run(_args(render=None))
+
+
+def test_check_fails_outside_project(tmp_path, monkeypatch):
+    """Commands must not silently validate an arbitrary cwd."""
+    monkeypatch.chdir(tmp_path)
+
+    with pytest.raises(CommandError, match="not inside an rtmpl project"):
+        check.run(_args(consistency=False))

@@ -9,11 +9,11 @@ from __future__ import annotations
 from pathlib import Path
 
 from ..core.research import PAUSED_CONTEXT, resume_text
-from ._common import CommandError
+from ._common import CommandError, require_project_root
 
 
 def run(args) -> int:
-    root = Path.cwd()
+    root = require_project_root(Path.cwd())
     try:
         text = resume_text(root)
     except (FileNotFoundError, ValueError) as exc:

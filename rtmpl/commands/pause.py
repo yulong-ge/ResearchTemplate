@@ -5,11 +5,11 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from ..core.research import PAUSED_CONTEXT, load_state, validate_state
-from ._common import CommandError
+from ._common import CommandError, require_project_root
 
 
 def run(args) -> int:
-    root = Path.cwd()
+    root = require_project_root(Path.cwd())
     try:
         state = load_state(root)
     except FileNotFoundError as exc:

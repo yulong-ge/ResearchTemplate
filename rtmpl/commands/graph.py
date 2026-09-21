@@ -13,7 +13,7 @@ import shutil
 import subprocess
 from pathlib import Path
 
-from ._common import CommandError
+from ._common import CommandError, require_project_root
 
 _EVOLUTION = "to_human/evolution.mmd"
 _RENDER_EXTS = {".png", ".svg", ".pdf"}
@@ -40,7 +40,7 @@ def _render_cmd(mmd: Path, out: Path) -> list[str]:
 
 
 def run(args) -> int:
-    root = Path.cwd()
+    root = require_project_root(Path.cwd())
     mmd = root / _EVOLUTION
     if not mmd.is_file():
         raise CommandError(f"{_EVOLUTION} is missing — run inside a research project")

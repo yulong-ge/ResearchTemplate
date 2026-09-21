@@ -6,14 +6,14 @@ import subprocess
 import sys
 from pathlib import Path
 
-from ._common import CommandError
+from ._common import CommandError, require_project_root
 
 _BUILDER = "src/dashboard_builder.py"
 _DASHBOARD = "to_human/dashboard.html"
 
 
 def run(args) -> int:
-    root = Path.cwd()
+    root = require_project_root(Path.cwd())
     builder = root / _BUILDER
     if not builder.is_file():
         raise CommandError(

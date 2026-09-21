@@ -3,12 +3,14 @@ schema_version: 1
 mode: human_guided
 continuous_operation: opt_in # disabled | opt_in
 
-# Each loop can be run automatically or paused for human editing. These are
-# defaults; a direction decision may set a finite override.
-loop_control:
-  inner: auto # auto | human
-  outer: human # auto | human
-  allow_manual_override: true
+# automation_mode sets how much of the two loops may run without a human
+# confirmation. manual: both Inner and Outer Loop need human confirmation.
+# semi-auto: Inner Loop runs automatically inside an approved finite scope,
+# Outer Loop needs confirmation. full-auto: both loops run automatically; use
+# only for repetitive validation. A direction decision may set a finite override;
+# research-state.yaml can also carry a project-level automation_mode override.
+automation_mode: semi-auto # manual | semi-auto | full-auto
+allow_manual_override: true
 
 ownership:
   recording_owner: main_agent

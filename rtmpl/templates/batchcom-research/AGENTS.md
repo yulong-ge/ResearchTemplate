@@ -3,16 +3,19 @@
 ## Resume and ownership
 
 - Read `research-state.yaml`, `findings.md`, and `to_human/latest.md` first. `to_human/latest.md` is the daily human entry; follow its links for detailed records.
+- `to_human/dashboard.html` is a generated view rebuilt by `src/dashboard_builder.py` from `research-state.yaml` and the records after each update; it is never a source of truth. `to_human/evolution.mmd`, `evidence.mmd`, and `trajectory.csv` are derived views too.
 - Use the global `research-record` skill for recording and reconciliation. It routes entries to this project's declared paths.
 - `research-state.yaml`, `hypotheses.md`, `research-log.md`, `findings.md`, `claims.md`, `decisions.md`, `research/environment.md`, `research/policy.yaml`, and `literature/survey.md` are project-owned seed records. `rtmpl update --force` preserves them byte-for-byte.
 - Use `docs/research-workflow.md` for object ownership, evidence rules, and review triggers.
 - Use `docs/manual-migration.md` when a newer template introduces new record homes; migrate prose manually and run `rtmpl check` afterward.
+- When resuming after an interruption, run `rtmpl resume`: it prints `to_human/paused-context.md` first when present, then the state header and human brief. Use `rtmpl check --consistency` to verify the index, relations, and experiment directories agree, and `rtmpl doctor` to confirm seed files are filled in.
 
 ## Research execution
 
 - A new experiment needs a versioned `experiments/<id>/protocol.md`, committed `config.yaml`, a result summary, and an explicit D authorization before launch.
+- Experiments use lowercase semantic labels `<topic>-<seq>` (for example `batch-size-01`), not an `E` prefix; the directory name and the `id` in `protocol.md`/`config.yaml` must match the label listed under `objects.experiments` in `research-state.yaml`.
 - Exploration and confirmation are separate labels. A later result cannot rewrite an exploratory protocol into a confirmatory one.
-- Launch training, resource changes, metric revisions, and automatic loop jobs only within an explicit authorization naming scope, budget, and stop conditions. Inner and Outer Loop modes are configurable; neither is forced to be manual.
+- Launch training, resource changes, metric revisions, and automatic loop jobs only within an explicit authorization naming scope, budget, and stop conditions. `automation_mode` sets how much of the Inner and Outer Loops may run without human confirmation: `manual` confirms both loops, `semi-auto` runs the Inner Loop inside an approved scope and confirms the Outer Loop, `full-auto` runs both (repetitive validation only). Defaults live in `research/policy.yaml`; `research-state.yaml` and a direction decision can carry a finite override.
 - Trackers and durable results under `RESULTS_ROOT` own run-level state; record milestones in the selected analysis record.
 - Operational heartbeats and routine health checks stay in machine logs or tracker state. Update Markdown at scientific milestones and interpretation-changing failures.
 

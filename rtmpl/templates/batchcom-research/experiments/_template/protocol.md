@@ -1,17 +1,19 @@
-# E<id>：<实验名称>
+# <实验标签>：<实验名称>
 
-复制到 `experiments/<id>/protocol.md` 后填写。未知信息保留 `unknown`，没有授权不得启动。
+复制到 `experiments/<topic>-<seq>/protocol.md` 后填写。目录名与本文档 ID 都用
+小写语义标签（如 `batch-size-01`），不用 `E<id>` 前缀。未知信息保留
+`unknown`，没有授权不得启动。
 
 ## 身份与版本
 
 ```yaml
-id: E<id>
+id: <topic>-<seq>
 revision: 1
 mode: exploratory  # exploratory | confirmatory
 status: candidate  # candidate | active | waiting | closed
 execution_status: draft  # draft | approved | running | completed | superseded
 authorization_status: pending  # pending | approved | expired | revoked
-loop_mode: inherit_policy  # auto | human | inherit_policy
+automation_mode: inherit_policy  # manual | semi-auto | full-auto | inherit_policy
 hypothesis_refs: []
 authorized_by: null
 created_by: unknown
@@ -44,3 +46,20 @@ recorded_at: null
 
 | 时间 | 版本 | 变更 | 已看到结果 | 对证据和授权的影响 |
 |---|---|---|---|---|
+
+## 最小填写示例（用真实内容替换）
+
+```yaml
+id: batch-size-01
+mode: exploratory
+status: candidate
+execution_status: draft
+authorization_status: pending
+hypothesis_refs: [H1]
+```
+
+- 要检验的 H 及版本：H1 r1——如果增大 batch size，收敛步数下降，因为梯度噪声更低。
+- 事前预测和削弱条件：固定步数预算内，batch 256 的验证 loss 低于 64；
+  若显存溢出或吞吐下降超过 20% 则削弱。
+- 改变变量：global batch size {64, 128, 256}；固定 lr、模型、数据顺序。
+- 主要指标：验证 loss；次要指标：吞吐、显存峰值。

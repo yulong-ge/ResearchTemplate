@@ -1,7 +1,8 @@
 # Current research
 
 <!-- Keep this under about 80 lines. It is the only daily reading entry. The
-     detailed records remain in the files linked below. -->
+     detailed records remain in the files linked below. Status badge on the
+     Status line: 🔵 candidate | 🟢 active | 🟡 waiting | ⚪ closed -->
 
 Last updated: YYYY-MM-DD
 
@@ -10,7 +11,7 @@ Last updated: YYYY-MM-DD
 - Question: <one line>
 - Direction: <D id or unknown>
 - Hypothesis: <H id or unknown>
-- Status: candidate
+- Status: 🔵 candidate
 
 ## What changed recently
 
@@ -21,12 +22,19 @@ Last updated: YYYY-MM-DD
 - Owner: agent
 - Action: <one concrete action>
 - Done when: <observable stopping condition>
-- Estimate: <minutes or unknown>
 
 ## Waiting / need from human
 
 - Waiting: none
 - Decision needed: none
+
+## Resume checklist
+
+- [ ] Read current question and status above
+- [ ] Check evolution diagram: `evolution.mmd`
+- [ ] Review latest findings: `findings.md`
+- [ ] Confirm next action is clear
+- [ ] Note any waiting blockers
 
 ## Research path
 

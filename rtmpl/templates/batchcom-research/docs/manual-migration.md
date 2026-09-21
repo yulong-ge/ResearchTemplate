@@ -8,8 +8,8 @@ owned records. It does not rewrite natural-language research history.
 1. Commit or back up the project before applying the template.
 2. Run `rtmpl update --dry-run`, then apply the update with the normal project
    workflow.
-3. Move the meaning by hand, keeping existing H/E/R/F/C/D IDs whenever they
-   still describe the same object.
+3. Move the meaning by hand, keeping existing H/R/F/C/D IDs and semantic
+   experiment labels (`<topic>-<seq>`) whenever they still describe the same object.
 4. Split the old overview into `research-state.yaml` and
    `to_human/latest.md`; keep the state file as an index and put prose in the
    owning record.

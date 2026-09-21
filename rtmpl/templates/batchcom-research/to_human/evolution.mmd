@@ -1,9 +1,21 @@
+%% Derived view, regenerated from research-state.yaml and the linked records.
+%% Node labels record the real IDs (H / semantic experiment label / R / F / C / D).
+%% Relation colors: green = supports, red = challenges, blue = authorizes.
 flowchart TD
-  H0[Hypothesis] --> E0[Experiment]
-  E0 --> R0[Result]
-  R0 --> F0[Finding]
-  F0 --> C0[Claim]
-  C0 --> D0[Decision]
-  D0 --> H1[Next hypothesis]
+  H0[H: hypothesis] -->|tested_by| E0[experiment label]
+  E0 -->|produces| R0[R: result]
+  R0 -->|supports| C0[C: claim]
+  R0 -.->|challenges| H0
+  F0[F: finding] -->|supports| C0
+  D0[D: decision] -->|authorizes| E0
+  D0 -->|follows| H1[H: next hypothesis]
 
-%% Regenerate this view from research-state.yaml and record IDs on every node.
+  linkStyle 2 stroke:#2e7d32,stroke-width:2px
+  linkStyle 3 stroke:#c62828,stroke-width:2px
+  linkStyle 4 stroke:#2e7d32,stroke-width:2px
+  linkStyle 5 stroke:#1565c0,stroke-width:2px
+
+  classDef supported fill:#e8f5e9,stroke:#2e7d32;
+  classDef authorizer fill:#e3f2fd,stroke:#1565c0;
+  class C0,F0 supported;
+  class D0 authorizer;

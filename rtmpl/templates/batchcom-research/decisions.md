@@ -14,12 +14,13 @@ decided_by: null
 decided_at: null
 based_on: []
 supersedes: null
-loop_mode: inherit_policy # auto | human | inherit_policy
+automation_mode: inherit_policy # manual | semi-auto | full-auto | inherit_policy
 ```
 
-**Context and alternatives:**
+**Context and alternatives:** Options: A (<pros/cons>) vs B (<pros/cons>).
+Fill in the real trade-off that forces this decision.
 
-**Decision and rationale:**
+**Decision and rationale:** Decision: <choice> because <one-line reason>.
 
 **Consequences and review trigger:**
 

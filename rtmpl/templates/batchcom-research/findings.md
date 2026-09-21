@@ -8,7 +8,7 @@
 ```yaml
 id: F<id>
 status: active # candidate | active | waiting | closed
-based_on: [] # E/R ids
+based_on: [] # experiment labels and/or R ids
 supports: [] # C ids or H ids
 challenges: [] # C ids or H ids
 ```

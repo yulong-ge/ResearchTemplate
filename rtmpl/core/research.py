@@ -9,6 +9,7 @@ import yaml
 
 RESEARCH_STATE = "research-state.yaml"
 RESUME_FILE = "to_human/latest.md"
+PAUSED_CONTEXT = "to_human/paused-context.md"
 POLICY_FILE = "research/policy.yaml"
 REQUIRED_RECORDS = (
     RESEARCH_STATE,
@@ -24,16 +25,18 @@ REQUIRED_RECORDS = (
     "to_human/trajectory.csv",
 )
 STATUSES = {"candidate", "active", "waiting", "closed"}
-LOOP_MODES = {"auto", "human", "inherit_policy"}
-POLICY_LOOP_MODES = {"auto", "human"}
+AUTOMATION_MODES = {"manual", "semi-auto", "full-auto"}
+# State may pin a mode or defer to research/policy.yaml.
+STATE_AUTOMATION_MODES = AUTOMATION_MODES | {"inherit_policy"}
 OBJECT_PREFIXES = {
     "hypotheses": "H",
-    "experiments": "E",
     "results": "R",
     "findings": "F",
     "claims": "C",
     "decisions": "D",
 }
+# Experiments use semantic '<topic>-<seq>' labels, not letter prefixes.
+EXPERIMENT_LABEL_RE = re.compile(r"^[a-z0-9][a-z0-9-]*-[0-9]{2}$")
 RELATION_TYPES = {
     "tested_by",
     "produced",
@@ -81,13 +84,12 @@ def validate_state(data: dict[str, Any]) -> list[str]:
     if data.get("status") not in STATUSES:
         errors.append("research-state.yaml: status must be candidate, active, waiting, or closed")
 
-    loop_control = data.get("loop_control")
-    if not isinstance(loop_control, dict):
-        errors.append("research-state.yaml: loop_control must be a mapping")
-    else:
-        for name in ("inner", "outer"):
-            if loop_control.get(name) not in LOOP_MODES:
-                errors.append(f"research-state.yaml: loop_control.{name} has an invalid mode")
+    automation_mode = data.get("automation_mode", "inherit_policy")
+    if automation_mode not in STATE_AUTOMATION_MODES:
+        errors.append(
+            "research-state.yaml: automation_mode must be manual, semi-auto, "
+            "full-auto, or inherit_policy"
+        )
 
     next_action = data.get("next_action")
     if not isinstance(next_action, dict):
@@ -109,13 +111,22 @@ def validate_state(data: dict[str, Any]) -> list[str]:
     if not isinstance(objects, dict):
         errors.append("research-state.yaml: objects must be a mapping")
     else:
-        for key, prefix in OBJECT_PREFIXES.items():
+        for key in (*OBJECT_PREFIXES, "experiments"):
             values = objects.get(key)
             if not isinstance(values, list):
                 errors.append(f"research-state.yaml: objects.{key} must be a list")
                 continue
             for value in values:
-                if not isinstance(value, str) or not _ID_RE.fullmatch(value) or not value.startswith(prefix):
+                if key == "experiments":
+                    valid = isinstance(value, str) and EXPERIMENT_LABEL_RE.fullmatch(value)
+                else:
+                    prefix = OBJECT_PREFIXES[key]
+                    valid = (
+                        isinstance(value, str)
+                        and _ID_RE.fullmatch(value)
+                        and value.startswith(prefix)
+                    )
+                if not valid:
                     errors.append(f"research-state.yaml: objects.{key} contains invalid ID {value!r}")
                 elif value in object_ids:
                     errors.append(f"research-state.yaml: duplicate object ID {value}")
@@ -152,12 +163,11 @@ def validate_state(data: dict[str, Any]) -> list[str]:
 def validate_policy(data: dict[str, Any]) -> list[str]:
     """Validate the policy fields that affect loop execution."""
     errors: list[str] = []
-    loop_control = data.get("loop_control")
-    if not isinstance(loop_control, dict):
-        return ["research/policy.yaml: loop_control must be a mapping"]
-    for name in ("inner", "outer"):
-        if loop_control.get(name) not in POLICY_LOOP_MODES:
-            errors.append(f"research/policy.yaml: loop_control.{name} must be auto or human")
+    automation_mode = data.get("automation_mode")
+    if automation_mode not in AUTOMATION_MODES:
+        errors.append(
+            "research/policy.yaml: automation_mode must be manual, semi-auto, or full-auto"
+        )
     return errors
 
 
@@ -199,23 +209,16 @@ def resume_text(project_root: Path) -> str:
     latest = (project_root / RESUME_FILE).read_text(encoding="utf-8").strip()
     if not latest:
         raise ValueError(f"{project_root / RESUME_FILE}: file is empty")
-    state_loop_control = state["loop_control"]
-    policy_loop_control = policy["loop_control"]
-    loop_control = {
-        name: (
-            state_loop_control[name]
-            if state_loop_control[name] != "inherit_policy"
-            else policy_loop_control[name]
-        )
-        for name in ("inner", "outer")
-    }
+    mode = state.get("automation_mode", "inherit_policy")
+    if mode == "inherit_policy":
+        mode = policy["automation_mode"]
     next_action = state["next_action"]
     waiting = state["waiting"]
     header = [
         f"Status: {state['status']}",
         f"Direction: {state.get('active_direction') or 'none'}",
         f"Hypothesis: {state.get('active_hypothesis') or 'none'}",
-        f"Loop: inner={loop_control['inner']} outer={loop_control['outer']}",
+        f"Automation: {mode}",
         f"Next: {next_action['text']} ({next_action['owner']}; done when: {next_action['done_when']})",
         f"Waiting: {waiting.get('reason') or 'none'}",
         "",

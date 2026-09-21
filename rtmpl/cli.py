@@ -6,7 +6,20 @@ import os
 import sys
 
 from . import __version__
-from .commands import adopt, check, list as list_cmd, new, repair, resume, status, update
+from .commands import (
+    adopt,
+    check,
+    doctor,
+    graph,
+    list as list_cmd,
+    new,
+    pause,
+    repair,
+    resume,
+    status,
+    summary,
+    update,
+)
 from .commands._common import CommandError
 from .core.update_check import latest_known_version, staleness_banner
 
@@ -65,7 +78,30 @@ def build_parser() -> argparse.ArgumentParser:
     sp.set_defaults(func=resume.run)
 
     sp = sub.add_parser("check", help="validate the research record contract")
+    sp.add_argument(
+        "--consistency",
+        action="store_true",
+        help="also verify object ids, links, and experiment dirs resolve on disk",
+    )
     sp.set_defaults(func=check.run)
+
+    sp = sub.add_parser("pause", help="capture interruption context for the next resume")
+    sp.set_defaults(func=pause.run)
+
+    sp = sub.add_parser("doctor", help="health-check seed records, placeholders, and schema")
+    sp.set_defaults(func=doctor.run)
+
+    sp = sub.add_parser("summary", help="rebuild the HTML dashboard and optionally open it")
+    sp.add_argument("--open", action="store_true", help="open the dashboard in a browser")
+    sp.set_defaults(func=summary.run)
+
+    sp = sub.add_parser("graph", help="print the evolution diagram, or render it to an image")
+    sp.add_argument(
+        "--render",
+        metavar="FILE",
+        help="render to png/svg/pdf via mmdc or npx @mermaid-js/mermaid-cli",
+    )
+    sp.set_defaults(func=graph.run)
 
     sp = sub.add_parser("repair", help="rebuild .rtmpl/state.json from disk")
     sp.add_argument("--template", "-t")

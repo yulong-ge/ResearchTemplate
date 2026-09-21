@@ -1,3 +1,4 @@
 # 复制后替换为项目实际可执行配置。不要把本模板当作通用训练 schema。
-experiment_id: E<id>
+# experiment_id 用目录语义标签（小写 <topic>-<seq>），与 protocol.md 的 id 一致。
+experiment_id: <topic>-<seq>
 protocol_revision: 1

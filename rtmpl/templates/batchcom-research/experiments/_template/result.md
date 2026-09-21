@@ -5,7 +5,7 @@
 
 ```yaml
 id: R<id>
-experiment_id: E<id>
+experiment_id: <topic>-<seq>
 hypothesis_id: H<id>
 status: candidate # candidate | active | waiting | closed
 run_refs: []

@@ -1,6 +1,6 @@
 name: batchcom-research
 display: "BatchCom 深度学习研究模板"
-version: "0.4.0"
+version: "0.5.0"
 variables:
   - token: "<proj>"
     field: proj
@@ -34,11 +34,11 @@ init_guidance:
   - path: "hypotheses.md"
     purpose: "建立第一个可检验 H，写清预测、理由、范围和最小区分实验。"
   - path: "research/policy.yaml"
-    purpose: "选择 Inner Loop 与 Outer Loop 的默认模式：auto 或 human。"
+    purpose: "选择默认 automation_mode：manual、semi-auto 或 full-auto。"
   - path: "decisions.md"
     purpose: "在启动实验前记录有限授权、预算、允许变化和停止条件。"
   - path: "experiments/_template/protocol.md"
-    purpose: "只有确定 H 和授权后，复制为具体 E 的 protocol.md 并锁定协议。"
+    purpose: "只有确定 H 和授权后，复制为具体实验的 protocol.md 并锁定协议。"
 exclude:
   - "research/_generated/**"
   - "to_human/_generated/**"
@@ -68,3 +68,6 @@ file_policies:
     - "literature/survey.md"
   generated:
     - "research/_generated/**"
+    - "to_human/_generated/**"
+    - "to_human/dashboard.html"
+    - "to_human/paused-context.md"

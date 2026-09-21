@@ -15,7 +15,8 @@ resulting_claims: []
 closure_reason: null
 ```
 
-**Statement:** Keep the original wording. A changed hypothesis gets a new revision.
+**Statement:** Keep the original wording. A changed hypothesis gets a new
+revision. Fill in: "If <condition>, then <observable result>, because <mechanism>."
 
 **Prediction:** What should be observed if this hypothesis is useful?
 

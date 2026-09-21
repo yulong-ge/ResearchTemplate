@@ -17,7 +17,9 @@ Agent 或人恢复工作时依次读取：
 ## 信息归属
 
 - `H` 假设只写入 `hypotheses.md`，包括预测、理由、来源和工作状态。
-- `E` 实验的协议、配置和批次结果位于 `experiments/<id>/`；同一协议的多个 seed/run 归入同一个 E。
+- 实验不使用字母前缀：目录名与 ID 都是小写语义标签 `<topic>-<seq>`（如
+   `batch-size-01`），协议、配置和批次结果位于 `experiments/<topic>-<seq>/`；
+   同一协议的多个 seed/run 归入同一个实验目录。
 - `R` 结果在实验目录的 `result.md` 中汇总，原始指标和产物由 tracker 与 `RESULTS_ROOT` 负责。
 - `F` 跨实验综合只写入 `findings.md`。
 - `C` 原子主张只写入 `claims.md`，分别记录范围、正反证据、证据状态和削弱条件。
@@ -29,21 +31,26 @@ Agent 或人恢复工作时依次读取：
 
 Inner Loop：选择 H → 写协议 → 执行 → 检查有效性 → 记录 R → 分析影响。
 
-Outer Loop：回顾一组 E/R → 更新 F → 更新 H/C/D 关系 → 选择深化、拓展、转向或结束。
+Outer Loop：回顾一组实验/R → 更新 F → 更新 H/C/D 关系 → 选择深化、拓展、转向或结束。
 
-两层循环是节奏，不是额外账本。`research/policy.yaml` 的 `loop_control` 决定默认是
-`auto` 还是 `human`；方向决策可以为一个有限批次覆盖默认值。Agent 只在已批准的协议、
-预算和停止条件内连续执行。
+两层循环是节奏，不是额外账本。`research/policy.yaml` 的 `automation_mode` 决定默认
+自治度：`manual` 表示两层循环都要人工确认，`semi-auto` 表示 Inner Loop 在已批准
+的有限范围内自动执行、Outer Loop 需要确认，`full-auto` 表示两层都自动（仅限重复性
+验证）。方向决策可以为一个有限批次覆盖默认值，`research-state.yaml` 也可记录项目级
+覆盖。Agent 只在已批准的协议、预算和停止条件内连续执行。
 
 研究对象统一使用 `candidate`、`active`、`waiting`、`closed`。协议执行状态和授权状态是
 单独字段，不能用 `approved` 或 `running` 代替研究对象状态。
+
+`to_human/latest.md` 在 Status 行用徽章标记同一状态：🔵 candidate、🟢 active、
+🟡 waiting、⚪ closed。
 
 ## 人工确认点
 
 默认配置下，以下变化需要新的 D 决策或明确人工确认：研究方向、预算或资源、主要指标、
 数据范围、协议实质变化、机制解释、正式科学主张和最终结论。若确实需要更高自治度，
-应在 `research/policy.yaml` 和对应 D 记录中明确调整；Inner Loop 与 Outer Loop 都可以设为
-自动或人工，选择记录在 `research-state.yaml` 与对应 D 记录中。
+应在 `research/policy.yaml` 的 `automation_mode` 和对应 D 记录中明确调整；选择记录在
+`research-state.yaml` 与对应 D 记录中。
 
 ## 记录时机与证据
 
@@ -53,6 +60,16 @@ Outer Loop：回顾一组 E/R → 更新 F → 更新 H/C/D 关系 → 选择深
 把观察、解释、建议和人工批准分开写。没有来源的内容写 `unknown`，不要补造时间、运行
 ID、许可或文献事实。工程执行失败不能自动标记假设被反驳；有利指标也不能自动生成机制
 或新颖性结论。
+
+## 派生视图与 rtmpl 工具
+
+`to_human/dashboard.html` 是由 `src/dashboard_builder.py` 从 `research-state.yaml` 和
+各记录重新生成的单页派生视图，记录更新后重建；它和 `evolution.mmd`、`evidence.mmd`、
+`trajectory.csv` 一样不是事实来源。`rtmpl` 提供恢复与一致性工具：`rtmpl resume` 先打印
+暂停上下文再打印状态头与 `to_human/latest.md`；`rtmpl pause` 把中断时的上下文写入
+`to_human/paused-context.md`；`rtmpl check --consistency` 校验状态索引、关系和实验目录
+对齐；`rtmpl doctor` 检查 seed 文件和占位符是否仍未填写；`rtmpl summary` 打开或打印
+dashboard；`rtmpl graph` 打印 `evolution.mmd` 或用 `--render` 渲染为 png/svg/pdf。
 
 ## ARA 与协作
 

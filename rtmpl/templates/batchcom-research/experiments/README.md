@@ -1,9 +1,10 @@
 # Experiments
 
-Create one directory per defined experiment:
+Create one directory per defined experiment, named with a lowercase semantic
+label `<topic>-<seq>` (for example `batch-size-01`, `lr-schedule-02`):
 
 ```text
-experiments/<id>/
+experiments/<topic>-<seq>/
   protocol.md   # scientific contract and amendments
   config.yaml   # committed executable configuration
   result.md     # grouped seed/run results and validity checks

@@ -6,15 +6,16 @@ This template keeps reusable methods in global Skills and keeps research facts i
 
 | Location | Owns |
 |---|---|
-| `research-state.yaml` | compact current state, object IDs, relations, loop mode, and next action |
+| `research-state.yaml` | compact current state, object IDs, relations, automation_mode override, and next action |
 | `to_human/latest.md` | the only daily human reading entry |
+| `to_human/dashboard.html` | generated single-page view rebuilt by `src/dashboard_builder.py`; not a source of truth |
 | `hypotheses.md` | H hypotheses, predictions, sources, and status |
 | `findings.md` | Outer Loop synthesis and open questions |
 | `claims.md` | C claims, scope, evidence for/against, and revisions |
 | `decisions.md` | D direction decisions and finite experiment authorizations |
 | `research-log.md` | concise Inner/Outer Loop timeline |
-| `research/policy.yaml` | default loop mode and human confirmation rules |
-| `experiments/<id>/` | protocol, committed config, result summary, and analysis |
+| `research/policy.yaml` | default automation_mode and human confirmation rules |
+| `experiments/<topic>-<seq>/` | protocol, committed config, result summary, and analysis |
 | `literature/` | survey and paper notes |
 | `paper/` | manuscript assets |
 
@@ -23,8 +24,8 @@ Run-level metrics, logs, media, configs, and artifacts belong to the selected tr
 ## Lifecycle
 
 1. Record a candidate H and its prediction.
-2. Write and lock an E protocol and config, then attach an approved D authorization.
-3. Run the declared scope. Inner and Outer Loop can each be `auto` or `human` according to policy and the active decision.
+2. Write and lock an experiment protocol and config under `experiments/<topic>-<seq>/`, then attach an approved D authorization.
+3. Run the declared scope. `automation_mode` (`manual`/`semi-auto`/`full-auto`) sets how much of the Inner and Outer Loops runs without human confirmation, per policy and the active decision.
 4. Record the result and validity checks, then update `research-state.yaml`, `findings.md`, and `to_human/latest.md`.
 5. Revise C claims or record a D decision only when the evidence and required human review support it.
 

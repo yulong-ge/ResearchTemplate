@@ -3,7 +3,7 @@ name = "<proj>"
 version = "0.1.0"
 description = "Research project scaffolded from the BatchCom research template."
 requires-python = ">=3.11"
-dependencies = []
+dependencies = ["pyyaml"]
 
 # Run-from-repo-root project (not built as a package).
 # `from src.* import ...` works with the repo root on sys.path

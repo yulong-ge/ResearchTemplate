@@ -8,9 +8,13 @@ This repository maintains the framework and copyable template source.
 
 ## Framework direction
 
-`rtmpl` creates and updates Git-first research projects. It owns template lifecycle commands and hash-protected file updates; generated projects define experiment execution and storage workflows.
+`rtmpl` creates and updates Git-first research projects. It owns template lifecycle commands and
+hash-protected file updates; generated projects use human-written Plans to define experiment
+execution and storage workflows.
 
-The template uses evidence-traceable records with configurable human or automatic Inner and Outer Loops. Seed-only research records remain project-owned after scaffolding and are never overwritten by template updates, including `--force`. Natural-language record migration is intentionally manual after applying a newer template.
+The template contains ordinary human notes, Plans, and experiment output directories. The CLI does
+not model research objects, automation modes, or note ownership. Existing natural-language
+research files are migrated manually after applying a newer template.
 
 ## Development rules
 
@@ -22,4 +26,6 @@ The template uses evidence-traceable records with configurable human or automati
 
 ## Verification
 
-Run `uv run pytest` before delivery. For template changes, exercise `rtmpl list`, scaffold a disposable project with `rtmpl new`, and verify `rtmpl status` plus seed-only protection on update.
+Run `uv run pytest` before delivery. For template changes, exercise `rtmpl list`, scaffold a
+disposable project with `rtmpl new`, and verify `rtmpl status` plus update protection for
+user-edited managed files.

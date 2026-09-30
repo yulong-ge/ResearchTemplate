@@ -2,26 +2,19 @@
 from __future__ import annotations
 
 import argparse
-import os
 import sys
 
 from . import __version__
 from .commands import (
     adopt,
-    check,
-    doctor,
-    graph,
     list as list_cmd,
     new,
-    pause,
     repair,
-    resume,
     status,
-    summary,
     update,
 )
 from .commands._common import CommandError
-from .core.update_check import latest_known_version, staleness_banner
+from .core.paths import UnsafePathError
 
 
 def _parse_var(items) -> dict[str, str]:
@@ -57,9 +50,11 @@ def build_parser() -> argparse.ArgumentParser:
         sp.set_defaults(func=new.run)
 
     sp = sub.add_parser("update", help="sync template updates into the current project")
-    sp.add_argument("--force", action="store_true")
-    sp.add_argument("--skip", action="store_true")
+    sp.add_argument("--accept", action="append", default=[], metavar="PATH")
+    sp.add_argument("--skip", action="append", default=[], metavar="PATH")
+    sp.add_argument("--create-new", action="append", default=[], dest="create_new", metavar="PATH")
     sp.add_argument("--dry-run", action="store_true")
+    sp.add_argument("--json", action="store_true")
     sp.add_argument("--no-input", action="store_true")
     sp.add_argument("--allow-downgrade", action="store_true")
     sp.set_defaults(func=update.run)
@@ -68,40 +63,12 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("--template", "-t")
     sp.add_argument("--var", action="append", default=[], metavar="field=value")
     sp.add_argument("--no-input", action="store_true")
-    sp.add_argument("--repair", action="store_true")
     sp.set_defaults(func=adopt.run)
 
-    sp = sub.add_parser("status", help="show pending changes (= update --dry-run)")
+    sp = sub.add_parser("status", help="show a read-only template update plan")
+    sp.add_argument("--json", action="store_true")
+    sp.add_argument("--allow-downgrade", action="store_true")
     sp.set_defaults(func=status.run)
-
-    sp = sub.add_parser("resume", help="show the compact research handoff")
-    sp.set_defaults(func=resume.run)
-
-    sp = sub.add_parser("check", help="validate the research record contract")
-    sp.add_argument(
-        "--consistency",
-        action="store_true",
-        help="also verify object ids, links, and experiment dirs resolve on disk",
-    )
-    sp.set_defaults(func=check.run)
-
-    sp = sub.add_parser("pause", help="capture interruption context for the next resume")
-    sp.set_defaults(func=pause.run)
-
-    sp = sub.add_parser("doctor", help="health-check seed records, placeholders, and schema")
-    sp.set_defaults(func=doctor.run)
-
-    sp = sub.add_parser("summary", help="rebuild the HTML dashboard and optionally open it")
-    sp.add_argument("--open", action="store_true", help="open the dashboard in a browser")
-    sp.set_defaults(func=summary.run)
-
-    sp = sub.add_parser("graph", help="print the evolution diagram, or render it to an image")
-    sp.add_argument(
-        "--render",
-        metavar="FILE",
-        help="render to png/svg/pdf via mmdc or npx @mermaid-js/mermaid-cli",
-    )
-    sp.set_defaults(func=graph.run)
 
     sp = sub.add_parser("repair", help="rebuild .rtmpl/state.json from disk")
     sp.add_argument("--template", "-t")
@@ -110,32 +77,15 @@ def build_parser() -> argparse.ArgumentParser:
     return p
 
 
-def _print_staleness_banner() -> None:
-    """Warn on stderr when the installed rtmpl is behind the template repo.
-
-    Never blocks execution and never demands network: offline / CI /
-    RTMPL_NO_UPDATE_CHECK=1 degrade to silence.
-    """
-    if os.environ.get("RTMPL_NO_UPDATE_CHECK", "") not in ("", "0", "false", "False"):
-        return
-    try:
-        latest = latest_known_version(__version__)
-    except Exception:
-        return
-    banner = staleness_banner(__version__, latest)
-    if banner:
-        print(banner, file=sys.stderr)
-
 
 def main(argv=None) -> int:
-    _print_staleness_banner()
     parser = build_parser()
     args = parser.parse_args(argv)
     if hasattr(args, "var"):
         args.var = _parse_var(args.var)
     try:
         return args.func(args) or 0
-    except CommandError as e:
+    except (CommandError, UnsafePathError) as e:
         print(f"error: {e}", file=sys.stderr)
         return 2
 

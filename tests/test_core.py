@@ -6,6 +6,7 @@ import json
 import pytest
 
 from rtmpl.core import classify, hash as h, render, state, version
+from rtmpl.core.backup import create_backup
 from rtmpl.core.template import TemplateManifest, Variable
 
 A = classify.ABSENT
@@ -64,9 +65,18 @@ def test_state_load_statuses(tmp_path):
     assert st == "ok" and s.template_version == "1.0" and s.hashes["b"] is None
 
     (rd / "state.json").write_text(
-        json.dumps({"schema": 2, "template_version": "1.0", "hashes": {}, "ownership": {"x": "bad"}})
+        json.dumps(
+            {
+                "schema": 2,
+                "template_version": "1.0",
+                "hashes": {"a": "h"},
+                "ownership": {"research-state.yaml": "seed_only"},
+            }
+        )
     )
-    assert state.load_state(rd)[1] == "corrupt"
+    legacy, legacy_status = state.load_state(rd)
+    assert legacy_status == "ok"
+    assert legacy.hashes == {"a": "h"}
 
 
 def test_state_atomic_save_roundtrip(tmp_path):
@@ -74,6 +84,19 @@ def test_state_atomic_save_roundtrip(tmp_path):
     state.save_state(rd, state.State(template_version="2.0", hashes={"a": "x", "d": None}))
     s, st = state.load_state(rd)
     assert st == "ok" and s.hashes == {"a": "x", "d": None}
+    raw = json.loads((rd / "state.json").read_text(encoding="utf-8"))
+    assert "ownership" not in raw
+
+
+def test_backup_names_do_not_collide(tmp_path):
+    project = tmp_path / "project"
+    project.mkdir()
+    (project / "a.txt").write_text("a\n")
+    rd = project / ".rtmpl"
+    first = create_backup(rd, project, ["a.txt"])
+    second = create_backup(rd, project, ["a.txt"])
+    assert first != second
+    assert first.exists() and second.exists()
 
 
 # --- classify (total, 8 rows) -----------------------------------------------
@@ -145,11 +168,11 @@ def test_render_residual_check():
     assert payload["a.txt"] == b"name=ab"
 
 
-def test_manifest_file_policy_routes_and_excludes(tmp_path, monkeypatch):
+def test_manifest_excludes_paths(tmp_path, monkeypatch):
     root = tmp_path / "templates" / "demo"
     root.mkdir(parents=True)
     (root / "template.yaml").write_text(
-        "name: demo\nversion: '1'\nfile_policies:\n  seed_only: ['research/ideas.md']\n  generated: ['research/_generated/**']\n"
+        "schema: 1\nname: demo\nversion: '1'\nexclude: ['research/_generated/**']\n"
     )
     (root / "research").mkdir()
     (root / "research" / "ideas.md").write_text("ideas")
@@ -159,5 +182,61 @@ def test_manifest_file_policy_routes_and_excludes(tmp_path, monkeypatch):
     from rtmpl.core.template import load_manifest, walk_payload
 
     manifest = load_manifest("demo")
-    assert manifest.policy_for("research/ideas.md") == "seed_only"
+    assert not hasattr(manifest, "policy_for")
+    assert "research/ideas.md" in walk_payload("demo", manifest)
     assert "research/_generated/graph.json" not in walk_payload("demo", manifest)
+
+
+def test_manifest_rejects_removed_research_fields(tmp_path, monkeypatch):
+    root = tmp_path / "templates" / "demo"
+    root.mkdir(parents=True)
+    (root / "template.yaml").write_text(
+        "schema: 1\nname: demo\nversion: '1'\nfile_policies: {}\n"
+    )
+    monkeypatch.setenv("RTMPL_TEMPLATES_ROOT", str(tmp_path / "templates"))
+    from rtmpl.core.template import load_manifest
+
+    with pytest.raises(ValueError, match="removed research fields"):
+        load_manifest("demo")
+
+
+def test_manifest_rejects_non_mapping(tmp_path, monkeypatch):
+    root = tmp_path / "templates" / "demo"
+    root.mkdir(parents=True)
+    (root / "template.yaml").write_text("- demo\n")
+    monkeypatch.setenv("RTMPL_TEMPLATES_ROOT", str(tmp_path / "templates"))
+    from rtmpl.core.template import load_manifest
+
+    with pytest.raises(ValueError, match="root must be a mapping"):
+        load_manifest("demo")
+
+
+def test_manifest_rejects_missing_render_file(tmp_path, monkeypatch):
+    root = tmp_path / "templates" / "demo"
+    root.mkdir(parents=True)
+    (root / "template.yaml").write_text(
+        "schema: 1\nname: demo\nversion: '1'\n"
+        "variables: [{token: '<x>', field: x, render_files: ['missing.txt']}]\n"
+    )
+    monkeypatch.setenv("RTMPL_TEMPLATES_ROOT", str(tmp_path / "templates"))
+    from rtmpl.core.template import load_manifest
+
+    with pytest.raises(ValueError, match="missing files"):
+        load_manifest("demo")
+
+
+def test_manifest_rejects_duplicate_variable_fields(tmp_path, monkeypatch):
+    root = tmp_path / "templates" / "demo"
+    root.mkdir(parents=True)
+    (root / "a.txt").write_text("<a>")
+    (root / "b.txt").write_text("<b>")
+    (root / "template.yaml").write_text(
+        "schema: 1\nname: demo\nversion: '1'\n"
+        "variables: [{token: '<a>', field: x, render_files: ['a.txt']}, "
+        "{token: '<b>', field: x, render_files: ['b.txt']}]\n"
+    )
+    monkeypatch.setenv("RTMPL_TEMPLATES_ROOT", str(tmp_path / "templates"))
+    from rtmpl.core.template import load_manifest
+
+    with pytest.raises(ValueError, match="duplicate field"):
+        load_manifest("demo")

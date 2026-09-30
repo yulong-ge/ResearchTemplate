@@ -11,7 +11,7 @@ __pycache__/
 *.log
 *.tmp
 
-# Experiment tracking local caches (metadata lives in W&B cloud)
+# Experiment tracking local caches (metadata lives in the selected tracker)
 wandb/
 mlruns/
 
@@ -36,10 +36,6 @@ mlruns/
 .env.*
 *.local
 config.local.*
-
-# Derived research views can be deleted and rebuilt.
-research/_generated/
-to_human/_generated/
 
 # Notebook checkpoints
 .ipynb_checkpoints/

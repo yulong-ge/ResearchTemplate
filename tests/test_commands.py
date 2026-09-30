@@ -1,4 +1,4 @@
-"""End-to-end command tests against a disposable mini template (plan §13)."""
+"""End-to-end command tests against a disposable mini template."""
 from __future__ import annotations
 
 import argparse
@@ -14,14 +14,15 @@ from rtmpl.commands._common import CommandError
 from rtmpl.commands.update import _write_new
 from rtmpl.core import hash as h
 from rtmpl.core.render import RenderError
+from rtmpl.core.paths import UnsafePathError
 from rtmpl.core.state import load_state, save_state
 from rtmpl.cli import build_parser
 
 
 def _a(**kw):
     base = dict(
-        force=False, skip=False, dry_run=False, no_input=True, allow_downgrade=False,
-        template=None, var={}, name=None, path=None, repair=False,
+        force=False, accept=[], skip=[], create_new=[], dry_run=False, json=False,
+        no_input=True, allow_downgrade=False, template=None, var={}, name=None, path=None,
     )
     base.update(kw)
     return argparse.Namespace(**base)
@@ -60,12 +61,21 @@ def test_new_and_init_use_the_same_creation_interface():
     assert new_args == init_args
 
 
-def test_init_prints_next_files_to_fill(mini_template, tmp_path, capsys):
+def test_new_prints_only_creation_result(mini_template, tmp_path, capsys):
     _new(tmp_path / "p")
     output = capsys.readouterr().out
-    assert "初始化后的优先顺序" in output
-    assert "AGENTS.md — fill the first project note" in output
-    assert "rtmpl check && rtmpl resume" in output
+    assert "Created project at" in output
+    assert "rtmpl check" not in output
+    assert "rtmpl resume" not in output
+
+
+def test_cli_exposes_only_template_lifecycle_commands():
+    parser = build_parser()
+    help_text = parser.format_help()
+    for command in ("list", "new", "init", "update", "status", "adopt", "repair"):
+        assert command in help_text
+    for command in ("check", "doctor", "graph", "pause", "resume", "summary"):
+        assert command not in help_text
 
 
 def test_new_nonempty_target_error(mini_template, tmp_path):
@@ -135,7 +145,7 @@ def test_orphan_safe_delete(mini_template, tmp_path, monkeypatch):
     _new(proj)
     (mini_template / "AGENTS.md").unlink()  # removed from template
     assert (proj / "AGENTS.md").exists()
-    _update(proj, monkeypatch, force=True)  # orphanedPristine → delete
+    _update(proj, monkeypatch, accept=["AGENTS.md"])  # orphanedPristine → delete
     assert not (proj / "AGENTS.md").exists()
 
 
@@ -144,7 +154,7 @@ def test_changed_force_overwrite(mini_template, tmp_path, monkeypatch):
     _new(proj)
     (proj / "AGENTS.md").write_text("# customized\n")
     (mini_template / "AGENTS.md").write_text("# new agents\n")
-    _update(proj, monkeypatch, force=True)
+    _update(proj, monkeypatch, accept=["AGENTS.md"])
     assert (proj / "AGENTS.md").read_text() == "# new agents\n"
 
 
@@ -180,6 +190,43 @@ def test_repair_tombstones_missing_no_recreate(mini_template, tmp_path, monkeypa
 
 
 # --- skew / path-key / create-new collision --------------------------------
+
+def test_status_is_read_only_and_supports_json(mini_template, tmp_path, monkeypatch, capsys):
+    proj = tmp_path / "p"
+    _new(proj)
+    monkeypatch.chdir(proj)
+    before = sorted(path.name for path in (proj / ".rtmpl").iterdir())
+    capsys.readouterr()
+
+    from rtmpl.commands import status
+
+    assert status.run(_a(json=True)) == 0
+    payload = json.loads(capsys.readouterr().out)
+    assert payload["template"] == "demo"
+    assert payload["template_version"] == "0.1.0"
+    assert payload["files"]
+    assert {"suggested_action", "conflict_reason"} <= set(payload["files"][0])
+    assert sorted(path.name for path in (proj / ".rtmpl").iterdir()) == before
+    assert not (proj / ".rtmpl" / ".lock").exists()
+
+
+def test_update_dry_run_is_read_only(mini_template, tmp_path, monkeypatch, capsys):
+    proj = tmp_path / "p"
+    _new(proj)
+    capsys.readouterr()
+    before = sorted(path.name for path in (proj / ".rtmpl").iterdir())
+    _update(proj, monkeypatch, dry_run=True)
+    assert sorted(path.name for path in (proj / ".rtmpl").iterdir()) == before
+    assert not (proj / ".rtmpl" / ".lock").exists()
+
+
+def test_update_accepts_only_explicit_paths(mini_template, tmp_path, monkeypatch):
+    proj = tmp_path / "p"
+    _new(proj)
+    (proj / "AGENTS.md").write_text("# customized\n")
+    with pytest.raises(CommandError, match="not awaiting a decision"):
+        _update(proj, monkeypatch, accept=["missing.md"])
+
 
 def test_equal_version_still_classifies(mini_template, tmp_path, monkeypatch):
     proj = tmp_path / "p"
@@ -226,99 +273,36 @@ def test_interrupt_aborts(mini_template, tmp_path, monkeypatch):
         _update(proj, monkeypatch)
 
 
-def test_seed_only_record_survives_force_update(mini_template, tmp_path, monkeypatch):
-    manifest = mini_template / "template.yaml"
-    manifest.write_text(
-        manifest.read_text().replace(
-            "exclude: []",
-            "exclude: []\nfile_policies:\n  seed_only: [AGENTS.md]",
-        )
-    )
+def test_managed_symlink_is_rejected(mini_template, tmp_path, monkeypatch):
     proj = tmp_path / "p"
     _new(proj)
-    (proj / "AGENTS.md").write_text("# project record\n")
-    mini_template.joinpath("AGENTS.md").write_text("# template replacement\n")
-
-    _update(proj, monkeypatch, force=True)
-
-    assert (proj / "AGENTS.md").read_text() == "# project record\n"
-    saved, status = load_state(proj / ".rtmpl")
-    assert status == "ok"
-    assert saved.ownership["AGENTS.md"] == "seed_only"
-
-
-def test_manifest_seed_only_upgrade_protects_existing_record(mini_template, tmp_path, monkeypatch):
-    proj = tmp_path / "p"
-    _new(proj)
-    (proj / "AGENTS.md").write_text("# project record\n")
-    manifest = mini_template / "template.yaml"
-    manifest.write_text(
-        manifest.read_text().replace(
-            "exclude: []",
-            "exclude: []\nfile_policies:\n  seed_only: [AGENTS.md]",
-        )
-    )
-    mini_template.joinpath("AGENTS.md").write_text("# template replacement\n")
-
-    _update(proj, monkeypatch, force=True)
-
-    assert (proj / "AGENTS.md").read_text() == "# project record\n"
-    saved, status = load_state(proj / ".rtmpl")
-    assert status == "ok"
-    assert saved.ownership["AGENTS.md"] == "seed_only"
-
-
-def test_seed_only_record_is_preserved_when_template_removes_it(mini_template, tmp_path, monkeypatch):
-    manifest = mini_template / "template.yaml"
-    manifest.write_text(
-        manifest.read_text().replace(
-            "exclude: []",
-            "exclude: []\nfile_policies:\n  seed_only: [AGENTS.md]",
-        )
-    )
-    proj = tmp_path / "p"
-    _new(proj)
-    (proj / "AGENTS.md").write_text("# project record\n")
-    mini_template.joinpath("AGENTS.md").unlink()
-
-    _update(proj, monkeypatch, force=True)
-
-    assert (proj / "AGENTS.md").read_text() == "# project record\n"
-
-
-def test_deleted_orphaned_seed_record_is_pruned_from_state(mini_template, tmp_path, monkeypatch):
-    manifest = mini_template / "template.yaml"
-    manifest.write_text(
-        manifest.read_text().replace(
-            "exclude: []",
-            "exclude: []\nfile_policies:\n  seed_only: [AGENTS.md]",
-        )
-    )
-    proj = tmp_path / "p"
-    _new(proj)
+    outside = tmp_path / "outside.md"
+    outside.write_text("outside\n")
     (proj / "AGENTS.md").unlink()
-    mini_template.joinpath("AGENTS.md").unlink()
-
-    _update(proj, monkeypatch, force=True)
-
-    saved, status = load_state(proj / ".rtmpl")
-    assert status == "ok"
-    assert "AGENTS.md" not in saved.hashes
-    assert "AGENTS.md" not in saved.ownership
+    (proj / "AGENTS.md").symlink_to(outside)
+    with pytest.raises(UnsafePathError, match="symlink"):
+        _update(proj, monkeypatch, dry_run=True)
 
 
-def test_new_force_does_not_replace_existing_seed_record(mini_template, tmp_path):
-    manifest = mini_template / "template.yaml"
-    manifest.write_text(
-        manifest.read_text().replace(
-            "exclude: []",
-            "exclude: []\nfile_policies:\n  seed_only: [AGENTS.md]",
-        )
-    )
+def test_pending_marker_survives_commit_failure(mini_template, tmp_path, monkeypatch):
     proj = tmp_path / "p"
-    proj.mkdir()
-    (proj / "AGENTS.md").write_text("# existing record\n")
+    _new(proj)
+    monkeypatch.chdir(proj)
 
-    _new(proj, force=True)
+    def fail_save_state(*args, **kwargs):
+        raise OSError("simulated state write failure")
 
-    assert (proj / "AGENTS.md").read_text() == "# existing record\n"
+    monkeypatch.setattr(update, "save_state", fail_save_state)
+    with pytest.raises(OSError, match="simulated"):
+        update.run(_a())
+    assert (proj / ".rtmpl" / ".pending").exists()
+
+
+def test_update_rejects_invalid_existing_config(mini_template, tmp_path, monkeypatch):
+    proj = tmp_path / "p"
+    _new(proj)
+    (proj / ".rtmpl" / "config.yaml").write_text(
+        "template: demo\ncreated_at: 2026-09-30\nproj: INVALID\n"
+    )
+    with pytest.raises(CommandError, match="invalid config.yaml values"):
+        _update(proj, monkeypatch, dry_run=True)

@@ -11,10 +11,11 @@ from datetime import datetime
 from pathlib import Path
 
 from . import hash as hashmod
+from .paths import safe_join
 
 
 def _local(project_root: Path, posix_rel: str) -> Path:
-    return project_root.joinpath(*posix_rel.split("/"))
+    return safe_join(project_root, posix_rel)
 
 
 def create_backup(
@@ -25,8 +26,12 @@ def create_backup(
 ) -> Path:
     """Snapshot disk-present universe paths into ``.rtmpl/.backup-<ts>/`` and
     write ``manifest.json``. Returns the backup directory."""
-    ts = datetime.now().strftime("%Y%m%dT%H%M%SZ")
+    ts = datetime.now().strftime("%Y%m%dT%H%M%S%fZ")
     bdir = rtmpl_dir / f".backup-{ts}"
+    suffix = 1
+    while bdir.exists():
+        bdir = rtmpl_dir / f".backup-{ts}-{suffix}"
+        suffix += 1
     manifest: dict = {"created": ts, "paths": {}}
     if extra:
         manifest.update(extra)

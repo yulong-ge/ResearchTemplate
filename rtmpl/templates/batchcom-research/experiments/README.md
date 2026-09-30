@@ -1,14 +1,11 @@
-# Experiments
+# Experiment outputs
 
-Create one directory per defined experiment, named with a lowercase semantic
-label `<topic>-<seq>` (for example `batch-size-01`, `lr-schedule-02`):
+Use a human-chosen directory for each run or batch, for example
+`experiments/baseline-check/` or `experiments/2026-09-22-ablation/`.
 
-```text
-experiments/<topic>-<seq>/
-  protocol.md   # scientific contract and amendments
-  config.yaml   # committed executable configuration
-  result.md     # grouped seed/run results and validity checks
-  analysis.md   # milestone conclusions and tracker references
-```
+Store the outputs requested by the Plan: logs, metrics, configurations, checkpoints, plots, and
+other raw artifacts. The directory name and its contents have no required schema. The Agent may
+write here only when the Plan names the directory and the expected outputs.
 
-The project-selected tracker and durable results store own run-level evidence; Git records the protocol and analysis milestones. A downstream project may replace this layout only through explicit project policy.
+Keep large or canonical assets in the locations defined by `src/paths.py`; keep only useful
+references and small reproducibility metadata in Git.

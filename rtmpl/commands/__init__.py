@@ -1,1 +1,1 @@
-"""Command implementations for template lifecycle and research handoff."""
+"""Command implementations for template lifecycle management."""

@@ -18,12 +18,11 @@ from ..core.classify import (
     ORPHANED_PRISTINE,
     UNCHANGED,
     USERDELETED,
-    SEEDONLY,
     FileState,
 )
 from ..core.template import TemplateManifest, list_templates
+from ..core.paths import UnsafePathError, safe_join
 from ..core.tx import atomic_write_bytes
-from ..core.state import SEED_ONLY
 
 RTMPL_DIRNAME = ".rtmpl"
 CONFIG_NAME = "config.yaml"
@@ -42,7 +41,6 @@ _STATE_LABEL = {
     ORPHANED_PRISTINE: ("⊘", "Orphaned, pristine (safe-delete candidate)"),
     ORPHANED_MODIFIED: ("⊘!", "Orphaned, modified (preserved)"),
     DEADORPHAN: ("∅", "Dead orphan (will prune from state)"),
-    SEEDONLY: ("·", "Project-owned record (preserved)"),
 }
 
 
@@ -115,14 +113,6 @@ def values_from_config(manifest: TemplateManifest, config: dict) -> dict[str, st
     return {v.field: config[v.field] for v in manifest.variables if v.field in config}
 
 
-def ownership_for(existing: dict[str, str], rel: str, manifest: TemplateManifest) -> str:
-    """Resolve a path owner while allowing a manifest to add protection."""
-    declared = manifest.policy_for(rel)
-    if declared == SEED_ONLY or existing.get(rel) == SEED_ONLY:
-        return SEED_ONLY
-    return existing.get(rel, declared)
-
-
 def config_for_new(template_name: str, values: dict[str, str]) -> dict:
     cfg = {"template": template_name, "created_at": date.today().isoformat()}
     for k, v in values.items():
@@ -131,7 +121,10 @@ def config_for_new(template_name: str, values: dict[str, str]) -> dict:
 
 
 def local_path(project_root: Path, posix_rel: str) -> Path:
-    return project_root.joinpath(*posix_rel.split("/"))
+    try:
+        return safe_join(project_root, posix_rel)
+    except UnsafePathError as exc:
+        raise CommandError(str(exc)) from exc
 
 
 def report(states: list[FileState]) -> dict[str, list[FileState]]:
@@ -152,7 +145,6 @@ def format_report(groups: dict[str, list[FileState]]) -> str:
         ORPHANED_MODIFIED,
         USERDELETED,
         DEADORPHAN,
-        SEEDONLY,
         UNCHANGED,
     ]
     for st in order:

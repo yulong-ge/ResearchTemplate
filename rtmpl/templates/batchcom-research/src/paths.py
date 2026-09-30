@@ -13,7 +13,7 @@ Two-disk model (BatchCom server):
 The system disk (``/``, ``/home/batchcom``) is ephemeral — never store project
 data, library caches, or conda envs there.
 
-See ``research/environment.md`` for the full contract.
+See ``notes/environment.md`` for the human-maintained environment record.
 """
 from __future__ import annotations
 
@@ -53,7 +53,7 @@ if _IS_SERVER:
     CONDA_ENV: str | None = _CONDA_ENV
     # uv builds the project venv inside the active conda env at REPO_ROOT/.venv
     # (gitignored). Route new conda envs to the local disk via .condarc
-    # ``envs_dirs`` — see research/environment.md. Library cache dirs (HF_HOME,
+    # ``envs_dirs`` — see notes/environment.md. Library cache dirs (HF_HOME,
     # TORCH_HOME, ...) are exported in the server's ~/.bashrc_custom to LIB_CACHE.
 else:
     # Mac (darwin): edit here, run on the server.

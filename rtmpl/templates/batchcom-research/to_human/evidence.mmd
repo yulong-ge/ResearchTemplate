@@ -1,7 +1,0 @@
-%% Derived view. The source of truth is research-state.yaml and the linked
-%% experiment, finding, claim, and decision records.
-flowchart LR
-  H0[H: hypothesis] -.->|tested_by| E0[experiment label]
-  E0 -->|produces| R0[R: result]
-  R0 -.->|supports / challenges| C0[C: claim]
-  D0[D: decision] -.->|authorizes| E0

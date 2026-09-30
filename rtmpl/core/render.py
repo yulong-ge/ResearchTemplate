@@ -27,6 +27,10 @@ def validate_values(manifest: TemplateManifest, values: dict[str, str]) -> dict[
     resolved: dict[str, str] = dict(values)
     for var in manifest.variables:
         val = resolved.get(var.field, "")
+        if not isinstance(val, str):
+            raise RenderError(
+                f"variable {var.field!r} must be a string, got {type(val).__name__}"
+            )
         if not val:
             if var.default is not None:
                 resolved[var.field] = var.default

@@ -15,11 +15,10 @@ def mini_template(tmp_path, monkeypatch):
     tmpl.joinpath("template.yaml").write_text(
         textwrap.dedent(
             """\
+            schema: 1
             name: demo
             display: Demo
             version: "0.1.0"
-            init_guidance:
-              - {path: AGENTS.md, purpose: "fill the first project note"}
             variables:
               - { token: "<proj>", field: proj, render_files: ["pyproject.toml"], prompt: "proj", required: true, validation: '^[a-z]+$' }
             exclude: []

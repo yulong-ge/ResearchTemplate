@@ -1,52 +1,54 @@
 # BatchCom Research Workspace
 
-## Resume and ownership
+## Human-owned workflow
 
-- Read `research-state.yaml`, `findings.md`, and `to_human/latest.md` first. `to_human/latest.md` is the daily human entry; follow its links for detailed records.
-- `to_human/dashboard.html` is a generated view rebuilt by `src/dashboard_builder.py` from `research-state.yaml` and the records after each update; it is never a source of truth. `to_human/evolution.mmd`, `evidence.mmd`, and `trajectory.csv` are derived views too.
-- Use the global `research-record` skill for recording and reconciliation. It routes entries to this project's declared paths.
-- `research-state.yaml`, `hypotheses.md`, `research-log.md`, `findings.md`, `claims.md`, `decisions.md`, `research/environment.md`, `research/policy.yaml`, and `literature/survey.md` are project-owned seed records. `rtmpl update --force` preserves them byte-for-byte.
-- Use `docs/research-workflow.md` for object ownership, evidence rules, and review triggers.
-- Use `docs/manual-migration.md` when a newer template introduces new record homes; migrate prose manually and run `rtmpl check` afterward.
-- When resuming after an interruption, run `rtmpl resume`: it prints `to_human/paused-context.md` first when present, then the state header and human brief. Use `rtmpl check --consistency` to verify the index, relations, and experiment directories agree, and `rtmpl doctor` to confirm seed files are filled in.
+- A human creates one Plan in `docs/plans/` for each requested experiment or engineering task.
+- The Plan supplies the question, relevant context, allowed reads, writable paths, commands,
+  resources, budget, and stop conditions.
+- Before acting, the Agent returns a concrete execution plan, file list, commands, expected
+  outputs, and risks, then waits for explicit approval.
+- The Plan names the context the Agent may read and the paths it may edit. The Agent works within
+  that scope and waits for a new Plan when the task needs additional context.
+- The Agent reports raw outputs, errors, and observations. A human organizes notes, interprets
+  results, and decides what belongs in later Plans or papers.
 
-## Research execution
+## Directory ownership
 
-- A new experiment needs a versioned `experiments/<id>/protocol.md`, committed `config.yaml`, a result summary, and an explicit D authorization before launch.
-- Experiments use lowercase semantic labels `<topic>-<seq>` (for example `batch-size-01`), not an `E` prefix; the directory name and the `id` in `protocol.md`/`config.yaml` must match the label listed under `objects.experiments` in `research-state.yaml`.
-- Exploration and confirmation are separate labels. A later result cannot rewrite an exploratory protocol into a confirmatory one.
-- Launch training, resource changes, metric revisions, and automatic loop jobs only within an explicit authorization naming scope, budget, and stop conditions. `automation_mode` sets how much of the Inner and Outer Loops may run without human confirmation: `manual` confirms both loops, `semi-auto` runs the Inner Loop inside an approved scope and confirms the Outer Loop, `full-auto` runs both (repetitive validation only). Defaults live in `research/policy.yaml`; `research-state.yaml` and a direction decision can carry a finite override.
-- Trackers and durable results under `RESULTS_ROOT` own run-level state; record milestones in the selected analysis record.
-- Operational heartbeats and routine health checks stay in machine logs or tracker state. Update Markdown at scientific milestones and interpretation-changing failures.
+| Path | Owner | Contract |
+|---|---|---|
+| `docs/plans/` | Human | Task entry points and execution authorization |
+| `notes/` | Human | Background, environment, provenance, and research notes |
+| `experiments/` | Human | Results, logs, configurations, and raw artifacts |
+| `literature/` | Human | Paper notes and references |
+| `paper/` | Human | Manuscript material |
+| `.rtmpl/` | `rtmpl` | Template lifecycle metadata only |
+
+Choose an `experiments/` directory name that makes sense for the current task and put the outputs
+requested by the Plan there. The Plan may define a filename convention or result format when the
+task benefits from one.
 
 ## Paths and storage
 
-`src/paths.py` is the single source of truth. Project values are rendered from `.rtmpl/config.yaml`; edit the source config and run the template workflow instead of hardcoding values.
+`src/paths.py` is the single source of truth. Project values are rendered from
+`.rtmpl/config.yaml`; do not hardcode server paths in scripts.
 
-- Research NFS: `SHARED_DATA_ROOT`, `SHARED_MODEL_ROOT`, `DATA_ROOT`, `MODEL_ROOT`, and `RESULTS_ROOT` are canonical.
-- Local NVMe: `DATA_CACHE` and `LIB_CACHE` are disposable acceleration layers, and keep canonical copies under the declared research roots.
-- System disk, `/home/batchcom`, and `/tmp` must not hold research assets, models, results, caches, or environments.
+- Research NFS: `SHARED_DATA_ROOT`, `SHARED_MODEL_ROOT`, `DATA_ROOT`, `MODEL_ROOT`, and
+  `RESULTS_ROOT` are canonical.
+- Local NVMe: `DATA_CACHE` and `LIB_CACHE` are disposable acceleration layers; keep canonical
+  copies under the declared research roots.
+- System disk, `/home/batchcom`, and `/tmp` must not hold research assets, models, results,
+  caches, or environments.
 
 ## Environment and execution
 
 - Mac uses `uv` for environments and CPU checks. No GPU work runs locally.
-- BatchCom uses conda for CUDA/torch and `uv` for the project environment. Conda environments live under `/home/dataset-local/conda/envs`.
+- BatchCom uses conda for CUDA/torch and `uv` for the project environment. Conda environments
+  live under `/home/dataset-local/conda/envs`.
 - On BatchCom, run in tmux: `conda activate <env> && uv run python ...`.
-- From Mac, use native SSH and tmux. Preflight GPU work with `nvidia-smi`, `df -h /home/dataset-local /home/dataset-assist-0/research`, and a torch CUDA check.
+- From Mac, use native SSH and tmux. Preflight GPU work with `nvidia-smi`, disk checks, and a
+  torch CUDA check before starting a GPU task.
 
 ## Git and verification
 
-Keep raw artifacts out of Git. Run `uv run pytest tests/` and
-`uv run python -c "from src.paths import REPO_ROOT, RESULTS_ROOT; print(REPO_ROOT, RESULTS_ROOT)"` after changes.
-
-## Skills
-
-- `autoresearch` orchestrates authorized Bootstrap, Inner Loop, and Outer Loop execution and synthesis.
-- `research-record` routes recording and resume work.
-- `ara-session-manager` is an opt-in ARA epilogue for standalone ARA artifacts; project records remain under this workspace’s declared homes.
-- `rigor-reviewer` reviews an existing ARA artifact; authorization stays in `decisions.md`, and claim changes follow the project record workflow.
-- `ara-compiler` is an opt-in importer for building a separate ARA from supplied research material.
-- `research-ideation`, `paper-retrieval`, and `paper-writing` provide stage-specific guidance.
-- `grill-with-docs` may be used for a design interview and ADR when a decision still needs user resolution.
-
-External Skills operate within this project's ownership, authorization, evidence, and stop rules.
+Keep raw artifacts out of Git. Run the project's tests and the relevant command checks after
+changes. `rtmpl status` reports template differences; it does not report research progress.

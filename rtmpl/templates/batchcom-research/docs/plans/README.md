@@ -1,22 +1,8 @@
-# Human execution Plans
+# 实验与任务 Plan
 
-Create one Plan for each experiment or engineering task. The Plan is the human-provided entry
-point and authorization boundary for the Agent.
+每个实验或工程任务一个文件，命名为 `YYYY-MM-DD-<简述>.md`，从 `notes/templates/plan.md` 复制。
 
-## Suggested contents
+一个 Plan 就是这个任务的完整记录：动机、做法、给 Agent 的执行范围、结果和结论都写在同一个文件里，
+不用再拆成协议、配置、结果等多个文件。结构按需增减，写清楚就行。
 
-- question or concrete task and success criteria;
-- background, data, code entry points, and prior information;
-- files the Agent may read;
-- files the Agent may modify and where outputs belong;
-- commands, environment, resource limits, budget, and stop conditions;
-- choices that require approval before execution.
-
-The Plan is ordinary Markdown. Use the structure that makes the task clear, and revise it after
-reviewing the results when the next step needs updated context.
-
-## File naming
-
-Use date-prefixed names: `YYYY-MM-DD-<short-description>.md`.
-
-Completed Plans may be moved to `docs/plans/archive/` by the human owner.
+做完的 Plan 可以移到 `docs/plans/archive/`。

@@ -1,13 +1,7 @@
-# External / Vendored Code
+# 第三方代码
 
-Third-party research code lives here as regular files (not git submodules).
+第三方研究代码以普通文件形式放在这里，不用 git submodule，方便为实验直接修改。
 
-This allows local modifications and patches for experiments while
-keeping the original source in the same repository.
-
-## Conventions
-
-- Keep the original README and LICENSE from each project.
-- If you modify vendored code, note the change in the experiment log.
-- Do not convert external/ directories to git submodules without
-  explicit discussion.
+- 保留原项目的 README 和 LICENSE。
+- 修改过的地方，在相关 Plan 里记一笔。
+- 改成 submodule 前先讨论。

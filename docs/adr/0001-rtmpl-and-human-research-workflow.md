@@ -160,12 +160,18 @@ docs/
 experiments/
 └── <human-chosen-name>/                    # 实验输出与原始产物
 
-notes/                                       # 可选的人类研究笔记
+notes/
+├── daily/  weekly/                          # 日报、周报
+├── templates/                               # Plan、日报、周报、复盘模板（中文）
+└── environment.md                           # 环境与数据登记
 ```
 
 `experiments/` 只承担保存实验结果和运行产物的职责。实验目录不要求语义 ID、固定
 的 `protocol.md`/`result.md`/`analysis.md` 三件套，也不要求在多个文件中重复实验描述。
 目录名由人选择，是否重复、合并或扩展实验由人决定。
+
+一个实验的动机、做法、执行范围、结果和结论写在同一个 Plan 文件里，不拆分为协议、配置、
+结果多文件，也不使用 E-/H-/D- 之类的追溯 ID。模板文件统一使用中文。
 
 ### 2.3 人工 Plan 驱动一次任务
 

@@ -1,2 +1,3 @@
-# Paper assets land here during the writing stage.
-# Section drafts, figures, and tables. Keep manuscript work in this directory.
+# 论文
+
+写作阶段的章节草稿、图和表放在这里。

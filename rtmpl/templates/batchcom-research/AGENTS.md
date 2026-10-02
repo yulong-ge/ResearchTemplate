@@ -1,54 +1,39 @@
-# BatchCom Research Workspace
+# BatchCom 研究工作区
 
-## Human-owned workflow
+## 工作方式
 
-- A human creates one Plan in `docs/plans/` for each requested experiment or engineering task.
-- The Plan supplies the question, relevant context, allowed reads, writable paths, commands,
-  resources, budget, and stop conditions.
-- Before acting, the Agent returns a concrete execution plan, file list, commands, expected
-  outputs, and risks, then waits for explicit approval.
-- The Plan names the context the Agent may read and the paths it may edit. The Agent works within
-  that scope and waits for a new Plan when the task needs additional context.
-- The Agent reports raw outputs, errors, and observations. A human organizes notes, interprets
-  results, and decides what belongs in later Plans or papers.
+- 人为每个实验或工程任务写一个 Plan（`docs/plans/`）。Plan 给出问题、背景、可读文件、可改路径、
+  命令、资源和停止条件。
+- 执行前，Agent 先给出具体方案：要改的文件、要跑的命令、预期产物和风险，然后等人明确同意。
+- Agent 只读 Plan 指定的上下文，只改 Plan 允许的路径。需要更多上下文或更大范围时，停下来说明原因，
+  等人更新 Plan。
+- Agent 汇报原始输出、报错和观察，不替人下结论。结果解释、笔记整理、下一步计划由人决定。
 
-## Directory ownership
+## 目录归属
 
-| Path | Owner | Contract |
+| 路径 | 归属 | Agent 默认行为 |
 |---|---|---|
-| `docs/plans/` | Human | Task entry points and execution authorization |
-| `notes/` | Human | Background, environment, provenance, and research notes |
-| `experiments/` | Human | Results, logs, configurations, and raw artifacts |
-| `literature/` | Human | Paper notes and references |
-| `paper/` | Human | Manuscript material |
-| `.rtmpl/` | `rtmpl` | Template lifecycle metadata only |
+| `docs/plans/` | 人 | 只读；人明确要求时才起草或修改 |
+| `notes/`、`literature/`、`paper/` | 人 | 只读；Plan 明确点名的文件除外 |
+| `experiments/<名字>/` | 人定目录名 | 写入 Plan 要求的日志、指标和产物 |
+| 项目代码与配置 | 项目维护者 | 只改 Plan 列出的路径 |
+| `.rtmpl/` | `rtmpl` | 不编辑，不当作研究上下文 |
 
-Choose an `experiments/` directory name that makes sense for the current task and put the outputs
-requested by the Plan there. The Plan may define a filename convention or result format when the
-task benefits from one.
+## 路径与存储
 
-## Paths and storage
+`src/paths.py` 是唯一的路径来源，项目值由 `.rtmpl/config.yaml` 渲染；脚本里不要硬编码服务器路径。
 
-`src/paths.py` is the single source of truth. Project values are rendered from
-`.rtmpl/config.yaml`; do not hardcode server paths in scripts.
+- 研究 NFS：`SHARED_DATA_ROOT`、`SHARED_MODEL_ROOT`、`DATA_ROOT`、`MODEL_ROOT`、`RESULTS_ROOT` 是正本位置。
+- 本地 NVMe：`DATA_CACHE`、`LIB_CACHE` 只做加速缓存，正本留在研究目录。
+- 系统盘、`/home/batchcom`、`/tmp` 不存放数据、模型、结果、缓存或环境。
 
-- Research NFS: `SHARED_DATA_ROOT`, `SHARED_MODEL_ROOT`, `DATA_ROOT`, `MODEL_ROOT`, and
-  `RESULTS_ROOT` are canonical.
-- Local NVMe: `DATA_CACHE` and `LIB_CACHE` are disposable acceleration layers; keep canonical
-  copies under the declared research roots.
-- System disk, `/home/batchcom`, and `/tmp` must not hold research assets, models, results,
-  caches, or environments.
+## 环境与执行
 
-## Environment and execution
+- Mac 用 `uv` 管理环境，只做 CPU 检查，不跑 GPU 任务。
+- BatchCom 用 conda 提供 CUDA/torch，用 `uv` 管理项目环境；conda 环境在 `/home/dataset-local/conda/envs`。
+- 在 BatchCom 上用 tmux 运行：`conda activate <env> && uv run python ...`。
+- 从 Mac 用原生 SSH + tmux 操作。GPU 任务开始前先检查 `nvidia-smi`、磁盘空间和 torch CUDA 可用性。
 
-- Mac uses `uv` for environments and CPU checks. No GPU work runs locally.
-- BatchCom uses conda for CUDA/torch and `uv` for the project environment. Conda environments
-  live under `/home/dataset-local/conda/envs`.
-- On BatchCom, run in tmux: `conda activate <env> && uv run python ...`.
-- From Mac, use native SSH and tmux. Preflight GPU work with `nvidia-smi`, disk checks, and a
-  torch CUDA check before starting a GPU task.
+## Git 与验证
 
-## Git and verification
-
-Keep raw artifacts out of Git. Run the project's tests and the relevant command checks after
-changes. `rtmpl status` reports template differences; it does not report research progress.
+原始产物不进 Git。改动后运行项目测试和相关命令检查。`rtmpl status` 只报告模板文件差异，不代表研究进度。

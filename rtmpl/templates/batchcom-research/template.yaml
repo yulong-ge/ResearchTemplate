@@ -1,7 +1,7 @@
 schema: 1
 name: batchcom-research
 display: "BatchCom 深度学习研究模板"
-version: "0.6.0"
+version: "0.7.0"
 variables:
   - token: "<proj>"
     field: proj

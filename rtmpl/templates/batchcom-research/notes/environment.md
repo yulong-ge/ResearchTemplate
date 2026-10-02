@@ -1,34 +1,31 @@
-# Environment and provenance
+# 环境与数据登记
 
-Record the environment information a human considers useful for reproducing this project. The
-actual storage paths are resolved by `src/paths.py`.
+记录复现本项目需要的环境信息。实际存储路径由 `src/paths.py` 决定。
 
-## Storage layout
+## 存储
 
-| Storage | Path | Durability | Holds |
+| 存储 | 路径 | 性质 | 存放 |
 |---|---|---|---|
-| Research NFS | `/home/dataset-assist-0/research` | canonical and cross-machine | repositories, shared/project data, models, results |
-| Local NVMe | `/home/dataset-local` | performance storage | staged data, caches, conda environments |
-| System/container | `/`, `~`, `/tmp` | ephemeral | no research assets |
+| 研究 NFS | `/home/dataset-assist-0/research` | 正本，跨机器 | 仓库、共享/项目数据、模型、结果 |
+| 本地 NVMe | `/home/dataset-local` | 高性能 | 暂存数据、缓存、conda 环境 |
+| 系统盘/容器 | `/`、`~`、`/tmp` | 易失 | 不放研究资产 |
 
-## Compute
+## 计算环境
 
-- Platform:
-- CUDA:
-- GPU(s):
-- Conda environment:
-- Python:
+- 平台：
+- CUDA：
+- GPU：
+- Conda 环境：
+- Python：
 
-## Key packages
+依赖版本以 `pyproject.toml` 和 lock 文件为准。
 
-Record versions in the project's `pyproject.toml` or lock file.
+## 数据与模型
 
-## Data and model registry
-
-| Item | Version or split | Location | Notes |
+| 名称 | 版本或划分 | 位置 | 备注 |
 |---|---|---|---|
 | | | | |
 
-## Reproducibility notes
+## 复现备注
 
-Record seeds, determinism caveats, and other details that matter to a human reviewer.
+随机种子、非确定性来源等需要注意的细节。

@@ -1,8 +1,12 @@
-# 实验与任务 Plan
+# Plan
 
-每个实验或工程任务一个文件，命名为 `YYYY-MM-DD-<简述>.md`，从 `notes/templates/plan.md` 复制。
+每个实验或工程任务一个文件，命名为 `YYYY-MM-DD-<简述>.md`。怎么写不限：可以手写，也可以用
+`grill-with-docs`、`to-spec` 之类的技能一起推出来。
 
-一个 Plan 就是这个任务的完整记录：动机、做法、给 Agent 的执行范围、结果和结论都写在同一个文件里，
-不用再拆成协议、配置、结果等多个文件。结构按需增减，写清楚就行。
+Agent 动手前需要能从 Plan 里读到这几项，缺了会先问：
 
-做完的 Plan 可以移到 `docs/plans/archive/`。
+- 可以改哪些路径；
+- 产物写到哪个 `experiments/<名字>/`；
+- 资源与预算（GPU、时长），以及什么时候停下来。
+
+实验做完后，结果和结论可以直接补在同一个 Plan 末尾。做完的 Plan 可以移到 `docs/plans/archive/`。

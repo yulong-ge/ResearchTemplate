@@ -1,39 +1,31 @@
-# BatchCom 研究工作区
+# <proj>
 
-## 工作方式
+> 初始化后先改这个文件：把下面「研究项目」各节的占位内容换成本项目的实际情况，然后删掉这段提示。
+> 这个文件写给在本项目里工作的 Agent，说明怎么做这个研究，不说明怎么用模板。
 
-- 人为每个实验或工程任务写一个 Plan（`docs/plans/`）。Plan 给出问题、背景、可读文件、可改路径、
-  命令、资源和停止条件。
-- 执行前，Agent 先给出具体方案：要改的文件、要跑的命令、预期产物和风险，然后等人明确同意。
-- Agent 只读 Plan 指定的上下文，只改 Plan 允许的路径。需要更多上下文或更大范围时，停下来说明原因，
-  等人更新 Plan。
-- Agent 汇报原始输出、报错和观察，不替人下结论。结果解释、笔记整理、下一步计划由人决定。
+## 研究项目
 
-## 目录归属
+- 研究问题：（一两句话：要回答什么问题，为什么重要）
+- 当前阶段：（调研 / 复现 baseline / 方法迭代 / 写论文）
+- 主要方法：（模型、关键模块、和 baseline 的区别）
+- 数据与模型：（数据集、预训练权重、评测集；具体位置登记在 `notes/environment.md`）
+- 评价指标：（主指标、次指标，以及「有提升」的判断标准）
+- 代码入口：（训练、评测、配置文件的路径和启动命令）
+- 当前 Plan：`docs/plans/<文件名>.md`
 
-| 路径 | 归属 | Agent 默认行为 |
-|---|---|---|
-| `docs/plans/` | 人 | 只读；人明确要求时才起草或修改 |
-| `notes/`、`literature/`、`paper/` | 人 | 只读；Plan 明确点名的文件除外 |
-| `experiments/<名字>/` | 人定目录名 | 写入 Plan 要求的日志、指标和产物 |
-| 项目代码与配置 | 项目维护者 | 只改 Plan 列出的路径 |
-| `.rtmpl/` | `rtmpl` | 不编辑，不当作研究上下文 |
+## 和人协作的方式
 
-## 路径与存储
+- 每次实验或工程任务都从 `docs/plans/` 里人写的 Plan 开始。执行前先读 Plan，给出要改的文件、
+  要跑的命令、预期产物和风险，等人明确同意后再动手。
+- 只改 Plan 允许的路径，产物写到 Plan 指定的 `experiments/<名字>/`。需要扩大范围时停下来说明原因。
+- 汇报原始输出、报错和观察，不替人下结论。是否写进笔记、论文或下一个 Plan，由人决定。
+- `notes/`、`literature/`、`paper/` 默认只读，Plan 明确点名的文件除外。
 
-`src/paths.py` 是唯一的路径来源，项目值由 `.rtmpl/config.yaml` 渲染；脚本里不要硬编码服务器路径。
+## 运行环境
 
-- 研究 NFS：`SHARED_DATA_ROOT`、`SHARED_MODEL_ROOT`、`DATA_ROOT`、`MODEL_ROOT`、`RESULTS_ROOT` 是正本位置。
-- 本地 NVMe：`DATA_CACHE`、`LIB_CACHE` 只做加速缓存，正本留在研究目录。
-- 系统盘、`/home/batchcom`、`/tmp` 不存放数据、模型、结果、缓存或环境。
-
-## 环境与执行
-
-- Mac 用 `uv` 管理环境，只做 CPU 检查，不跑 GPU 任务。
-- BatchCom 用 conda 提供 CUDA/torch，用 `uv` 管理项目环境；conda 环境在 `/home/dataset-local/conda/envs`。
-- 在 BatchCom 上用 tmux 运行：`conda activate <env> && uv run python ...`。
-- 从 Mac 用原生 SSH + tmux 操作。GPU 任务开始前先检查 `nvidia-smi`、磁盘空间和 torch CUDA 可用性。
-
-## Git 与验证
-
-原始产物不进 Git。改动后运行项目测试和相关命令检查。`rtmpl status` 只报告模板文件差异，不代表研究进度。
+- 本项目在 BatchCom 服务器上运行，conda 环境为 `<conda-env>`，项目环境用 `uv` 管理：
+  `conda activate <conda-env> && uv run python ...`。
+- 服务器的磁盘、缓存、conda 规则看全局技能 `batchcom-host`；长任务、SSH、tmux 看全局技能
+  `durable-terminal`。这里不重复写。
+- 项目内的存储路径一律从 `src/paths.py` 导入，不在脚本里硬编码。
+- 原始产物和大文件不进 Git。改代码后运行项目测试。

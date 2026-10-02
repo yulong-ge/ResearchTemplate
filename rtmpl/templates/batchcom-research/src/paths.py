@@ -1,19 +1,8 @@
-"""Project path resolution — single source of truth for storage paths.
+"""Project path resolution — single source of truth for project storage paths.
 
-Platform-aware: resolves to BatchCom server paths on Linux, to local Mac paths
-on Darwin. Project values are rendered by ``rtmpl``.
-
-Two-disk model (BatchCom server):
-  - Research disk (``/home/dataset-assist-0/research``): durable NFS. Holds every
-    canonical asset: repos, datasets, reusable models, and run outputs.
-  - Local disk (``/home/dataset-local``): per-machine high-performance NVMe.
-    Holds staged dataset copies, download caches, and conda environments.
-    BatchCom persistence is optional, so it is never the canonical asset root.
-
-The system disk (``/``, ``/home/batchcom``) is ephemeral — never store project
-data, library caches, or conda envs there.
-
-See ``notes/environment.md`` for the human-maintained environment record.
+Platform-aware: resolves to BatchCom server paths on Linux, to ``None`` on Mac.
+Project values are rendered by ``rtmpl``. The BatchCom disk model and cache rules
+are documented in the global ``batchcom-host`` skill, not here.
 """
 from __future__ import annotations
 
@@ -51,10 +40,6 @@ if _IS_SERVER:
     DATA_CACHE: Path | None = LOCAL_ROOT / _PROJ / "data"
     LIB_CACHE: Path | None = LOCAL_ROOT / "cache"  # cross-project HF/torch downloads
     CONDA_ENV: str | None = _CONDA_ENV
-    # uv builds the project venv inside the active conda env at REPO_ROOT/.venv
-    # (gitignored). Route new conda envs to the local disk via .condarc
-    # ``envs_dirs`` — see notes/environment.md. Library cache dirs (HF_HOME,
-    # TORCH_HOME, ...) are exported in the server's ~/.bashrc_custom to LIB_CACHE.
 else:
     # Mac (darwin): edit here, run on the server.
     REPO_ROOT: Path = Path.home() / "code" / _PROJ

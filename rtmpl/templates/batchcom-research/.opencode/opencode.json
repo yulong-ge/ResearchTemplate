@@ -23,7 +23,7 @@
     "semantic-scholar": {
       "enabled": true
     },
-    // Disabled: native SSH + ControlMaster + tmux replaces ssh-mcp (see AGENTS.md)
+    // Disabled: native SSH + tmux via the global durable-terminal skill replaces ssh-mcp
     "ssh-mcp": {
       "enabled": false
     },

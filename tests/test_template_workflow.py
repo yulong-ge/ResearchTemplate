@@ -15,12 +15,6 @@ def test_template_contains_the_minimal_human_workflow():
         TEMPLATE / "experiments" / "README.md",
         TEMPLATE / "notes" / "README.md",
         TEMPLATE / "notes" / "environment.md",
-        TEMPLATE / "notes" / "templates" / "plan.md",
-        TEMPLATE / "notes" / "templates" / "daily.md",
-        TEMPLATE / "notes" / "templates" / "weekly.md",
-        TEMPLATE / "notes" / "templates" / "review.md",
-        TEMPLATE / "notes" / "daily" / ".gitkeep",
-        TEMPLATE / "notes" / "weekly" / ".gitkeep",
         TEMPLATE / "literature" / "notes" / ".gitkeep",
         TEMPLATE / "paper" / "README.md",
     ):
@@ -38,8 +32,7 @@ def test_template_contains_the_minimal_human_workflow():
     )
     assert "Plan" in text
     assert "experiments/" in text
-    assert "日报" in text and "周报" in text
-    assert "可改" in text
+    assert "可以改哪些路径" in text
     for stale in (
         "research-state.yaml",
         "automation_mode",
@@ -84,7 +77,6 @@ def test_template_manifest_has_no_research_semantics():
     payload = walk_payload("batchcom-research", manifest)
     assert "notes/README.md" in payload
     assert "experiments/README.md" in payload
-    assert "notes/templates/plan.md" in payload
 
 
 def test_template_does_not_copy_global_skills():
@@ -103,9 +95,26 @@ def test_obsolete_overview_paths_are_removed_from_the_template():
         assert not path.exists(), path
 
 
-def test_plan_template_keeps_one_experiment_in_one_file():
-    plan = (TEMPLATE / "notes" / "templates" / "plan.md").read_text(encoding="utf-8")
-    for section in ("## 问题", "## 做法", "## 给 Agent 的范围", "## 结果", "## 结论与下一步"):
-        assert section in plan
-    for stale in ("E-0", "H-0", "D-0", "protocol.md", "result.md"):
-        assert stale not in plan
+def test_agents_md_describes_the_project_not_the_template():
+    agents = (TEMPLATE / "AGENTS.md").read_text(encoding="utf-8")
+    assert agents.startswith("# <proj>")
+    assert "## 研究项目" in agents
+    assert "研究问题" in agents and "评价指标" in agents
+    manifest = load_manifest("batchcom-research")
+    for var in manifest.variables:
+        assert "AGENTS.md" in var.render_files
+
+
+def test_batchcom_and_terminal_rules_live_only_in_global_skills():
+    for rel in ("AGENTS.md", "notes/environment.md", ".opencode/agents/remote-exec.md", "src/paths.py"):
+        text = (TEMPLATE / rel).read_text(encoding="utf-8")
+        for duplicated in ("/home/batchcom", "nvidia-smi", "df -h", "nohup", "ControlMaster", "~/.bashrc"):
+            assert duplicated not in text, (rel, duplicated)
+    remote = (TEMPLATE / ".opencode" / "agents" / "remote-exec.md").read_text(encoding="utf-8")
+    assert "durable-terminal" in remote and "batchcom-host" in remote
+
+
+def test_personal_journals_are_not_part_of_the_project_template():
+    assert not (TEMPLATE / "notes" / "daily").exists()
+    assert not (TEMPLATE / "notes" / "weekly").exists()
+    assert not (TEMPLATE / "notes" / "templates").exists()

@@ -29,3 +29,14 @@ research files are migrated manually after applying a newer template.
 Run `uv run pytest` before delivery. For template changes, exercise `rtmpl list`, scaffold a
 disposable project with `rtmpl new`, and verify `rtmpl status` plus update protection for
 user-edited managed files.
+
+- Run template validation from the repository root. Running `uv` inside a template directory can select that template's `pyproject.toml` instead of the framework environment.
+- If the default uv cache is not writable, use `UV_CACHE_DIR=/private/tmp/researchtemplate-uv-cache uv run --no-sync pytest -q` with the existing project environment. A cache-permission error is not a test result.
+
+## Template maintenance boundaries
+
+- Reusable research logic, parsing, and result code belong in generated `src/`; human-facing command orchestration belongs in `scripts/`, and implementation helpers in `scripts/internal/`.
+- The research template supplies no default smoke/check phase or entrypoint. Add one only for an explicitly requested workflow.
+- When adding third-party capabilities, distinguish this framework from generated projects. Include only the requested skill directories and their installation guidance; do not install a tool CLI into the template repository or copy unrelated upstream material.
+- A request to disable an `opencode.json` entry does not authorize deleting it or unrelated configured entries.
+- Verify referenced paths and upstream structure before designing changes. Deleted paths and retired ADRs are not current design evidence.

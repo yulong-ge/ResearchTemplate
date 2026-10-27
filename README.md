@@ -22,3 +22,9 @@ The copyable workspace contains `docs/plans/`, `notes/`, `experiments/`, `litera
 commands, and decides how results become notes, paper material, or follow-up Plans.
 
 See [the template guide](rtmpl/templates/batchcom-research/README.md), [the ADR](docs/adr/0001-rtmpl-and-human-research-workflow.md), and [implementation plan](docs/plans/2026-09-22-rtmpl-human-workflow.md).
+
+## Non-interactive updates
+
+Read the complete `rtmpl status --json` result before `rtmpl update --no-input`.
+Supply `--accept PATH` or `--skip PATH` for every changed or orphaned managed file in the same invocation.
+Unresolved paths abort the update; do not infer a global overwrite decision.

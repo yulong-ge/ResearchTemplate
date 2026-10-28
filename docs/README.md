@@ -2,6 +2,10 @@
 
 This directory is for developing the copyable BatchCom research project template.
 
+Start with the [subsystem index](subsystems/README.md),
+[code standards](code-standards.md), and [lessons](../LESSONS.md).
+Project terminology remains in [CONTEXT.md](../CONTEXT.md).
+
 - `adr/`: architecture decisions that affect repository shape or template boundaries.
 - `plans/`: implementation plans for framework changes.
 - `rtmpl new` and `rtmpl init` are equivalent; the CLI manages template files and `.rtmpl/`

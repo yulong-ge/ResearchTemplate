@@ -25,6 +25,10 @@ See [the template guide](rtmpl/templates/batchcom-research/README.md), [the ADR]
 
 ## Non-interactive updates
 
-Read the complete `rtmpl status --json` result before `rtmpl update --no-input`.
-Supply `--accept PATH` or `--skip PATH` for every changed or orphaned managed file in the same invocation.
-Unresolved paths abort the update; do not infer a global overwrite decision.
+Read the [per-path update guidance](LESSONS.md#resolve-every-non-interactive-update-decision)
+before applying a non-interactive update.
+
+## Development
+
+Start at [AGENTS.md](AGENTS.md) for framework rules, subsystem references,
+lessons, and acceptance commands.

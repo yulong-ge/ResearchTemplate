@@ -199,7 +199,7 @@ prereg.sh audit [prereg-file ...]
 
 **但它自己的 OPERATOR_HANDOVER 暴露了代价**：两条运行中的管线，一条 spec 迭代到 v32、build_failure 6/4 超 cap；另一条 15 次尝试 13 次拿不到 verified receipt、其中 9 次死在项目自建的 replay 校验层。恢复流程是：人类 operator 读 `pipeline_state.json` → 做判断 → 手工把 `status` 改回 `running` 并在 commit message 里写授权范围 → 重新拉起 driver。**自动化越重，收口的人越累**——连作者都在 handover 开头写"Nothing else needs you"，因为判断全部压在那一个人身上。
 
-**对我们的启发**：zeropaper 恰好演示了我们已经踩到的坑——多层 spec 对象 + 循环计数 + receipt 链 + halt 类型，复杂度膨胀到 agent 和人类都读不动。它用代码级强制（manifest、fail-closed、独立 reviewer）也没能救回可理解性。结论不是"加更多强制"，而是"砍掉需要被强制的东西"。
+**对我们的启发**：这段本项目的踩坑总结已移至 [LESSONS.md](../../LESSONS.md#减少需要被强制的研究状态)。本页保留调研对象的原始分析。
 
 ---
 

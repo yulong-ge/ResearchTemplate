@@ -4,6 +4,7 @@ fcntl flock is Unix-only — rtmpl targets Mac + Linux (BatchCom). Per-file
 writes use temp + ``os.replace`` (atomic rename-over); the single mutable
 ``state.json`` is committed last.
 """
+
 from __future__ import annotations
 
 import contextlib

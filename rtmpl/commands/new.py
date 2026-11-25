@@ -1,4 +1,5 @@
 """Initialize a research layout or create a managed project explicitly."""
+
 from __future__ import annotations
 
 from pathlib import Path
@@ -69,7 +70,9 @@ def run(args) -> int:
 def _check_target(target: Path, force: bool) -> None:
     if target.exists() and any(target.iterdir()):
         if not force:
-            raise CommandError(f"target {target} is not empty (use --force to overwrite)")
+            raise CommandError(
+                f"target {target} is not empty (use --force to overwrite)"
+            )
 
 
 def _create_managed_project(args) -> int:
@@ -100,7 +103,9 @@ def _create_managed_project(args) -> int:
         hashes[rel] = hashmod.hash_data(data)
 
     save_config(target, config_for_new(template, values))
-    save_state(rtmpl_dir(target), State(template_version=manifest.version, hashes=hashes))
+    save_state(
+        rtmpl_dir(target), State(template_version=manifest.version, hashes=hashes)
+    )
 
     print(
         f"Created project at {target} "

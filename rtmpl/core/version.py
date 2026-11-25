@@ -5,6 +5,7 @@ installed tool's template ``version`` against the project's version: forward →
 proceed; equal → still classify (no abort); older → abort unless
 ``--allow-downgrade``.
 """
+
 from __future__ import annotations
 
 import re

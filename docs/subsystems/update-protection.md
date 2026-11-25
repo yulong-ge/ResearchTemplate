@@ -9,12 +9,12 @@ migrated manually after applying a newer template.
 
 ## Sources of truth and runtime paths
 
-| Source and symbols | Role |
-| --- | --- |
-| [`FileState`, `classify_path`, `classify_universe`](../../rtmpl/core/classify.py) | Local/template/baseline classification |
-| [`UpdatePlan`, `build_plan`, `plan_as_dict`, `_resolve`, `_apply`](../../rtmpl/commands/update.py) | Plan, JSON view, decisions, application |
-| [`status.run`](../../rtmpl/commands/status.py) | Read-only plan display |
-| [`load_state`, `save_state`](../../rtmpl/core/state.py) | Baseline hashes and validation |
+| Source and symbols                                                                                                                                              | Role                                          |
+| --------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------- |
+| [`FileState`, `classify_path`, `classify_universe`](../../rtmpl/core/classify.py)                                                                               | Local/template/baseline classification        |
+| [`UpdatePlan`, `build_plan`, `plan_as_dict`, `_resolve`, `_apply`](../../rtmpl/commands/update.py)                                                              | Plan, JSON view, decisions, application       |
+| [`status.run`](../../rtmpl/commands/status.py)                                                                                                                  | Read-only plan display                        |
+| [`load_state`, `save_state`](../../rtmpl/core/state.py)                                                                                                         | Baseline hashes and validation                |
 | [`safe_join`](../../rtmpl/core/paths.py), [`create_backup`](../../rtmpl/core/backup.py), [`lock`, `mark_pending`, `atomic_write_bytes`](../../rtmpl/core/tx.py) | Safe paths, backups, interrupted-update state |
 
 The updater classifies paths, builds a plan, displays it, and applies it. `status` and

@@ -1,4 +1,5 @@
 """`rtmpl list` — list available templates."""
+
 from __future__ import annotations
 
 from ..core.template import list_templates, load_manifest

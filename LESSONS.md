@@ -28,6 +28,12 @@ UV_CACHE_DIR=/private/tmp/researchtemplate-uv-cache uv run --no-sync pytest -q
 **Evidence:** Pre-restructure `AGENTS.md`, Verification (snapshot 2026-10-27),
 recorded the unwritable-cache case and this exact command.
 
+## Verify the locked download source in CI environments
+
+The previous USTC PyPI mirror failed to download packages in the Codex cloud
+environment. The framework lock now uses public PyPI with the same versions and
+artifact hashes. A fresh locked environment on Python 3.11 passed the full check.
+
 ## Keep third-party installation within its requested scope
 
 **Rule:** When adding third-party capabilities, distinguish this framework from

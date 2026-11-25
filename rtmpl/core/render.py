@@ -5,6 +5,7 @@ Deliberately NOT Jinja — the template carries real ``{{ }}`` in LaTeX
 replace, scoped per ``render_files``, with regex validation and a post-render
 residual-token guard.
 """
+
 from __future__ import annotations
 
 import re
@@ -17,7 +18,9 @@ class RenderError(Exception):
     pass
 
 
-def validate_values(manifest: TemplateManifest, values: dict[str, str]) -> dict[str, str]:
+def validate_values(
+    manifest: TemplateManifest, values: dict[str, str]
+) -> dict[str, str]:
     """Validate + default-fill variable values. Returns the resolved values.
 
     Raises RenderError on: missing required-without-default, validation regex
@@ -55,7 +58,9 @@ def _vars_for_file(manifest: TemplateManifest, rel_posix: str) -> list[Variable]
     return [v for v in manifest.variables if rel_posix in v.render_files]
 
 
-def render_text(content: str, manifest: TemplateManifest, values: dict[str, str], rel_posix: str) -> str:
+def render_text(
+    content: str, manifest: TemplateManifest, values: dict[str, str], rel_posix: str
+) -> str:
     result = content
     for var in _vars_for_file(manifest, rel_posix):
         val = values.get(var.field, var.default or "")
@@ -72,11 +77,15 @@ def render_payload(
         if is_binary(data):
             out[rel] = data
             continue
-        out[rel] = render_text(data.decode("utf-8"), manifest, values, rel).encode("utf-8")
+        out[rel] = render_text(data.decode("utf-8"), manifest, values, rel).encode(
+            "utf-8"
+        )
     return out
 
 
-def check_render_residuals(payload: dict[str, bytes], manifest: TemplateManifest) -> None:
+def check_render_residuals(
+    payload: dict[str, bytes], manifest: TemplateManifest
+) -> None:
     """After render, fail if any declared token remains in a render_file."""
     tokens = manifest.all_tokens()
     for var in manifest.variables:

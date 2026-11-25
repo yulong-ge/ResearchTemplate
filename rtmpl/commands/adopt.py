@@ -5,6 +5,7 @@ files classify as ``changed`` on the first update, never auto-clobbered. Missing
 managed files are omitted and become ``new`` on the first update. Never edits
 business files.
 """
+
 from __future__ import annotations
 
 from datetime import date
@@ -33,11 +34,15 @@ def run(args) -> int:
 
     flag_values: dict[str, str] = dict(getattr(args, "var", {}) or {})
     if existing and not flag_values:
-        values = rendermod.validate_values(manifest, values_from_config(manifest, existing))
+        values = rendermod.validate_values(
+            manifest, values_from_config(manifest, existing)
+        )
     else:
         values = collect_variables(manifest, flag_values, args.no_input)
 
-    rendered = rendermod.render_payload(walk_payload(template, manifest), manifest, values)
+    rendered = rendermod.render_payload(
+        walk_payload(template, manifest), manifest, values
+    )
 
     # adopt semantics: baseline = template hash for disk-present files; omit missing
     hashes: dict[str, str | None] = {}

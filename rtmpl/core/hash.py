@@ -5,6 +5,7 @@ docs/plans/2026-07-09-rtmpl-framework.md §3.3):
 - text files (UTF-8, no NUL) hash CRLF→LF-normalized content;
 - binary files (NUL / non-UTF-8) hash raw bytes, are never rendered.
 """
+
 from __future__ import annotations
 
 import hashlib

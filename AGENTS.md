@@ -12,6 +12,8 @@ relevant [subsystem reference](docs/subsystems/README.md) and its linked source.
 
 Before writing or reviewing changes, read the [code standards and acceptance commands](docs/code-standards.md).
 Use the [subsystem references](docs/subsystems/README.md) for current command contracts.
+See the [documentation ownership rules](docs/AGENTS.md), [maintenance skills](docs/README.md),
+and [toolchain](docs/toolchain.md) before changing their respective areas.
 
 ## Lessons
 

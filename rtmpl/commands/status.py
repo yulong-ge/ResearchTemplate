@@ -1,4 +1,5 @@
 """`rtmpl status` — show a read-only template update plan."""
+
 from __future__ import annotations
 
 from pathlib import Path

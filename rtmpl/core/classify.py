@@ -5,6 +5,7 @@ classifier decides one of: unchanged / autoUpdate / new / changed /
 userDeleted / orphanedPristine / orphanedModified / deadOrphan — covering every
 ``recorded`` value (hash / null tombstone / absent). See plan §5.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -12,6 +13,7 @@ from pathlib import Path
 
 from . import hash as hashmod
 from .paths import safe_join
+
 UNCHANGED = "unchanged"
 AUTOUPDATE = "autoUpdate"
 NEW = "new"
@@ -54,7 +56,9 @@ def classify_path(
     disk_hash: str | None,
 ) -> str:
     """Classify one path. ``recorded`` is a hex str, ``None`` (tombstone), or ABSENT."""
-    rec_matches_disk = isinstance(recorded, str) and disk_hash is not None and recorded == disk_hash
+    rec_matches_disk = (
+        isinstance(recorded, str) and disk_hash is not None and recorded == disk_hash
+    )
     if in_tmpl:
         if on_disk:
             if disk_eq_tmpl:

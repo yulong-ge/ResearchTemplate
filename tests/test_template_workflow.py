@@ -1,4 +1,5 @@
 """Structural tests for the human-guided copyable workspace."""
+
 from pathlib import Path
 
 from rtmpl.core.template import load_manifest, walk_payload
@@ -106,11 +107,25 @@ def test_agents_md_describes_the_project_not_the_template():
 
 
 def test_batchcom_and_terminal_rules_live_only_in_global_skills():
-    for rel in ("AGENTS.md", "notes/environment.md", ".opencode/agents/remote-exec.md", "src/paths.py"):
+    for rel in (
+        "AGENTS.md",
+        "notes/environment.md",
+        ".opencode/agents/remote-exec.md",
+        "src/paths.py",
+    ):
         text = (TEMPLATE / rel).read_text(encoding="utf-8")
-        for duplicated in ("/home/batchcom", "nvidia-smi", "df -h", "nohup", "ControlMaster", "~/.bashrc"):
+        for duplicated in (
+            "/home/batchcom",
+            "nvidia-smi",
+            "df -h",
+            "nohup",
+            "ControlMaster",
+            "~/.bashrc",
+        ):
             assert duplicated not in text, (rel, duplicated)
-    remote = (TEMPLATE / ".opencode" / "agents" / "remote-exec.md").read_text(encoding="utf-8")
+    remote = (TEMPLATE / ".opencode" / "agents" / "remote-exec.md").read_text(
+        encoding="utf-8"
+    )
     assert "durable-terminal" in remote and "batchcom-host" in remote
 
 

@@ -4,6 +4,7 @@ Schema v2 stores only ``template_version`` and ``hashes``. Older state files
 may still contain ``ownership``; it is ignored on read and omitted on the next
 write so research semantics do not survive in CLI metadata.
 """
+
 from __future__ import annotations
 
 import json

@@ -7,11 +7,7 @@ framework root.
 
 ## Acceptance criteria
 
-```sh
-uv run pytest
-uv run ruff check rtmpl tests
-git diff --check
-```
+Run the [framework check entry point](toolchain.md) and inspect `git diff --check`.
 
 For scaffolding changes, create a disposable project, repeat initialization,
 and try an existing project with a conflicting file. For legacy sync changes,

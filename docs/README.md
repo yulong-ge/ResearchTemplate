@@ -1,28 +1,9 @@
-# Framework Documentation
+# Framework documentation
 
-This directory is for developing the copyable BatchCom research project template.
+Start with the [project README](../README.md) for the standard research layout and
+the [subsystem index](subsystems/README.md) for implementation references.
+See [code standards](code-standards.md) for checks and [lessons](../LESSONS.md)
+for recurring maintenance issues.
 
-Start with the [subsystem index](subsystems/README.md),
-[code standards](code-standards.md), and [lessons](../LESSONS.md).
-Project terminology remains in [CONTEXT.md](../CONTEXT.md).
-
-- `adr/`: architecture decisions that affect repository shape or template boundaries.
-- `plans/`: implementation plans for framework changes.
-- `rtmpl new` and `rtmpl init` are equivalent; the CLI manages template files and `.rtmpl/`
-  metadata only. Research context starts from a human-written Plan in the generated workspace.
-
-Consumer-facing research workflow documentation belongs in `rtmpl/templates/batchcom-research/docs/`.
-
-## When to add an ADR or a plan
-
-Neither directory requires an entry per change; write only when the test below
-applies, otherwise the code and its git history are the record.
-
-- **ADR** (`docs/adr/`): write one when a change alters the contract that
-  consumers or the sync mechanism rely on — template file boundaries, CLI metadata,
-  or a command's external behavior. Skip it for internal refactors and bug fixes.
-- **Plan** (`docs/plans/`): write one when work spans multiple files or
-  phases and needs an agreed sequence before implementation. Skip it for
-  single-file or self-explanatory changes. Date-prefix plans
-  `YYYY-MM-DD-<slug>.md`; keep a plan as the implementation record when it captures a
-  multi-phase migration.
+Keep current behavior with its subsystem. Historical decisions and plans remain
+available from the subsystem index.

@@ -1,6 +1,6 @@
 # ADR-0001: rtmpl CLI 与人工主导的 Research Workflow
 
-- Status: **Accepted**
+- Status: **Withdrawn** (2026-11-25). See the [current lifecycle reference](../subsystems/lifecycle.md).
 - Date: 2026-09-22
 
 ## Decision summary

@@ -64,8 +64,7 @@ def require_project_root(start: Path) -> Path:
     if root is None:
         raise CommandError(
             "not inside an rtmpl project (no .rtmpl/config.yaml found in "
-            f"{start} or any parent). Run 'rtmpl new' or 'rtmpl adopt' first, "
-            "or cd into a project root."
+            f"{start} or any parent). Run this inside an existing managed project."
         )
     return root
 

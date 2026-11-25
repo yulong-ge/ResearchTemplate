@@ -59,8 +59,8 @@ Deleted paths and retired ADRs are not current design evidence.
 **Reason:** A historical reference can describe a structure that no longer exists.
 
 **Evidence:** Pre-restructure `AGENTS.md`, Template maintenance boundaries
-(snapshot 2026-10-27); the [accepted ADR](docs/adr/0001-rtmpl-and-human-research-workflow.md)
-records the removal of research-state commands and ownership contracts.
+(snapshot 2026-10-27); the [current lifecycle reference](docs/subsystems/lifecycle.md)
+describes the supported command paths.
 
 ## Resolve every non-interactive update decision
 
@@ -77,10 +77,9 @@ authorize replacing other paths.
 
 ## 减少需要被强制的研究状态
 
-**规则：** 按[已接受的 ADR](docs/adr/0001-rtmpl-and-human-research-workflow.md)
-分离模板生命周期和人工研究协作；不要通过更复杂的 schema 或技能规则恢复研究记录约束。
+**规则：** 默认初始化只提供科研目录，文档与工具链交由 Agent 按需初始化。受管项目同步沿用旧 CLI。见[当前工作区说明](docs/subsystems/workspace-template.md)。
 
 **原因：** zeropaper 恰好演示了我们已经踩到的坑——多层 spec 对象 + 循环计数 + receipt 链 + halt 类型，复杂度膨胀到 agent 和人类都读不动。它用代码级强制（manifest、fail-closed、独立 reviewer）也没能救回可理解性。结论不是"加更多强制"，而是"砍掉需要被强制的东西"。
 
 **证据：** [2026-09-21 调研的 zeropaper 分析](docs/research/2026-09-21-open-source-research-workflow-templates.md#26-zeropaper--全自治的反面教材)
-保留了 OPERATOR_HANDOVER 的失败和人工恢复记录；2026-09-22 ADR 记录了本项目采用的边界。
+保留了 OPERATOR_HANDOVER 的失败和人工恢复记录。2026-11-25 的五目录结构已在 [image-edit](https://github.com/yulong-ge/image-edit/pull/1) 的两个子项目采用。

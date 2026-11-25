@@ -28,28 +28,28 @@ def _parse_var(items) -> dict[str, str]:
 
 
 def _add_project_creation_args(parser: argparse.ArgumentParser) -> None:
-    parser.add_argument("name", help="project name (proj variable + default dir)")
-    parser.add_argument("--template", "-t")
-    parser.add_argument("--path", help="target directory (default: ./<name>)")
+    parser.add_argument("name", nargs="?", help="target directory (default: current directory)")
+    parser.add_argument("--template", "-t", help="explicitly use a legacy managed template")
+    parser.add_argument("--path", help="override the target directory")
     parser.add_argument("--var", action="append", default=[], metavar="field=value")
     parser.add_argument("--no-input", action="store_true")
     parser.add_argument("--force", action="store_true")
 
 
 def build_parser() -> argparse.ArgumentParser:
-    p = argparse.ArgumentParser(prog="rtmpl", description="Research-project template sync CLI.")
+    p = argparse.ArgumentParser(prog="rtmpl", description="Initialize a research project directory.")
     p.add_argument("--version", action="version", version=f"rtmpl {__version__}")
     sub = p.add_subparsers(dest="command", required=True)
 
-    sp = sub.add_parser("list", help="list available templates")
+    sp = sub.add_parser("list", help="list legacy managed templates")
     sp.set_defaults(func=list_cmd.run)
 
     for name in ("new", "init"):
-        sp = sub.add_parser(name, help="create a new project from a template")
+        sp = sub.add_parser(name, help="create the standard research directories")
         _add_project_creation_args(sp)
         sp.set_defaults(func=new.run)
 
-    sp = sub.add_parser("update", help="sync template updates into the current project")
+    sp = sub.add_parser("update", help="sync an existing managed project")
     sp.add_argument("--accept", action="append", default=[], metavar="PATH")
     sp.add_argument("--skip", action="append", default=[], metavar="PATH")
     sp.add_argument("--create-new", action="append", default=[], dest="create_new", metavar="PATH")
@@ -59,7 +59,7 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("--allow-downgrade", action="store_true")
     sp.set_defaults(func=update.run)
 
-    sp = sub.add_parser("adopt", help="bring an existing cp project under rtmpl management")
+    sp = sub.add_parser("adopt", help="register a project against a legacy managed template")
     sp.add_argument("--template", "-t")
     sp.add_argument("--var", action="append", default=[], metavar="field=value")
     sp.add_argument("--no-input", action="store_true")

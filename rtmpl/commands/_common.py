@@ -1,6 +1,7 @@
 """Shared helpers for commands: project/config location, variable collection,
 and the change report.
 """
+
 from __future__ import annotations
 
 from datetime import date
@@ -30,6 +31,7 @@ CONFIG_NAME = "config.yaml"
 
 class CommandError(Exception):
     """A user-facing command error (message is printed by the CLI)."""
+
 
 # Symbol/label per state for the report.
 _STATE_LABEL = {
@@ -64,8 +66,7 @@ def require_project_root(start: Path) -> Path:
     if root is None:
         raise CommandError(
             "not inside an rtmpl project (no .rtmpl/config.yaml found in "
-            f"{start} or any parent). Run 'rtmpl new' or 'rtmpl adopt' first, "
-            "or cd into a project root."
+            f"{start} or any parent). Run this inside an existing managed project."
         )
     return root
 
@@ -77,7 +78,9 @@ def default_template() -> str:
         return names[0]
     if not names:
         raise CommandError("no templates installed")
-    raise CommandError(f"multiple templates; specify --template (available: {', '.join(names)})")
+    raise CommandError(
+        f"multiple templates; specify --template (available: {', '.join(names)})"
+    )
 
 
 def load_config(project_root: Path) -> dict | None:
@@ -90,7 +93,9 @@ def load_config(project_root: Path) -> dict | None:
 def save_config(project_root: Path, config: dict) -> None:
     rd = rtmpl_dir(project_root)
     rd.mkdir(parents=True, exist_ok=True)
-    payload = yaml.safe_dump(config, sort_keys=False, allow_unicode=True).encode("utf-8")
+    payload = yaml.safe_dump(config, sort_keys=False, allow_unicode=True).encode(
+        "utf-8"
+    )
     atomic_write_bytes(rd / CONFIG_NAME, payload)
 
 

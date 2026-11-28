@@ -1,4 +1,5 @@
 """Behavioral tests for the rendered BatchCom path contract."""
+
 from __future__ import annotations
 
 from pathlib import Path

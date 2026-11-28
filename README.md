@@ -1,34 +1,28 @@
 # ResearchTemplate
 
-`ResearchTemplate` is a Python package and CLI for creating and safely updating research
-projects. `rtmpl` owns template lifecycle metadata and file synchronization; the generated
-workspace uses a human-written Plan to authorize each task.
+用 `rtmpl new` 给科研项目建立统一的目录。从本仓运行时，在命令前加 `uv run`。单主题项目在仓库根目录运行一次，多主题仓库对每个研究主题各运行一次。
 
-```bash
-uv run rtmpl list
-uv run rtmpl new my-project --var conda_env=ml --no-input
-cd my-project
-uv run rtmpl status
-uv run rtmpl update --dry-run
+```sh
+rtmpl new my-project
+rtmpl new --path /path/to/existing-project
+rtmpl new
 ```
 
-The lifecycle commands are `list`, `new`/`init`, `update`, `status`, `adopt`, and `repair`.
-`.rtmpl/config.yaml` stores template variables and `.rtmpl/state.json` stores the template
-version and file hashes. Files outside the template tree are never managed, and user edits to
-managed files require an explicit update decision.
+省略路径时使用当前目录，`init` 是 `new` 的别名。已有目录和文件原样保留，新目录用 `.gitkeep` 随 Git 检出。
 
-The copyable workspace contains `docs/plans/`, `notes/`, `experiments/`, `literature/`, and
-`paper/`. A human supplies context and allowed paths in a Plan, reviews the Agent's proposed
-commands, and decides how results become notes, paper material, or follow-up Plans.
+```text
+<研究主题>/
+├── literature/    # 阅读的论文和笔记
+├── references/    # 数据集说明、评测协议和外部资料
+├── paper/         # 自己的论文、报告和写作草稿
+├── src/           # 自有代码
+└── experiments/   # 实验配置、专用分析脚本、汇总结果和代表图
+```
 
-See [the template guide](rtmpl/templates/batchcom-research/README.md), [the ADR](docs/adr/0001-rtmpl-and-human-research-workflow.md), and [implementation plan](docs/plans/2026-09-22-rtmpl-human-workflow.md).
+默认初始化只补目录。终端会输出带目标绝对路径的 Agent Maintenance 提示词。需要文档和工具链时，把这段提示词交给 Agent。
 
-## Non-interactive updates
+## 已受管的 BatchCom 项目
 
-Read the [per-path update guidance](LESSONS.md#resolve-every-non-interactive-update-decision)
-before applying a non-interactive update.
+旧项目继续使用 `rtmpl status`、`rtmpl update` 和 `rtmpl repair`。如需基于完整旧模板创建受管项目，显式运行 `rtmpl new my-project --template batchcom-research --var conda_env=ml --no-input`。用 `rtmpl list` 查看受管模板，`rtmpl adopt` 可为从旧模板手工复制的项目建立基线。
 
-## Development
-
-Start at [AGENTS.md](AGENTS.md) for framework rules, subsystem references,
-lessons, and acceptance commands.
+开发与验证见 [AGENTS.md](AGENTS.md)，旧项目同步规则见 [更新保护](docs/subsystems/update-protection.md)。

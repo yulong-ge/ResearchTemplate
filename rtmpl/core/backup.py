@@ -3,6 +3,7 @@
 The manifest records per-path pre-run presence + hash so a manual restore (after
 an interrupted run) knows which newly-created files to delete.
 """
+
 from __future__ import annotations
 
 import json
@@ -47,5 +48,7 @@ def create_backup(
             shutil.copy2(src, dst)
         manifest["paths"][rel] = entry
     bdir.mkdir(parents=True, exist_ok=True)
-    (bdir / "manifest.json").write_text(json.dumps(manifest, indent=2), encoding="utf-8")
+    (bdir / "manifest.json").write_text(
+        json.dumps(manifest, indent=2), encoding="utf-8"
+    )
     return bdir

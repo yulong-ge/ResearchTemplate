@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "rtmpl"
 version = "0.6.0"
-description = "Research-project template sync CLI (rtmpl)."
+description = "Research project directory scaffolding."
 requires-python = ">=3.11"
 dependencies = ["pyyaml"]
 

@@ -1,4 +1,5 @@
 """Safe project-relative paths used by template reads, writes, and backups."""
+
 from __future__ import annotations
 
 from pathlib import Path

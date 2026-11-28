@@ -4,6 +4,7 @@ The read-only plan is built before any mutation. ``status`` uses the same plan
 builder without taking the write lock, while ``update`` applies the reviewed
 plan under the project lock.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -127,7 +128,9 @@ def build_plan(args, project_root: Path | None = None) -> UpdatePlan:
                 "run `rtmpl adopt` to collect it"
             )
 
-    rendered = rendermod.render_payload(walk_payload(template, manifest), manifest, values)
+    rendered = rendermod.render_payload(
+        walk_payload(template, manifest), manifest, values
+    )
     try:
         rendermod.check_render_residuals(rendered, manifest)
     except rendermod.RenderError as exc:
@@ -193,7 +196,9 @@ def plan_as_dict(plan: UpdatePlan) -> dict:
 
 def print_plan(plan: UpdatePlan, *, as_json: bool = False) -> None:
     if as_json:
-        print(json.dumps(plan_as_dict(plan), ensure_ascii=False, indent=2, sort_keys=True))
+        print(
+            json.dumps(plan_as_dict(plan), ensure_ascii=False, indent=2, sort_keys=True)
+        )
     else:
         print(format_report(report(plan.states)))
 
@@ -216,7 +221,11 @@ def _resolve(prompts: list[FileState], args) -> dict[str, str]:
             )
     overlaps = [
         (left, right)
-        for left, right in (("accept", "skip"), ("accept", "create-new"), ("skip", "create-new"))
+        for left, right in (
+            ("accept", "skip"),
+            ("accept", "create-new"),
+            ("skip", "create-new"),
+        )
         if requested[left] & requested[right]
     ]
     if overlaps:
@@ -235,7 +244,9 @@ def _resolve(prompts: list[FileState], args) -> dict[str, str]:
             decisions[path] = "skip" if file_state.state == CHANGED else "keep"
         elif path in create_new:
             if file_state.state != CHANGED:
-                raise CommandError(f"--create-new only applies to changed files: {path}")
+                raise CommandError(
+                    f"--create-new only applies to changed files: {path}"
+                )
             decisions[path] = "create-new"
         elif getattr(args, "no_input", False):
             raise CommandError(
@@ -245,19 +256,26 @@ def _resolve(prompts: list[FileState], args) -> dict[str, str]:
             )
         elif file_state.state == CHANGED:
             choice = (
-                input(f"{path} changed [1]overwrite [2]skip [3]create-new (2): ").strip()
+                input(
+                    f"{path} changed [1]overwrite [2]skip [3]create-new (2): "
+                ).strip()
                 or "2"
             )
             decisions[path] = {"1": "overwrite", "2": "skip", "3": "create-new"}.get(
                 choice, "skip"
             )
         elif file_state.state == ORPHANED_PRISTINE:
-            choice = input(f"{path} orphaned & pristine [y]delete [n]keep (n): ").strip() or "n"
+            choice = (
+                input(f"{path} orphaned & pristine [y]delete [n]keep (n): ").strip()
+                or "n"
+            )
             decisions[path] = "delete" if choice == "y" else "keep"
     return decisions
 
 
-def _apply(states, decisions, project_root, rendered, old_hashes) -> dict[str, str | None]:
+def _apply(
+    states, decisions, project_root, rendered, old_hashes
+) -> dict[str, str | None]:
     new_hashes: dict[str, str | None] = {}
     for fs in states:
         rel = fs.path
@@ -328,7 +346,9 @@ def _run_locked(args, project_root: Path) -> int:
     )
     print(f"Backup: {backup_dir.relative_to(project_root)}/")
 
-    mark_pending(plan.rtmpl_path, note=f"update {plan.template} {plan.manifest.version}")
+    mark_pending(
+        plan.rtmpl_path, note=f"update {plan.template} {plan.manifest.version}"
+    )
     committed = False
     try:
         new_hashes = _apply(

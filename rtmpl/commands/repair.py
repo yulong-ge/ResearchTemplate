@@ -5,6 +5,7 @@ recorded as a tombstone (``null``) — conservatively assume the user deleted it
 so the next update does NOT recreate it. Never touches ``config.yaml`` or
 business files.
 """
+
 from __future__ import annotations
 
 from pathlib import Path
@@ -13,7 +14,13 @@ from ..core import hash as hashmod
 from ..core import render as rendermod
 from ..core.state import State, save_state
 from ..core.template import load_manifest, walk_payload
-from ._common import CommandError, local_path, load_config, rtmpl_dir, values_from_config
+from ._common import (
+    CommandError,
+    local_path,
+    load_config,
+    rtmpl_dir,
+    values_from_config,
+)
 
 
 def run(args) -> int:
@@ -27,7 +34,9 @@ def run(args) -> int:
     manifest = load_manifest(template)
     values = values_from_config(manifest, cfg)
 
-    rendered = rendermod.render_payload(walk_payload(template, manifest), manifest, values)
+    rendered = rendermod.render_payload(
+        walk_payload(template, manifest), manifest, values
+    )
     hashes: dict[str, str | None] = {}
     for rel, data in rendered.items():
         path = local_path(project_root, rel)
@@ -40,5 +49,7 @@ def run(args) -> int:
         rtmpl_dir(project_root),
         State(template_version=manifest.version, hashes=hashes),
     )
-    print(f"Rebuilt state.json ({template} @ {manifest.version}); {len(hashes)} entries")
+    print(
+        f"Rebuilt state.json ({template} @ {manifest.version}); {len(hashes)} entries"
+    )
     return 0

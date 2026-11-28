@@ -1,4 +1,5 @@
 """Template manifest loading, payload walking, and ``importlib.resources`` location."""
+
 from __future__ import annotations
 
 import fnmatch
@@ -59,7 +60,9 @@ def list_templates() -> list[str]:
     if not root.exists():
         return []
     return sorted(
-        path.name for path in root.iterdir() if path.is_dir() and (path / "template.yaml").exists()
+        path.name
+        for path in root.iterdir()
+        if path.is_dir() and (path / "template.yaml").exists()
     )
 
 
@@ -81,18 +84,27 @@ def _validate_variable(raw: object, index: int, template_root: Path) -> Variable
         raise ValueError(f"variables[{index}] must be a mapping")
     missing = [key for key in ("token", "field", "render_files") if key not in raw]
     if missing:
-        raise ValueError(f"variables[{index}] missing required fields: {', '.join(missing)}")
+        raise ValueError(
+            f"variables[{index}] missing required fields: {', '.join(missing)}"
+        )
 
     token = _require_text(raw["token"], f"variables[{index}].token")
     field_name = _require_text(raw["field"], f"variables[{index}].field")
     render_files = raw["render_files"]
-    if not isinstance(render_files, list) or not render_files or not all(
-        isinstance(path, str) and _valid_manifest_path(path) for path in render_files
+    if (
+        not isinstance(render_files, list)
+        or not render_files
+        or not all(
+            isinstance(path, str) and _valid_manifest_path(path)
+            for path in render_files
+        )
     ):
         raise ValueError(
             f"variables[{index}].render_files must be a non-empty list of safe relative paths"
         )
-    missing_files = [path for path in render_files if not (template_root / path).is_file()]
+    missing_files = [
+        path for path in render_files if not (template_root / path).is_file()
+    ]
     if missing_files:
         raise ValueError(
             f"variables[{index}].render_files reference missing files: {', '.join(missing_files)}"
@@ -141,21 +153,31 @@ def load_manifest(template_name: str) -> TemplateManifest:
 
     removed_keys = sorted({"file_policies", "init_guidance"} & set(data))
     if removed_keys:
-        raise ValueError("manifest contains removed research fields: " + ", ".join(removed_keys))
+        raise ValueError(
+            "manifest contains removed research fields: " + ", ".join(removed_keys)
+        )
 
     schema = data.get("schema", _SUPPORTED_SCHEMA)
-    if isinstance(schema, bool) or not isinstance(schema, int) or schema != _SUPPORTED_SCHEMA:
+    if (
+        isinstance(schema, bool)
+        or not isinstance(schema, int)
+        or schema != _SUPPORTED_SCHEMA
+    ):
         raise ValueError(f"unsupported manifest schema: {schema!r}")
     name = _require_text(data.get("name"), "name")
     if name != template_name:
-        raise ValueError(f"manifest name {name!r} does not match template directory {template_name!r}")
+        raise ValueError(
+            f"manifest name {name!r} does not match template directory {template_name!r}"
+        )
     display = data.get("display", name)
     if not isinstance(display, str) or not display.strip():
         raise ValueError("manifest field 'display' must be a non-empty string")
     version = _require_text(data.get("version"), "version")
 
     raw_exclude = data.get("exclude", []) or []
-    if not isinstance(raw_exclude, list) or not all(isinstance(pattern, str) for pattern in raw_exclude):
+    if not isinstance(raw_exclude, list) or not all(
+        isinstance(pattern, str) for pattern in raw_exclude
+    ):
         raise ValueError("exclude must be a list of path globs")
     for pattern in raw_exclude:
         if not _valid_exclude_pattern(pattern):
@@ -164,7 +186,10 @@ def load_manifest(template_name: str) -> TemplateManifest:
     raw_variables = data.get("variables", []) or []
     if not isinstance(raw_variables, list):
         raise ValueError("variables must be a list")
-    variables = [_validate_variable(raw, index, template_root) for index, raw in enumerate(raw_variables)]
+    variables = [
+        _validate_variable(raw, index, template_root)
+        for index, raw in enumerate(raw_variables)
+    ]
     fields = [variable.field for variable in variables]
     tokens = [variable.token for variable in variables]
     if len(fields) != len(set(fields)):
@@ -198,10 +223,15 @@ def _valid_exclude_pattern(pattern: str) -> bool:
     """Accept relative POSIX globs without traversal or metadata escapes."""
     if not pattern or "\\" in pattern or pattern.startswith("/"):
         return False
-    return all(segment not in ("", ".", "..", ".rtmpl", ".git") for segment in pattern.split("/"))
+    return all(
+        segment not in ("", ".", "..", ".rtmpl", ".git")
+        for segment in pattern.split("/")
+    )
 
 
-def walk_payload(template_name: str, manifest: TemplateManifest | None = None) -> dict[str, bytes]:
+def walk_payload(
+    template_name: str, manifest: TemplateManifest | None = None
+) -> dict[str, bytes]:
     """Walk the template payload to ``{posix_rel_path: file_bytes}``."""
     if manifest is None:
         manifest = load_manifest(template_name)

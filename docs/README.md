@@ -1,28 +1,21 @@
-# Framework Documentation
+# Framework documentation
 
-This directory is for developing the copyable BatchCom research project template.
+Start with the [project README](../README.md) for the standard research layout and
+the [subsystem index](subsystems/README.md) for implementation references.
+See [code standards](code-standards.md) for checks and [lessons](../LESSONS.md)
+for recurring maintenance issues.
 
-Start with the [subsystem index](subsystems/README.md),
-[code standards](code-standards.md), and [lessons](../LESSONS.md).
-Project terminology remains in [CONTEXT.md](../CONTEXT.md).
+Keep current behavior with its subsystem. Historical decisions and plans remain
+available from the subsystem index.
 
-- `adr/`: architecture decisions that affect repository shape or template boundaries.
-- `plans/`: implementation plans for framework changes.
-- `rtmpl new` and `rtmpl init` are equivalent; the CLI manages template files and `.rtmpl/`
-  metadata only. Research context starts from a human-written Plan in the generated workspace.
+## Maintenance
 
-Consumer-facing research workflow documentation belongs in `rtmpl/templates/batchcom-research/docs/`.
+- [Documentation ownership](AGENTS.md) identifies each area's source of truth.
+- [Toolchain](toolchain.md) documents locked checks, hooks, and CI.
+- [Maintain docs](../.agents/skills/maintain-docs/SKILL.md) covers placement, links, and verification.
+- [Maintain prose](../.agents/skills/maintain-prose/SKILL.md) covers wording, comments, and diagnostics.
+- [Maintain decision notes](../.agents/skills/maintain-decision-notes/SKILL.md) covers long-lived decisions and archives. See [Agent Notes](../.agents/notes/README.md).
 
-## When to add an ADR or a plan
-
-Neither directory requires an entry per change; write only when the test below
-applies, otherwise the code and its git history are the record.
-
-- **ADR** (`docs/adr/`): write one when a change alters the contract that
-  consumers or the sync mechanism rely on — template file boundaries, CLI metadata,
-  or a command's external behavior. Skip it for internal refactors and bug fixes.
-- **Plan** (`docs/plans/`): write one when work spans multiple files or
-  phases and needs an agreed sequence before implementation. Skip it for
-  single-file or self-explanatory changes. Date-prefix plans
-  `YYYY-MM-DD-<slug>.md`; keep a plan as the implementation record when it captures a
-  multi-phase migration.
+Maintenance skills, shared references, templates, and Notes rules are adapted from
+[agent-maintenance 527af88](https://github.com/WncFht/agent-maintenance/tree/527af880f6feb0e352cae42b2c7601dc443b2b70)
+under the [MIT license](../.agents/LICENSE).

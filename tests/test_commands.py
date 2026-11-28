@@ -1,4 +1,5 @@
 """End-to-end command tests against a disposable mini template."""
+
 from __future__ import annotations
 
 import argparse
@@ -16,13 +17,23 @@ from rtmpl.core import hash as h
 from rtmpl.core.render import RenderError
 from rtmpl.core.paths import UnsafePathError
 from rtmpl.core.state import load_state, save_state
-from rtmpl.cli import build_parser
+from rtmpl.cli import build_parser, main
 
 
 def _a(**kw):
     base = dict(
-        force=False, accept=[], skip=[], create_new=[], dry_run=False, json=False,
-        no_input=True, allow_downgrade=False, template=None, var={}, name=None, path=None,
+        force=False,
+        accept=[],
+        skip=[],
+        create_new=[],
+        dry_run=False,
+        json=False,
+        no_input=True,
+        allow_downgrade=False,
+        template=None,
+        var={},
+        name=None,
+        path=None,
     )
     base.update(kw)
     return argparse.Namespace(**base)
@@ -41,6 +52,59 @@ def _update(proj, monkeypatch, **kw):
 
 
 # --- new --------------------------------------------------------------------
+
+
+def test_default_new_creates_only_the_research_layout(tmp_path, capsys):
+    project = tmp_path / "research topic"
+    assert main(["new", "--path", str(project)]) == 0
+
+    expected = {"literature", "references", "paper", "src", "experiments"}
+    assert {path.name for path in project.iterdir()} == expected
+    for name in expected:
+        assert [path.name for path in (project / name).iterdir()] == [".gitkeep"]
+
+    output = capsys.readouterr().out
+    assert f"`{project}`" in output
+    assert "https://github.com/WncFht/agent-maintenance" in output
+    assert "真实部分暂存和失败传播" in output
+
+
+def test_default_init_preserves_an_existing_project(tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    readme = tmp_path / "README.md"
+    readme.write_text("Existing project")
+    sources = tmp_path / "src"
+    sources.mkdir()
+    placeholder = sources / ".gitkeep"
+    placeholder.write_text("existing placeholder")
+    source = sources / "method.py"
+    source.write_text("# project code")
+
+    assert main(["init"]) == 0
+    assert main(["new"]) == 0
+    assert readme.read_text() == "Existing project"
+    assert source.read_text() == "# project code"
+    assert placeholder.read_text() == "existing placeholder"
+    assert not (tmp_path / ".rtmpl").exists()
+    assert not (tmp_path / "INIT.md").exists()
+
+
+@pytest.mark.parametrize("conflict", ["file", "symlink"])
+def test_default_new_checks_conflicts_before_creating_directories(
+    tmp_path, capsys, conflict
+):
+    project = tmp_path / "topic"
+    project.mkdir()
+    path = project / "experiments"
+    if conflict == "file":
+        path.write_text("keep me")
+    else:
+        path.symlink_to(tmp_path, target_is_directory=True)
+
+    assert main(["new", str(project)]) == 2
+    assert "experiments" in capsys.readouterr().err
+    assert list(project.iterdir()) == [path]
+
 
 def test_new_renders_and_state(mini_template, tmp_path):
     proj = tmp_path / "p"
@@ -102,6 +166,7 @@ def test_new_binary_tracked_raw(mini_template, tmp_path):
 
 # --- adopt ------------------------------------------------------------------
 
+
 def test_adopt_customized_is_changed_not_clobber(mini_template, tmp_path, monkeypatch):
     proj = tmp_path / "p"
     _new(proj)
@@ -132,6 +197,7 @@ def test_adopt_missing_is_new(mini_template, tmp_path, monkeypatch):
 
 # --- update: autoupdate / orphan / changed ---------------------------------
 
+
 def test_update_autoupdate(mini_template, tmp_path, monkeypatch):
     proj = tmp_path / "p"
     _new(proj)
@@ -160,6 +226,7 @@ def test_changed_force_overwrite(mini_template, tmp_path, monkeypatch):
 
 # --- tombstone lifecycle ----------------------------------------------------
 
+
 def test_userdeleted_then_return_clears_tombstone(mini_template, tmp_path, monkeypatch):
     proj = tmp_path / "p"
     _new(proj)
@@ -174,6 +241,7 @@ def test_userdeleted_then_return_clears_tombstone(mini_template, tmp_path, monke
 
 
 # --- repair -----------------------------------------------------------------
+
 
 def test_repair_tombstones_missing_no_recreate(mini_template, tmp_path, monkeypatch):
     proj = tmp_path / "p"
@@ -191,7 +259,10 @@ def test_repair_tombstones_missing_no_recreate(mini_template, tmp_path, monkeypa
 
 # --- skew / path-key / create-new collision --------------------------------
 
-def test_status_is_read_only_and_supports_json(mini_template, tmp_path, monkeypatch, capsys):
+
+def test_status_is_read_only_and_supports_json(
+    mini_template, tmp_path, monkeypatch, capsys
+):
     proj = tmp_path / "p"
     _new(proj)
     monkeypatch.chdir(proj)
